@@ -70,33 +70,6 @@
 
 ---
 
-## 📁 Repository Structure
-
-```
-E:\3.2(SD)\
-├── Controllers/
-│   ├── AuthController.cs          # Authentication, Registration & OTP Recovery APIs
-│   ├── BookingsController.cs      # Ticket Booking & User Ticket History APIs
-│   ├── DatabaseAdminController.cs # Database inspection APIs for phpMyAdmin
-│   ├── EventsController.cs        # Event feed, filters, and creation APIs
-│   └── SubscriptionsController.cs # Pro Seller Subscription APIs
-├── Data/
-│   └── AuraDbContext.cs           # Entity Framework Core DB Context
-├── Models/
-│   └── Models.cs                  # Data Models (User, Event, Booking, Subscription) & DTOs
-├── wwwroot/                       # Frontend Static Files
-│   ├── index.html                 # Main Single Page Application (SPA)
-│   ├── css/
-│   │   └── site.css               # Glassmorphism & Cyberpunk Neon Stylesheet
-│   └── js/
-│       └── app.js                 # Frontend Client Logic & Canvas Renderer
-├── Program.cs                     # Application Entrypoint, Database Auto-Creation & Seeding
-├── AuraApp.csproj                 # C# Project File
-└── appsettings.json              # App Configuration & MySQL Connection Strings
-```
-
----
-
 ## 🗄️ Database Schema (`aura_db`)
 
 The application automatically creates and seeds the MySQL `aura_db` database with 4 core tables:
