@@ -1,4 +1,4 @@
-# 🚀 AURA++ | 3D Ultimate Event Experience & Seller Platform
+# AURA++ | 3D Ultimate Event Experience & Seller Platform
 
 ![AURA++ Banner](https://img.shields.io/badge/AURA%2B%2B-3D%20Event%20Marketplace-e50914?style=for-the-badge&logo=rocket)
 ![.NET 8.0](https://img.shields.io/badge/.NET-8.0-512bd4?style=for-the-badge&logo=dotnet)
@@ -10,7 +10,17 @@
 
 ## 🌟 Overview
 
-**AURA++** is a state-of-the-art, 3D interactive event ticketing and seller platform built with **C# ASP.NET Core 8.0 Web API** and **MySQL**. Featuring a futuristic glassmorphic UI with dynamic neon particle effects, real-time ticket availability tracking, instant 1-click Pro Seller subscriptions, and an expressive animated cute cartoon mascot system.
+**AURA++** is a state-of-the-art 3D interactive event ticketing and seller platform built with **C# ASP.NET Core 8.0 Web API** and **MySQL**. Featuring a futuristic glassmorphic UI with dynamic neon particle effects, real-time ticket availability tracking, instant 1-click Pro Seller subscriptions, and an expressive animated cute cartoon mascot system.
+
+---
+
+## 👥 Project Team & Contributors
+
+| Name | Student ID | Role & Responsibilities |
+|---|---|---|
+| **Maliha Parvin** 👑 | `20230104077` | **Team Leader** & Backend Developer |
+| **Nusrat Jahan Shanti** | `20230104089` | Frontend & Backend Developer |
+| **MD Hisham Mahmud** | `20230104096` | Frontend & Backend Developer |
 
 ---
 
@@ -18,22 +28,22 @@
 
 ### 🎟️ 1. Interactive 3D Event Marketplace
 - **Dynamic Event Feed**: Browse top concerts, tech summits, esports tournaments, and festivals.
-- **Category Filtering**: Filter by Concert, Tech, Festival, Gaming, and Art.
+- **Category Filtering**: Filter events seamlessly by Concert, Tech, Festival, Gaming, and Art.
 - **Real-Time Ticket Stock**: Live available ticket counting with automatic stock deduction upon booking.
-- **Dynamic Price Display**: Complete support for local currency formatting (**BDT ৳**).
+- **Dynamic Price Display**: Full support for local currency formatting (**BDT ৳**).
 
 ### 🤖 2. Animated Cute Cartoon Mascot System
 - Expressive SVG mascot with animated blinking eyes, floating animations, and dynamic state reactions.
 - **Celebratory Thank You View**: Instant popup thanking new subscribers (`"Thank You! 🎉 You are now an official Subscribed Pro Seller!"`).
-- **Sad Warning Mascot View**: Non-subscribed sellers attempting to publish events receive a protective warning modal blocking access until subscribed.
+- **Sad Warning Mascot View**: Non-subscribed sellers attempting to publish events receive a protective warning modal blocking access until subscribed (`"Sorry! You must subscribe to our website to sell tickets"`).
 
 ### 👑 3. Instant 1-Click Free Pro Seller Subscription
-- **100% Free Pro Seller Pass (0 BDT)**: No payment options or complex steps required.
+- **100% Free Pro Seller Pass (0 BDT)**: Zero cost subscription flow.
 - **Navigation Badge Update**: Automatically turns the top navigation button into a green **`✓ SUBSCRIBED`** badge.
-- **Access Control**: Grants instant rights to create and publish events.
+- **Access Control**: Grants instant authorization to create and publish events.
 
 ### 🎪 4. Event Organizer & Seller Payout Setup
-- Subscribed organizers can easily publish new events with ticket pricing, stock, category, and date.
+- Subscribed organizers can publish new events with ticket pricing, stock, category, and date.
 - Integrated payout receiving options (**bKash**, **Nagad**, **Bank Account**).
 
 ### 💳 5. Fast Ticket Booking Engine
@@ -50,14 +60,14 @@
 
 ## 🛠️ Technology Stack
 
-| Layer | Technologies |
-|---|---|
-| **Backend Framework** | C# .NET 8.0 ASP.NET Core Web API |
-| **Database Engine** | MySQL 8.0 / MariaDB (Database: `aura_db`) |
-| **ORM / Data Access** | Entity Framework Core 8.0 + Pomelo MySQL Provider |
-| **Database Management** | phpMyAdmin (`http://localhost:8080/phpmyadmin/`) |
-| **Frontend Architecture** | HTML5, Vanilla CSS3 (3D Glassmorphism & Cyberpunk Neon), ES6+ JavaScript |
-| **Visual Elements** | FontAwesome 6 Pro, Custom Animated SVG Mascot, HTML5 Canvas Engine |
+| Component | Technology | Description |
+|---|---|---|
+| **Backend Framework** | C# .NET 8.0 | ASP.NET Core Web API Architecture |
+| **Database Engine** | MySQL 8.0 / MariaDB | Database Schema `aura_db` |
+| **ORM Access** | Entity Framework Core 8.0 | Pomelo MySQL EF Core Provider |
+| **Database Tool** | phpMyAdmin | Web-based database management (`http://localhost:8080/phpmyadmin/`) |
+| **Frontend UI** | HTML5 / CSS3 / ES6+ JS | 3D Glassmorphism, Cyberpunk Neon Styles & Async Client |
+| **Visual Assets** | FontAwesome 6 Pro & SVG | Custom Animated Mascot System & Canvas Engine |
 
 ---
 
@@ -130,4 +140,4 @@ dotnet run
 
 ## 📜 License
 
-Distributed under the **MIT License**. Built with ❤️ using C# & ASP.NET Core.
+Distributed under the **MIT License**. Built with ❤️ by the AURA++ Team.
