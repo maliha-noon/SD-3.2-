@@ -1,16 +1,15 @@
-# AURA++ | 3D Ultimate Event Experience & Seller Platform
+# AURA++ | Ultimate Event Experience & Seller Platform
 
-![AURA++ Banner](https://img.shields.io/badge/AURA%2B%2B-3D%20Event%20Marketplace-e50914?style=for-the-badge&logo=rocket)
+![AURA++ Banner](https://img.shields.io/badge/AURA%2B%2B-Event%20Marketplace-e50914?style=for-the-badge&logo=rocket)
 ![.NET 8.0](https://img.shields.io/badge/.NET-8.0-512bd4?style=for-the-badge&logo=dotnet)
 ![MySQL](https://img.shields.io/badge/Database-MySQL-4479a1?style=for-the-badge&logo=mysql)
 ![PHPMyAdmin](https://img.shields.io/badge/Admin-phpMyAdmin-f39c12?style=for-the-badge&logo=phpmyadmin)
-![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
 
 ---
 
 ## 🌟 Overview
 
-**AURA++** is a state-of-the-art 3D interactive event ticketing and seller platform built with **C# ASP.NET Core 8.0 Web API** and **MySQL**. Featuring a futuristic glassmorphic UI with dynamic neon particle effects, real-time ticket availability tracking, instant 1-click Pro Seller subscriptions, and an expressive animated cute cartoon mascot system.
+**AURA++** is an interactive event ticketing and seller platform built with **C# ASP.NET Core 8.0 Web API** and **MySQL**. Featuring a glassmorphic UI with dynamic particle effects, real-time ticket availability tracking, instant 1-click Pro Seller subscriptions, and an interactive event marketplace.
 
 ---
 
@@ -18,7 +17,7 @@
 
 | Name | Student ID | Role & Responsibilities |
 |---|---|---|
-| **Maliha Parvin** 👑 | `20230104077` | **Team Leader** & Backend Developer |
+| **Maliha Parvin** | `20230104077` | Team Leader & Backend Developer |
 | **Nusrat Jahan Shanti** | `20230104089` | Frontend & Backend Developer |
 | **MD Hisham Mahmud** | `20230104096` | Frontend & Backend Developer |
 
@@ -26,16 +25,16 @@
 
 ## ✨ Key Features
 
-### 🎟️ 1. Interactive 3D Event Marketplace
+### 🎟️ 1. Interactive Event Marketplace
 - **Dynamic Event Feed**: Browse top concerts, tech summits, esports tournaments, and festivals.
 - **Category Filtering**: Filter events seamlessly by Concert, Tech, Festival, Gaming, and Art.
 - **Real-Time Ticket Stock**: Live available ticket counting with automatic stock deduction upon booking.
 - **Dynamic Price Display**: Full support for local currency formatting (**BDT ৳**).
 
-### 🤖 2. Animated Cute Cartoon Mascot System
+### 🤖 2. Interactive Mascot System
 - Expressive SVG mascot with animated blinking eyes, floating animations, and dynamic state reactions.
 - **Celebratory Thank You View**: Instant popup thanking new subscribers (`"Thank You! 🎉 You are now an official Subscribed Pro Seller!"`).
-- **Sad Warning Mascot View**: Non-subscribed sellers attempting to publish events receive a protective warning modal blocking access until subscribed (`"Sorry! You must subscribe to our website to sell tickets"`).
+- **Warning Mascot View**: Non-subscribed sellers attempting to publish events receive a protective warning modal blocking access until subscribed (`"Sorry! You must subscribe to our website to sell tickets"`).
 
 ### 👑 3. Instant 1-Click Free Pro Seller Subscription
 - **100% Free Pro Seller Pass (0 BDT)**: Zero cost subscription flow.
@@ -66,8 +65,8 @@
 | **Database Engine** | MySQL 8.0 / MariaDB | Database Schema `aura_db` |
 | **ORM Access** | Entity Framework Core 8.0 | Pomelo MySQL EF Core Provider |
 | **Database Tool** | phpMyAdmin | Web-based database management (`http://localhost:8080/phpmyadmin/`) |
-| **Frontend UI** | HTML5 / CSS3 / ES6+ JS | 3D Glassmorphism, Cyberpunk Neon Styles & Async Client |
-| **Visual Assets** | FontAwesome 6 Pro & SVG | Custom Animated Mascot System & Canvas Engine |
+| **Frontend UI** | HTML5 / CSS3 / ES6+ JS | Glassmorphism, Cyberpunk Neon Styles & Async Client |
+| **Visual Assets** | FontAwesome 6 Pro & SVG | Custom Mascot System & Canvas Engine |
 
 ---
 
@@ -88,7 +87,7 @@ E:\3.2(SD)\
 ├── wwwroot/                       # Frontend Static Files
 │   ├── index.html                 # Main Single Page Application (SPA)
 │   ├── css/
-│   │   └── site.css               # 3D Glassmorphism & Cyberpunk Neon Stylesheet
+│   │   └── site.css               # Glassmorphism & Cyberpunk Neon Stylesheet
 │   └── js/
 │       └── app.js                 # Frontend Client Logic & Canvas Renderer
 ├── Program.cs                     # Application Entrypoint, Database Auto-Creation & Seeding
@@ -135,9 +134,3 @@ dotnet run
 ### 3. Open in Browser
 - **Web Application**: `http://localhost:5000`
 - **phpMyAdmin Database**: `http://localhost:8080/phpmyadmin/index.php?route=/database/structure&db=aura_db`
-
----
-
-## 📜 License
-
-Distributed under the **MIT License**. Built with ❤️ by the AURA++ Team.
