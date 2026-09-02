@@ -1,3 +1,4 @@
+// Shanti branch: added handleSellTicketsClick and handleCreateEvent logic
 // Global State
 let currentUser = JSON.parse(localStorage.getItem('aura_user')) || null;
 let currentEventForBooking = null;
