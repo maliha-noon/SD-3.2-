@@ -3,41 +3,144 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AURA++ | 3D Ultimate Event Experience</title>
+  <title>AURA++ | Ultimate Event Experience</title>
   <meta name="description" content="Book tickets and sell events on AURA++ with bKash, Nagad, and Card payments.">
-  <link rel="stylesheet" href="css/site.css?v=10.0">
-  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="css/site.css?v=12.0">
+  <link rel="stylesheet" href="css/flow.css?v=1.0">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body>
+<body class="gate-open">
 
-  <!-- 3D MAGICAL NEON CANVAS BACKGROUND -->
+  <!-- ============================================================
+       STAGE 1 — ENTRANCE GATE
+       ============================================================ -->
+  <div id="entrance-gate">
+    <div class="gate-top">
+      <div class="gate-top-logo">AURA++ <sup>®</sup></div>
+      <div class="gate-top-links">
+        <span>EST. 2026</span>
+      </div>
+    </div>
+
+    <div class="gate-center">
+      <div class="gate-mark">A</div>
+      <div class="gate-name">AURA++ · TICKETING PLATFORM</div>
+      <p class="gate-desc">
+        A modern event platform for discovering concerts, festivals, tech expos and more — book tickets in seconds, or become a Pro Seller and publish your own events.
+      </p>
+      <button class="gate-enter-btn" onclick="enterSite()">
+        Enter <span class="arrow">↘</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       STAGE 2 — WELCOME MODAL
+       ============================================================ -->
+  <div id="welcome-modal" class="modal-overlay">
+    <div class="modal-box welcome-modal-box">
+      <button class="close-modal" onclick="closeWelcome()">&times;</button>
+      <div class="welcome-emoji">👋</div>
+      <h2 class="modal-title">Welcome to AURA++</h2>
+      <p class="modal-subtitle">
+        Thanks for visiting! Discover concerts, festivals, tech expos, and more. Book tickets in seconds, or become a Pro Seller and publish your own events.
+      </p>
+      <button class="btn-primary-3d welcome-continue-btn" onclick="closeWelcome()">
+        Let's Explore More <i class="fa-solid fa-arrow-right"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       STAGE 3 — HERO-ONLY INTRO SCREEN
+       ============================================================ -->
+  <div id="intro-screen" class="stage-hidden">
+    <div class="intro-center">
+      <h1 class="intro-title">
+        <span class="intro-line">ULTIMATE</span>
+        <span class="intro-line">EVENT</span>
+        <span class="intro-line">EXPERIENCE</span>
+      </h1>
+    </div>
+    <button id="intro-next-btn" class="intro-next-btn stage-hidden" onclick="advanceToLogin()">
+      Next <i class="fa-solid fa-arrow-right"></i>
+    </button>
+  </div>
+
+  <!-- ============================================================
+       STAGE 4 — LOGIN-ONLY GATE
+       ============================================================ -->
+  <div id="login-gate" class="stage-hidden">
+    <div class="login-gate-inner">
+      <div class="login-gate-brand">
+        <div class="gate-mark">A</div>
+        <div class="gate-name">AURA++ · TICKETING PLATFORM</div>
+      </div>
+
+      <h2 class="login-gate-title">Welcome</h2>
+      <p class="login-gate-sub">Sign in or create an account to continue</p>
+
+      <div class="login-gate-actions">
+        <button class="btn-primary-3d login-gate-btn" onclick="openLoginModal()">
+          <i class="fa-solid fa-right-to-bracket" style="margin-right:8px;"></i> Login
+        </button>
+        <button class="btn-glass-3d login-gate-btn" onclick="openRegisterModal()">
+          <i class="fa-solid fa-user-plus" style="margin-right:8px;"></i> Create Account
+        </button>
+      </div>
+
+      <p class="login-gate-foot">
+        By continuing, you agree to AURA++ Terms of Service.
+      </p>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       STAGE 5 — FULL SITE (shown only when logged in)
+       ============================================================ -->
+
   <canvas id="aura-canvas"></canvas>
 
   <!-- NAVBAR -->
-  <nav class="navbar">
+  <nav class="navbar site-hidden">
     <a href="#" class="brand-logo">AURA<span class="red-plus">++</span></a>
 
     <ul class="nav-links">
-      <li><a href="#events" class="nav-link">EVENT</a></li>
-      <li><button id="nav-subscribe-btn" onclick="openSubscribeModal()" class="btn-subscribe-nav"><i class="fa-solid fa-crown" style="color:#ffffff; margin-right:4px;"></i> SUBSCRIBE</button></li>
-      <li>
+      <li><a href="#events" class="nav-link">EVENTS</a></li>
+
+      <li id="nav-subscribe-item" style="display: none;">
+        <button id="nav-subscribe-btn" onclick="openSubscribeModal()" class="btn-subscribe-nav">
+          <i class="fa-solid fa-crown" style="margin-right:4px;"></i> SUBSCRIBE
+        </button>
+      </li>
+
+      <li id="nav-sell-item" style="display: none;">
         <button onclick="handleSellTicketsClick()" class="btn-nav-seller">
           <i class="fa-solid fa-plus-circle"></i> Sell Tickets
         </button>
       </li>
-      <li id="nav-login-item"><a href="javascript:void(0)" onclick="openLoginModal()" class="nav-link">LOGIN</a></li>
-      <li id="nav-register-item">
+
+      <li id="nav-login-item" style="display: none;">
+        <a href="javascript:void(0)" onclick="openLoginModal()" class="nav-link">LOGIN</a>
+      </li>
+
+      <li id="nav-register-item" style="display: none;">
         <button onclick="openRegisterModal()" class="btn-register-nav">REGISTER</button>
       </li>
+
       <li id="nav-user-item" style="display: none;">
         <div class="user-profile-badge" style="display:flex; align-items:center; gap:8px;">
-          <button onclick="openDashboardModal()" class="btn-primary-3d" style="padding: 7px 16px; font-size: 12px;"><i class="fa-solid fa-gauge-high" style="margin-right:6px;"></i> Dashboard</button>
+          <button onclick="openDashboardModal()" class="btn-primary-3d" style="padding: 7px 16px; font-size: 12px;">
+            <i class="fa-solid fa-gauge-high" style="margin-right:6px;"></i> Dashboard
+          </button>
           <span id="logged-user-name" class="user-name" style="font-weight:700;">User</span>
           <span id="sub-badge-status" class="sub-badge" style="display:none;">PRO SELLER</span>
-          <button onclick="logoutUser()" class="btn-logout" title="Logout" style="background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:16px; margin-left:6px;"><i class="fa-solid fa-right-from-bracket"></i></button>
+          <button onclick="logoutUser()" class="btn-logout" title="Logout" style="background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:16px; margin-left:6px;">
+            <i class="fa-solid fa-right-from-bracket"></i>
+          </button>
         </div>
       </li>
+
       <li class="lang-selector-item">
         <select id="lang-select" onchange="changeLanguage(this.value)" class="lang-dropdown">
           <option value="en">🌐 English (USA / Global)</option>
@@ -72,45 +175,49 @@
     </ul>
   </nav>
 
-  <!-- HERO SECTION WITH MAGICAL 3D ANIMATED TYPOGRAPHY -->
-  <section class="hero">
-    <div class="hero-content">
-      <h1 class="hero-title-3d" id="hero-animated-title">
-        <!-- Dynamically animated alphabet letters in app.js -->
-        ULTIMATE EVENT EXPERIENCE
-      </h1>
-      <p class="hero-subtitle">
-        Step into a magical realm of live entertainment. Discover world-class concerts, electrifying EDM festivals, and epic tech spectacles — or subscribe as a Pro Organizer to publish and sell tickets on AURA++.
-      </p>
-      <div class="hero-actions">
-        <a href="#events" class="btn-primary-3d"><i class="fa-solid fa-compass" style="margin-right:8px;"></i> Explore Events</a>
+  <!-- MAIN -->
+  <main class="site-hidden">
+
+    <section class="hero" id="hero">
+      <div class="hero-content">
+        <span class="hero-eyebrow" data-anim="fade-up">AURA++ · EVENT PLATFORM</span>
+        <h1 class="hero-title-3d" id="hero-animated-title" data-anim="split-text">
+          <span class="serif-italic">Experience</span>
+          <span class="sans-bold">the unexpected</span>
+        </h1>
+        <p class="hero-subtitle" data-anim="fade-up" data-anim-delay="0.4">
+          Discover world-class concerts, electrifying EDM festivals, epic tech expos — or subscribe as a Pro Organizer to publish and sell tickets on AURA++.
+        </p>
+        <div class="hero-actions" data-anim="fade-up" data-anim-delay="0.55">
+          <a href="#events" class="btn-primary-3d">
+            <i class="fa-solid fa-compass" style="margin-right:8px;"></i> Explore Events
+          </a>
+        </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- EVENTS SECTION -->
-  <section id="events" class="section">
-    <div class="section-header">
-      <h2 class="section-title-3d">Upcoming <span class="text-red-3d">Events</span></h2>
-      <p class="section-subtitle">Discover and book tickets for amazing events worldwide</p>
-    </div>
+    <section id="events" class="section">
+      <div class="section-header">
+        <h2 class="section-title-3d" data-anim="fade-up">Upcoming <span class="text-red-3d">Events</span></h2>
+        <p class="section-subtitle" data-anim="fade-up" data-anim-delay="0.15">Discover and book tickets for amazing events worldwide</p>
+      </div>
 
-    <div id="events-grid" class="events-grid">
-      <!-- Injected dynamically by JS -->
-    </div>
+      <div id="events-grid" class="events-grid" data-anim="stagger-cards"></div>
 
-    <!-- PAGINATION CONTROLS -->
-    <div id="pagination-controls" class="pagination-container">
-      <!-- Injected dynamically by JS -->
-    </div>
-  </section>
+      <div id="pagination-controls" class="pagination-container"></div>
+    </section>
 
-  <!-- LOGIN MODAL WITH CUTE ANIMATED CARTOON MASCOT THANK YOU VIEW -->
+  </main>
+
+  <!-- ============================================================
+       MODALS (unchanged, all preserved)
+       ============================================================ -->
+
+  <!-- LOGIN MODAL -->
   <div id="login-modal" class="modal-overlay">
     <div class="modal-box">
       <button class="close-modal" onclick="closeModals()">&times;</button>
-      
-      <!-- DEFAULT LOGIN FORM VIEW -->
+
       <div id="login-form-view">
         <h2 class="modal-title">Welcome Back</h2>
         <p class="modal-subtitle">Login to access your <span class="text-red">AURA++</span> account</p>
@@ -128,7 +235,7 @@
 
           <div style="display:flex; justify-content:space-between; margin-bottom:20px; font-size:13px;">
             <label style="cursor:pointer; color:var(--text-muted);"><input type="checkbox"> Remember me</label>
-            <a href="javascript:void(0)" onclick="openForgotPasswordModal()" style="color:var(--primary-red); text-decoration:none; font-weight:700;" id="t-link-forgot-pass">Forgot Password?</a>
+            <a href="javascript:void(0)" onclick="openForgotPasswordModal()" style="color:var(--text-main); text-decoration:none; font-weight:600;" id="t-link-forgot-pass">Forgot Password?</a>
           </div>
 
           <button type="submit" class="btn-primary-3d" style="width:100%;">Login</button>
@@ -136,44 +243,36 @@
 
         <div style="margin:20px 0; text-align:center; font-size:12px; color:var(--text-muted);">OR</div>
 
-        <button onclick="handleGoogleLogin()" style="width:100%; background:white; color:#111; padding:12px; border-radius:12px; font-weight:700; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;">
+        <button onclick="handleGoogleLogin()" style="width:100%; background:#fff; color:#111; padding:12px; border-radius:12px; font-weight:600; border:1px solid #e2e8f0; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;">
           <i class="fa-brands fa-google" style="color:#4285f4;"></i> Login with Google
         </button>
 
         <div style="text-align:center; margin-top:20px; font-size:13px; color:var(--text-muted);">
-          Don't have an account? <a href="javascript:void(0)" onclick="openRegisterModal()" style="color:var(--primary-red); font-weight:700; text-decoration:none;">Register</a>
+          Don't have an account? <a href="javascript:void(0)" onclick="openRegisterModal()" style="color:var(--text-main); font-weight:700; text-decoration:none;">Register</a>
         </div>
       </div>
 
-      <!-- CUTE ANIMATED CARTOON MASCOT THANK YOU VIEW FOR LOGIN -->
       <div id="login-success-view" style="display: none; text-align: center; padding: 20px 10px;">
         <div class="cute-cartoon-mascot">
-          <svg width="270" height="270" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" class="cartoon-svg-large">
+          <svg width="220" height="220" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" class="cartoon-svg-large">
             <circle cx="100" cy="95" r="65" fill="url(#outerGlowLogin)" opacity="0.6"/>
-            <circle cx="100" cy="90" r="55" fill="url(#helmetGradLogin)" stroke="#e50914" stroke-width="5"/>
-            <rect x="52" y="55" width="96" height="68" rx="34" fill="#0d0d16" stroke="#3b82f6" stroke-width="2.5"/>
+            <circle cx="100" cy="90" r="55" fill="url(#helmetGradLogin)" stroke="#171717" stroke-width="5"/>
+            <rect x="52" y="55" width="96" height="68" rx="34" fill="#0d0d16" stroke="#b8b0d4" stroke-width="2.5"/>
             <g class="blinking-eyes">
-              <ellipse cx="80" cy="85" rx="10" ry="13" fill="#3b82f6"/>
-              <ellipse cx="80" cy="85" rx="8" ry="10" fill="#1d4ed8"/>
+              <ellipse cx="80" cy="85" rx="10" ry="13" fill="#b8b0d4"/>
+              <ellipse cx="80" cy="85" rx="8" ry="10" fill="#9a91c0"/>
               <circle cx="83" cy="80" r="4" fill="white"/>
-              <circle cx="77" cy="89" r="2" fill="white"/>
-
-              <ellipse cx="120" cy="85" rx="10" ry="13" fill="#3b82f6"/>
-              <ellipse cx="120" cy="85" rx="8" ry="10" fill="#1d4ed8"/>
+              <ellipse cx="120" cy="85" rx="10" ry="13" fill="#b8b0d4"/>
+              <ellipse cx="120" cy="85" rx="8" ry="10" fill="#9a91c0"/>
               <circle cx="123" cy="80" r="4" fill="white"/>
-              <circle cx="117" cy="89" r="2" fill="white"/>
             </g>
-            <ellipse cx="70" cy="98" rx="8" ry="5" fill="#ff4d6d" opacity="0.8"/>
-            <ellipse cx="130" cy="98" rx="8" ry="5" fill="#ff4d6d" opacity="0.8"/>
-            <path d="M92 105 Q100 114 108 105" stroke="#3b82f6" stroke-width="3" stroke-linecap="round"/>
-            <rect x="86" y="145" width="28" height="35" rx="14" fill="#1e293b" stroke="#e50914" stroke-width="2"/>
-            <circle cx="100" cy="162" r="6" fill="#e50914"/>
+            <path d="M92 105 Q100 114 108 105" stroke="#171717" stroke-width="3" stroke-linecap="round"/>
             <defs>
-              <radialGradient id="outerGlowLogin" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(100 95) rotate(90) scale(65)">
-                <stop stop-color="#e50914" stop-opacity="0.8"/>
-                <stop offset="1" stop-color="#e50914" stop-opacity="0"/>
+              <radialGradient id="outerGlowLogin" cx="0" cy="0" r="1">
+                <stop stop-color="#b8b0d4" stop-opacity="0.8"/>
+                <stop offset="1" stop-color="#b8b0d4" stop-opacity="0"/>
               </radialGradient>
-              <linearGradient id="helmetGradLogin" x1="45" y1="35" x2="155" y2="145" gradientUnits="userSpaceOnUse">
+              <linearGradient id="helmetGradLogin" x1="45" y1="35" x2="155" y2="145">
                 <stop stop-color="#1e1e2d"/>
                 <stop offset="1" stop-color="#0a0a10"/>
               </linearGradient>
@@ -183,20 +282,19 @@
         </div>
 
         <div class="cartoon-speech-bubble">
-          <h3 style="font-size: 24px; color: white; margin-bottom: 8px;">Thank You, <span id="login-user-name" class="text-red-3d">Member</span>! 🎉</h3>
-          <p style="color: #d4d4d8; font-size: 15px; line-height: 1.5; font-weight:600;">Login successful! Entering AURA++ portal now...</p>
+          <h3 style="font-size: 22px; color: var(--text-main); margin-bottom: 8px;">Thank You, <span id="login-user-name" class="text-red-3d">Member</span>!</h3>
+          <p style="color: var(--text-soft); font-size: 14px; line-height: 1.5; font-weight:500;">Login successful! Entering AURA++ portal now...</p>
         </div>
       </div>
 
     </div>
   </div>
 
-  <!-- FORGOT PASSWORD & OTP RECOVERY MODAL -->
+  <!-- FORGOT PASSWORD -->
   <div id="forgot-password-modal" class="modal-overlay">
     <div class="modal-box">
       <button class="close-modal" onclick="closeModals()">&times;</button>
 
-      <!-- STEP 1: REQUEST OTP -->
       <div id="otp-step1-view">
         <h2 class="modal-title" id="t-otp-title">Forgot Password</h2>
         <p class="modal-subtitle" id="t-otp-sub">Enter your registered Email or Phone number to receive a 6-digit OTP code.</p>
@@ -211,10 +309,9 @@
         </form>
       </div>
 
-      <!-- STEP 2: VERIFY OTP & RESET PASSWORD -->
       <div id="otp-step2-view" style="display: none;">
         <h2 class="modal-title" id="t-reset-title">Enter OTP & New Password</h2>
-        <p class="modal-subtitle" id="t-reset-sub">We sent a 6-digit OTP code to <strong id="otp-sent-target" style="color:#f59e0b;"></strong></p>
+        <p class="modal-subtitle" id="t-reset-sub">We sent a 6-digit OTP code to <strong id="otp-sent-target" style="color:#c98a2c;"></strong></p>
 
         <form onsubmit="handleResetPassword(event)">
           <div class="form-group">
@@ -238,48 +335,47 @@
     </div>
   </div>
 
-  <!-- REGISTER MODAL WITH MAGICAL 3D CARTOON THANK YOU ANIMATION -->
+  <!-- REGISTER MODAL -->
   <div id="register-modal" class="modal-overlay">
     <div class="modal-box">
       <button class="close-modal" onclick="closeModals()">&times;</button>
-      
-      <!-- DEFAULT REGISTER FORM VIEW -->
+
       <div id="register-form-view">
         <div style="text-align:center; margin-bottom:10px;">
-          <i class="fa-solid fa-user-astronaut text-red" style="font-size:36px; filter:drop-shadow(0 0 15px rgba(229,9,20,0.8)); animation: floatMascot 2.5s ease-in-out infinite;"></i>
+          <i class="fa-solid fa-user-astronaut" style="font-size:32px; color:var(--text-main);"></i>
         </div>
-        <h2 class="modal-title">JOIN <span class="text-red-3d">AURA++</span></h2>
+        <h2 class="modal-title">Join AURA++</h2>
         <p class="modal-subtitle">Create your account to unlock full event booking & seller features</p>
 
         <form id="register-form" onsubmit="handleRegister(event)">
           <div class="form-group">
-            <label class="form-label" for="reg-fullname"><i class="fa-solid fa-user text-red" style="margin-right:6px;"></i> Full Name</label>
+            <label class="form-label" for="reg-fullname"><i class="fa-solid fa-user" style="margin-right:6px;"></i> Full Name</label>
             <input type="text" id="reg-fullname" class="form-input" placeholder="Enter your full name" required>
           </div>
 
           <div class="form-group">
-            <label class="form-label" for="reg-email"><i class="fa-solid fa-envelope text-red" style="margin-right:6px;"></i> Email Address</label>
+            <label class="form-label" for="reg-email"><i class="fa-solid fa-envelope" style="margin-right:6px;"></i> Email Address</label>
             <input type="email" id="reg-email" class="form-input" placeholder="Enter your email" required>
           </div>
 
           <div class="form-group">
-            <label class="form-label" for="reg-phone"><i class="fa-solid fa-phone text-red" style="margin-right:6px;"></i> Phone Number</label>
+            <label class="form-label" for="reg-phone"><i class="fa-solid fa-phone" style="margin-right:6px;"></i> Phone Number</label>
             <input type="tel" id="reg-phone" class="form-input" placeholder="Enter your phone number" required>
           </div>
 
           <div class="form-group">
-            <label class="form-label" for="reg-password"><i class="fa-solid fa-lock text-red" style="margin-right:6px;"></i> Password</label>
+            <label class="form-label" for="reg-password"><i class="fa-solid fa-lock" style="margin-right:6px;"></i> Password</label>
             <div style="position:relative;">
               <input type="password" id="reg-password" class="form-input" placeholder="Create a password" required style="padding-right:44px;">
-              <button type="button" onclick="this.previousElementSibling.type=this.previousElementSibling.type==='password'?'text':'password'; this.querySelector('i').className=this.previousElementSibling.type==='password'?'fa-solid fa-eye':'fa-solid fa-eye-slash';" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#ffffff;font-size:16px;"><i class="fa-solid fa-eye"></i></button>
+              <button type="button" onclick="this.previousElementSibling.type=this.previousElementSibling.type==='password'?'text':'password'; this.querySelector('i').className=this.previousElementSibling.type==='password'?'fa-solid fa-eye':'fa-solid fa-eye-slash';" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text-main);font-size:16px;"><i class="fa-solid fa-eye"></i></button>
             </div>
           </div>
 
           <div class="form-group">
-            <label class="form-label" for="reg-confirm-password"><i class="fa-solid fa-shield-halved text-red" style="margin-right:6px;"></i> Confirm Password</label>
+            <label class="form-label" for="reg-confirm-password"><i class="fa-solid fa-shield-halved" style="margin-right:6px;"></i> Confirm Password</label>
             <div style="position:relative;">
               <input type="password" id="reg-confirm-password" class="form-input" placeholder="Confirm your password" required style="padding-right:44px;">
-              <button type="button" onclick="this.previousElementSibling.type=this.previousElementSibling.type==='password'?'text':'password'; this.querySelector('i').className=this.previousElementSibling.type==='password'?'fa-solid fa-eye':'fa-solid fa-eye-slash';" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#ffffff;font-size:16px;"><i class="fa-solid fa-eye"></i></button>
+              <button type="button" onclick="this.previousElementSibling.type=this.previousElementSibling.type==='password'?'text':'password'; this.querySelector('i').className=this.previousElementSibling.type==='password'?'fa-solid fa-eye':'fa-solid fa-eye-slash';" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text-main);font-size:16px;"><i class="fa-solid fa-eye"></i></button>
             </div>
           </div>
 
@@ -287,43 +383,29 @@
         </form>
 
         <div style="text-align:center; margin-top:20px; font-size:13px; color:var(--text-muted);">
-          Already have an account? <a href="javascript:void(0)" onclick="openLoginModal()" style="color:var(--primary-red); font-weight:700; text-decoration:none;">Login</a>
+          Already have an account? <a href="javascript:void(0)" onclick="openLoginModal()" style="color:var(--text-main); font-weight:700; text-decoration:none;">Login</a>
         </div>
       </div>
 
-      <!-- CUTE ANIMATED CARTOON MASCOT THANK YOU VIEW (ENCHANTED BIG SIZE) -->
       <div id="register-success-view" style="display: none; text-align: center; padding: 20px 10px;">
         <div class="cute-cartoon-mascot">
-          <svg width="270" height="270" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" class="cartoon-svg-large">
+          <svg width="220" height="220" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" class="cartoon-svg-large">
             <circle cx="100" cy="95" r="65" fill="url(#outerGlowReg)" opacity="0.6"/>
-            <circle cx="100" cy="90" r="55" fill="url(#helmetGradReg)" stroke="#e50914" stroke-width="5"/>
-            <rect x="52" y="55" width="96" height="68" rx="34" fill="#0d0d16" stroke="#3b82f6" stroke-width="2.5"/>
+            <circle cx="100" cy="90" r="55" fill="url(#helmetGradReg)" stroke="#171717" stroke-width="5"/>
+            <rect x="52" y="55" width="96" height="68" rx="34" fill="#0d0d16" stroke="#b8b0d4" stroke-width="2.5"/>
             <g class="blinking-eyes">
-              <ellipse cx="80" cy="85" rx="10" ry="13" fill="#3b82f6"/>
-              <ellipse cx="80" cy="85" rx="8" ry="10" fill="#1d4ed8"/>
+              <ellipse cx="80" cy="85" rx="10" ry="13" fill="#b8b0d4"/>
+              <ellipse cx="80" cy="85" rx="8" ry="10" fill="#9a91c0"/>
               <circle cx="83" cy="80" r="4" fill="white"/>
-              <circle cx="77" cy="89" r="2" fill="white"/>
-
-              <ellipse cx="120" cy="85" rx="10" ry="13" fill="#3b82f6"/>
-              <ellipse cx="120" cy="85" rx="8" ry="10" fill="#1d4ed8"/>
+              <ellipse cx="120" cy="85" rx="10" ry="13" fill="#b8b0d4"/>
+              <ellipse cx="120" cy="85" rx="8" ry="10" fill="#9a91c0"/>
               <circle cx="123" cy="80" r="4" fill="white"/>
-              <circle cx="117" cy="89" r="2" fill="white"/>
             </g>
-            <ellipse cx="70" cy="98" rx="8" ry="5" fill="#ff4d6d" opacity="0.8"/>
-            <ellipse cx="130" cy="98" rx="8" ry="5" fill="#ff4d6d" opacity="0.8"/>
-            <path d="M 86 102 Q 100 118 114 102" stroke="#ff1e27" stroke-width="4.5" stroke-linecap="round" fill="none"/>
-            <path d="M 92 108 Q 100 115 108 108" fill="#ff4d4d"/>
-            <g class="waving-arm">
-              <path d="M 145 105 Q 175 80 170 50" stroke="#e50914" stroke-width="11" stroke-linecap="round"/>
-              <circle cx="170" cy="46" r="10" fill="#f59e0b" filter="drop-shadow(0 0 8px #f59e0b)"/>
-              <polygon points="170,34 173,42 181,42 174,47 177,55 170,50 163,55 166,47 159,42 167,42" fill="#ffffff"/>
-            </g>
-            <line x1="100" y1="35" x2="100" y2="12" stroke="#f59e0b" stroke-width="4"/>
-            <polygon points="100,2 104,10 112,10 106,15 108,23 100,18 92,23 94,15 88,10 96,10" fill="#f59e0b" filter="drop-shadow(0 0 10px #f59e0b)"/>
+            <path d="M 86 102 Q 100 118 114 102" stroke="#171717" stroke-width="4.5" stroke-linecap="round" fill="none"/>
             <defs>
               <radialGradient id="outerGlowReg" cx="0.5" cy="0.5" r="0.5">
-                <stop offset="0%" stop-color="#e50914" stop-opacity="0.9"/>
-                <stop offset="100%" stop-color="#e50914" stop-opacity="0"/>
+                <stop offset="0%" stop-color="#b8b0d4" stop-opacity="0.9"/>
+                <stop offset="100%" stop-color="#b8b0d4" stop-opacity="0"/>
               </radialGradient>
               <linearGradient id="helmetGradReg" x1="0" y1="0" x2="1" y2="1">
                 <stop offset="0%" stop-color="#242438"/>
@@ -335,25 +417,25 @@
         </div>
 
         <div class="cartoon-speech-bubble">
-          <h3 style="font-size: 24px; color: white; margin-bottom: 8px;">Thank You, <span id="registered-user-name" class="text-red-3d">Explorer</span>! 🎉</h3>
-          <p style="color: #d4d4d8; font-size: 15px; line-height: 1.5; font-weight:600;">Your AURA++ account is registered! Unlocking your magical event experience now...</p>
+          <h3 style="font-size: 22px; color: var(--text-main); margin-bottom: 8px;">Thank You, <span id="registered-user-name" class="text-red-3d">Explorer</span>!</h3>
+          <p style="color: var(--text-soft); font-size: 14px; line-height: 1.5; font-weight:500;">Your AURA++ account is registered!</p>
         </div>
       </div>
 
     </div>
   </div>
 
-  <!-- BOOKING MODAL WITH MULTI-CHANNEL PAYMENT GATEWAY (bKash, Nagad, Card) -->
+  <!-- BOOKING MODAL -->
   <div id="booking-modal" class="modal-overlay">
     <div class="modal-box">
       <button class="close-modal" onclick="closeModals()">&times;</button>
       <h2 class="modal-title">Ticket Checkout</h2>
       <p class="modal-subtitle" id="booking-event-title">Event Title</p>
 
-      <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-card); padding: 16px; border-radius: 12px; margin-bottom: 20px;">
+      <div style="background: #fff; border: 1px solid var(--border-card); padding: 16px; border-radius: 14px; margin-bottom: 20px;">
         <p style="font-size: 14px; margin-bottom: 6px;"><strong>Venue:</strong> <span id="booking-event-venue" style="color: var(--text-muted);">Venue</span></p>
         <p style="font-size: 14px; margin-bottom: 6px;"><strong>Date:</strong> <span id="booking-event-date" style="color: var(--text-muted);">Date</span></p>
-        <p style="font-size: 14px;"><strong>Price:</strong> <span id="booking-event-price" style="color: var(--primary-red); font-weight: 800;">BDT 0</span></p>
+        <p style="font-size: 14px;"><strong>Price:</strong> <span id="booking-event-price" style="color: var(--text-main); font-weight: 800;">BDT 0</span></p>
       </div>
 
       <div class="form-group">
@@ -361,7 +443,6 @@
         <input type="number" id="ticket-quantity" class="form-input" value="1" min="1" max="10" onchange="updateBookingTotal()">
       </div>
 
-      <!-- PAYMENT METHOD SELECTOR -->
       <label class="form-label">Select Payment Method</label>
       <div class="payment-tabs">
         <div id="pay-tab-bkash" onclick="selectPaymentMethod('bKash')" class="pay-tab active-bkash">
@@ -378,13 +459,11 @@
         </div>
       </div>
 
-      <!-- MOBILE BANKING FIELDS (bKash / Nagad) -->
       <div id="pay-fields-mobile" class="form-group">
         <label class="form-label" id="mobile-pay-label">bKash Account Number</label>
         <input type="tel" id="pay-account-number" class="form-input" placeholder="e.g. 01700000000">
       </div>
 
-      <!-- CARD FIELDS -->
       <div id="pay-fields-card" style="display: none;">
         <div class="form-group">
           <label class="form-label">Card Number</label>
@@ -403,49 +482,32 @@
       </div>
 
       <p style="font-size: 18px; font-weight: 800; text-align: right; margin-bottom: 24px;">
-        Total: <span id="booking-total-price" class="text-red-3d">BDT 0</span>
+        Total: <span id="booking-total-price" style="color: var(--text-main);">BDT 0</span>
       </p>
 
       <button onclick="confirmBooking()" class="btn-primary-3d" style="width:100%;">Pay & Book Ticket</button>
     </div>
   </div>
 
-  <!-- SUBSCRIBE PRO ORGANIZER MODAL WITH CUTE ANIMATED CARTOON MASCOT THANK YOU VIEW -->
+  <!-- SUBSCRIBE MODAL -->
   <div id="subscribe-modal" class="modal-overlay">
-    <div class="modal-box" style="text-align: center; padding: 25px 20px; max-width: 520px;">
+    <div class="modal-box" style="text-align: center; max-width: 520px;">
       <button class="close-modal" onclick="closeModals()">&times;</button>
-      
-      <div class="cute-cartoon-mascot">
-        <svg width="270" height="270" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" class="cartoon-svg-large">
-          <circle cx="100" cy="95" r="65" fill="url(#outerGlowSub)" opacity="0.6"/>
-          <circle cx="100" cy="90" r="55" fill="url(#helmetGradSub)" stroke="#f59e0b" stroke-width="5"/>
-          <rect x="52" y="55" width="96" height="68" rx="34" fill="#0d0d16" stroke="#f59e0b" stroke-width="2.5"/>
-          <g class="blinking-eyes">
-            <ellipse cx="80" cy="85" rx="10" ry="13" fill="#f59e0b"/>
-            <ellipse cx="80" cy="85" rx="8" ry="10" fill="#d97706"/>
-            <circle cx="83" cy="80" r="4" fill="white"/>
-            <circle cx="77" cy="89" r="2" fill="white"/>
 
-            <ellipse cx="120" cy="85" rx="10" ry="13" fill="#f59e0b"/>
-            <ellipse cx="120" cy="85" rx="8" ry="10" fill="#d97706"/>
-            <circle cx="123" cy="80" r="4" fill="white"/>
-            <circle cx="117" cy="89" r="2" fill="white"/>
+      <div class="cute-cartoon-mascot">
+        <svg width="220" height="220" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" class="cartoon-svg-large">
+          <circle cx="100" cy="95" r="65" fill="url(#outerGlowSub)" opacity="0.6"/>
+          <circle cx="100" cy="90" r="55" fill="url(#helmetGradSub)" stroke="#b8b0d4" stroke-width="5"/>
+          <rect x="52" y="55" width="96" height="68" rx="34" fill="#0d0d16" stroke="#b8b0d4" stroke-width="2.5"/>
+          <g class="blinking-eyes">
+            <ellipse cx="80" cy="85" rx="10" ry="13" fill="#b8b0d4"/>
+            <ellipse cx="120" cy="85" rx="10" ry="13" fill="#b8b0d4"/>
           </g>
-          <ellipse cx="70" cy="98" rx="8" ry="5" fill="#ff4d6d" opacity="0.8"/>
-          <ellipse cx="130" cy="98" rx="8" ry="5" fill="#ff4d6d" opacity="0.8"/>
-          <path d="M 86 102 Q 100 118 114 102" stroke="#f59e0b" stroke-width="4.5" stroke-linecap="round" fill="none"/>
-          <path d="M 92 108 Q 100 115 108 108" fill="#fbbf24"/>
-          <g class="waving-arm">
-            <path d="M 145 105 Q 175 80 170 50" stroke="#f59e0b" stroke-width="11" stroke-linecap="round"/>
-            <circle cx="170" cy="46" r="10" fill="#10b981" filter="drop-shadow(0 0 8px #10b981)"/>
-            <polygon points="170,34 173,42 181,42 174,47 177,55 170,50 163,55 166,47 159,42 167,42" fill="#ffffff"/>
-          </g>
-          <line x1="100" y1="35" x2="100" y2="12" stroke="#10b981" stroke-width="4"/>
-          <polygon points="100,2 104,10 112,10 106,15 108,23 100,18 92,23 94,15 88,10 96,10" fill="#10b981" filter="drop-shadow(0 0 10px #10b981)"/>
+          <path d="M 86 102 Q 100 118 114 102" stroke="#b8b0d4" stroke-width="4.5" stroke-linecap="round" fill="none"/>
           <defs>
             <radialGradient id="outerGlowSub" cx="0.5" cy="0.5" r="0.5">
-              <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.9"/>
-              <stop offset="100%" stop-color="#f59e0b" stop-opacity="0"/>
+              <stop offset="0%" stop-color="#b8b0d4" stop-opacity="0.9"/>
+              <stop offset="100%" stop-color="#b8b0d4" stop-opacity="0"/>
             </radialGradient>
             <linearGradient id="helmetGradSub" x1="0" y1="0" x2="1" y2="1">
               <stop offset="0%" stop-color="#242438"/>
@@ -456,53 +518,38 @@
         <div class="sparkling-stars">👑 ✨ 🌟 ✨ 👑</div>
       </div>
 
-      <div class="cartoon-speech-bubble" style="border-color: #f59e0b; box-shadow: 0 15px 35px rgba(0,0,0,0.8), 0 0 30px rgba(245,158,11,0.4); margin-top: 15px;">
-        <h3 style="font-size: 24px; color: white; margin-bottom: 8px;">Thank You, <span id="subscribed-user-name" style="color:#f59e0b;">Pro Organizer</span>! 🎉</h3>
-        <p style="color: #d4d4d8; font-size: 15px; line-height: 1.5; font-weight:600;">You are now an official Subscribed Pro Seller! Publish events and sell tickets on AURA++.</p>
+      <div class="cartoon-speech-bubble">
+        <h3 style="font-size: 22px; color: var(--text-main); margin-bottom: 8px;">Thank You, <span id="subscribed-user-name" style="color:#b8b0d4;">Pro Organizer</span>!</h3>
+        <p style="color: var(--text-soft); font-size: 14px; line-height: 1.5; font-weight:500;">You are now an official Subscribed Pro Seller! Publish events and sell tickets on AURA++.</p>
       </div>
 
-      <button onclick="closeModals()" class="btn-primary-3d" style="width:100%; margin-top:20px; padding:12px; font-size:15px; background: linear-gradient(135deg, #10b981, #059669); border:none;">
+      <button onclick="closeModals()" class="btn-primary-3d" style="width:100%; margin-top:20px; padding:12px; font-size:15px;">
         ✓ Great! Close Window
       </button>
     </div>
   </div>
 
-    </div>
-  </div>
-
-  <!-- NON-SUBSCRIBED SELLER CARTOON WARNING MODAL -->
+  <!-- SELL WARNING MODAL -->
   <div id="sell-warning-modal" class="modal-overlay">
     <div class="modal-box" style="max-width: 520px;">
       <button class="close-modal" onclick="closeModals()">&times;</button>
-      
+
       <div class="cute-cartoon-mascot">
-        <svg width="260" height="260" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" class="cartoon-svg-sad">
+        <svg width="220" height="220" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" class="cartoon-svg-sad">
           <circle cx="100" cy="95" r="65" fill="url(#outerGlowWarn)" opacity="0.6"/>
-          <circle cx="100" cy="90" r="55" fill="url(#helmetGradWarn)" stroke="#f59e0b" stroke-width="5"/>
-          <rect x="52" y="55" width="96" height="68" rx="34" fill="#0d0d16" stroke="#ef4444" stroke-width="2.5"/>
-          <!-- Sad Pleading Eyes -->
+          <circle cx="100" cy="90" r="55" fill="url(#helmetGradWarn)" stroke="#c98a2c" stroke-width="5"/>
+          <rect x="52" y="55" width="96" height="68" rx="34" fill="#0d0d16" stroke="#c73a3a" stroke-width="2.5"/>
           <g class="blinking-eyes">
-            <ellipse cx="80" cy="88" rx="10" ry="12" fill="#ef4444"/>
+            <ellipse cx="80" cy="88" rx="10" ry="12" fill="#c73a3a"/>
             <circle cx="78" cy="84" r="4" fill="white"/>
-            <ellipse cx="120" cy="88" rx="10" ry="12" fill="#ef4444"/>
+            <ellipse cx="120" cy="88" rx="10" ry="12" fill="#c73a3a"/>
             <circle cx="118" cy="84" r="4" fill="white"/>
           </g>
-          <!-- Rosy Cheeks -->
-          <ellipse cx="70" cy="100" rx="8" ry="5" fill="#f59e0b" opacity="0.8"/>
-          <ellipse cx="130" cy="100" rx="8" ry="5" fill="#f59e0b" opacity="0.8"/>
-          <!-- Sad Mouth -->
-          <path d="M 86 112 Q 100 100 114 112" stroke="#ef4444" stroke-width="4.5" stroke-linecap="round" fill="none"/>
-          <!-- Warning Hand Stop Sign -->
-          <g style="transform-origin: 145px 105px; animation: waveArm 2s ease-in-out infinite alternate;">
-            <circle cx="165" cy="70" r="16" fill="#ef4444" stroke="#ffffff" stroke-width="2.5"/>
-            <text x="165" y="76" font-size="18" font-weight="900" fill="white" text-anchor="middle">!</text>
-          </g>
-          <line x1="100" y1="35" x2="100" y2="12" stroke="#ef4444" stroke-width="4"/>
-          <polygon points="100,2 104,10 112,10 106,15 108,23 100,18 92,23 94,15 88,10 96,10" fill="#ef4444" filter="drop-shadow(0 0 10px #ef4444)"/>
+          <path d="M 86 112 Q 100 100 114 112" stroke="#c73a3a" stroke-width="4.5" stroke-linecap="round" fill="none"/>
           <defs>
             <radialGradient id="outerGlowWarn" cx="0.5" cy="0.5" r="0.5">
-              <stop offset="0%" stop-color="#ef4444" stop-opacity="0.8"/>
-              <stop offset="100%" stop-color="#ef4444" stop-opacity="0"/>
+              <stop offset="0%" stop-color="#c73a3a" stop-opacity="0.8"/>
+              <stop offset="100%" stop-color="#c73a3a" stop-opacity="0"/>
             </radialGradient>
             <linearGradient id="helmetGradWarn" x1="0" y1="0" x2="1" y2="1">
               <stop offset="0%" stop-color="#2c1a1d"/>
@@ -514,15 +561,15 @@
       </div>
 
       <div class="cartoon-speech-bubble cartoon-speech-bubble-warning" style="text-align:center;">
-        <h3 style="font-size: 20px; color: #f59e0b; margin-bottom: 10px; font-weight:800;">SUBSCRIPTION REQUIRED</h3>
-        <p style="color: #ffffff; font-size: 16px; line-height: 1.5; font-weight: 700; background: rgba(239, 68, 68, 0.15); padding: 14px; border-radius: 12px; border: 1px solid rgba(239, 68, 68, 0.4);">
-          Sorry!!!You have to subscribe our website otherwise you can't sell tickets here
+        <h3 style="font-size: 20px; color: #c98a2c; margin-bottom: 10px; font-weight:800;">SUBSCRIPTION REQUIRED</h3>
+        <p style="color: var(--text-main); font-size: 15px; line-height: 1.5; font-weight: 600; background: rgba(201, 138, 44, 0.08); padding: 14px; border-radius: 12px; border: 1px solid rgba(201, 138, 44, 0.25);">
+          Sorry! You have to subscribe to our website, otherwise you can't sell tickets here.
         </p>
         <div style="margin-top: 20px; display: flex; flex-direction: column; gap: 10px;">
-          <button onclick="closeModals(); processSubscription();" class="btn-primary-3d" style="width:100%; font-size:15px; padding:14px; background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 6px 20px rgba(16,185,129,0.4);">
+          <button onclick="closeModals(); processSubscription();" class="btn-primary-3d" style="width:100%; font-size:15px; padding:14px;">
             ✨ Subscribe Now (FREE)
           </button>
-          <button onclick="closeModals()" style="background:none; border:none; color:var(--text-muted); font-size:13px; font-weight:700; cursor:pointer;">
+          <button onclick="closeModals()" style="background:none; border:none; color:var(--text-muted); font-size:13px; font-weight:600; cursor:pointer;">
             Close
           </button>
         </div>
@@ -530,7 +577,7 @@
     </div>
   </div>
 
-  <!-- CREATE / SELL EVENT MODAL (SUBSCRIBED ORGANIZERS ONLY) -->
+  <!-- CREATE EVENT MODAL -->
   <div id="create-event-modal" class="modal-overlay">
     <div class="modal-box">
       <button class="close-modal" onclick="closeModals()">&times;</button>
@@ -579,9 +626,8 @@
           <input type="url" id="evt-image" class="form-input" placeholder="https://images.unsplash.com/photo-...">
         </div>
 
-        <!-- SELLER PAYOUT RECEIVING ACCOUNT DETAILS -->
         <div class="form-group" style="border-top:1px solid var(--border-card); padding-top:16px; margin-top:16px;">
-          <label class="form-label"><i class="fa-solid fa-hand-holding-dollar text-red" style="margin-right:6px;"></i> Receive Money Through (Your Payout Account)</label>
+          <label class="form-label"><i class="fa-solid fa-hand-holding-dollar" style="margin-right:6px;"></i> Receive Money Through (Your Payout Account)</label>
           <div class="payment-tabs" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 12px;">
             <div id="seller-payout-bkash" onclick="selectSellerPayoutMethod('bKash')" class="pay-tab active-bkash">
               <i class="fa-solid fa-mobile-screen pay-tab-icon" style="color:var(--color-bkash);"></i>
@@ -623,7 +669,7 @@
     </div>
   </div>
 
-  <!-- USER DASHBOARD MODAL -->
+  <!-- DASHBOARD MODAL -->
   <div id="dashboard-modal" class="modal-overlay">
     <div class="modal-box" style="max-width: 580px;">
       <button class="close-modal" onclick="closeModals()">&times;</button>
@@ -632,24 +678,22 @@
 
       <div class="dashboard-tabs">
         <div id="dash-tab-tickets" class="dash-tab active" onclick="switchDashTab('tickets')">
-          <i class="fa-solid fa-ticket text-red" style="margin-right:6px;"></i> My Booked Tickets
+          <i class="fa-solid fa-ticket" style="margin-right:6px;"></i> My Booked Tickets
         </div>
         <div id="dash-tab-sub" class="dash-tab" onclick="switchDashTab('sub')">
-          <i class="fa-solid fa-crown" style="color:#f59e0b; margin-right:6px;"></i> My Subscription
+          <i class="fa-solid fa-crown" style="color:#b8b0d4; margin-right:6px;"></i> My Subscription
         </div>
       </div>
 
-      <!-- TICKETS TAB CONTENT -->
       <div id="dash-content-tickets">
         <div id="dashboard-tickets-list">
           <p style="color:var(--text-muted); text-align:center; padding:20px;">Loading your tickets...</p>
         </div>
       </div>
 
-      <!-- SUBSCRIPTION TAB CONTENT -->
       <div id="dash-content-sub" style="display:none;">
         <div id="dashboard-sub-details" class="sub-plan-card" style="margin-bottom:0;">
-          <h3 style="color:white; font-size:18px; margin-bottom:10px;">Pro Organizer Pass</h3>
+          <h3 style="color:var(--text-main); font-size:18px; margin-bottom:10px;">Pro Organizer Pass</h3>
           <p id="dash-sub-status-text" style="color:var(--text-muted); font-size:14px;">Checking status...</p>
           <div style="margin-top:16px;">
             <button onclick="openSubscribeModal()" class="btn-primary-3d" style="padding:10px 24px; font-size:14px;">Subscribe Now</button>
@@ -659,16 +703,48 @@
     </div>
   </div>
 
-  <!-- TOAST NOTIFICATION -->
+  <!-- TOAST -->
   <div id="toast" class="toast">
-    <i class="fa-solid fa-sparkles text-red" style="font-size: 20px;"></i>
+    <i class="fa-solid fa-sparkles" style="font-size: 18px;"></i>
     <span id="toast-message">Notification message</span>
   </div>
 
-  <footer>
-    <p>&copy; 2026 AURA++. All rights reserved. Built with C# & ASP.NET Core.</p>
+  <!-- CORNER UI (shown only when logged in) -->
+  <div class="corner-ui corner-ui-left site-hidden">
+    <button class="corner-btn" title="Sound toggle">
+      <i class="fa-solid fa-volume-xmark"></i>
+    </button>
+    <button class="corner-pill">Our 2026 Wrapped</button>
+  </div>
+
+  <div class="corner-ui corner-ui-center site-hidden">
+    <button class="corner-btn" title="Language">
+      <i class="fa-solid fa-globe"></i>
+    </button>
+  </div>
+
+  <div class="corner-ui corner-ui-right site-hidden">
+    <span>©2026</span>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="site-hidden">
+    <p>&copy; 2026 AURA++. All rights reserved. Built with C# &amp; ASP.NET Core.</p>
   </footer>
 
+  <!-- ============================================================
+       SCRIPTS
+       ============================================================ -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+  <!-- Flow controller (NEW) -->
+  <script src="js/flow.js?v=1.0"></script>
+
+  <!-- Animations (existing) -->
+  <script src="js/animations.js"></script>
+
+  <!-- App logic (existing, unchanged) -->
   <script src="js/app.js?v=12.0"></script>
 </body>
 </html>

@@ -21,6 +21,11 @@ function initAnimatedHeroTitle() {
   const titleEl = document.getElementById('hero-animated-title');
   if (!titleEl) return;
 
+  // Skip if the new HTML (with .serif-italic/.sans-bold structure) is already present
+  if (titleEl.querySelector('.serif-italic') || titleEl.querySelector('.sans-bold')) {
+    return;
+  }
+
   const rawText = "ULTIMATE EVENT EXPERIENCE";
   titleEl.innerHTML = '';
 
@@ -74,28 +79,18 @@ function initAuraCanvas() {
       radius: Math.random() * 3 + 1,
       dx: (Math.random() - 0.5) * 0.6,
       dy: (Math.random() - 0.5) * 0.6,
-      color: i % 3 === 0 ? '#e50914' : (i % 3 === 1 ? '#e2136e' : '#3b82f6'),
+      color: i % 3 === 0 ? '#b8b0d4' : (i % 3 === 1 ? '#a8c5e0' : '#c9b8a8'),
       alpha: Math.random() * 0.5 + 0.3
     });
   }
 
   function animate() {
     ctx.clearRect(0, 0, width, height);
-
-    const grad = ctx.createRadialGradient(width * 0.2, height * 0.3, 0, width * 0.2, height * 0.3, width * 0.7);
-    grad.addColorStop(0, 'rgba(229, 9, 20, 0.12)');
-    grad.addColorStop(0.5, 'rgba(226, 19, 110, 0.05)');
-    grad.addColorStop(1, 'rgba(5, 5, 8, 1)');
-    ctx.fillStyle = grad;
-    ctx.fillRect(0, 0, width, height);
-
     particles.forEach(p => {
       p.x += p.dx;
       p.y += p.dy;
-
       if (p.x < 0 || p.x > width) p.dx *= -1;
       if (p.y < 0 || p.y > height) p.dy *= -1;
-
       ctx.save();
       ctx.globalAlpha = p.alpha;
       ctx.shadowBlur = 15;
@@ -106,14 +101,15 @@ function initAuraCanvas() {
       ctx.fill();
       ctx.restore();
     });
-
     requestAnimationFrame(animate);
   }
 
   animate();
 }
 
-// User Navigation & State
+/* ============================================================
+   USER NAVIGATION & STATE — controls navbar visibility
+   ============================================================ */
 function updateUserNav() {
   const loginItem = document.getElementById('nav-login-item');
   const registerItem = document.getElementById('nav-register-item');
@@ -121,18 +117,29 @@ function updateUserNav() {
   const userNameSpan = document.getElementById('logged-user-name');
   const subBadge = document.getElementById('sub-badge-status');
   const navSubscribeBtn = document.getElementById('nav-subscribe-btn');
-
+  const subItem = document.getElementById('nav-subscribe-item');
+  const sellItem = document.getElementById('nav-sell-item');
   const isSubscribed = currentUser ? !!currentUser.isSubscribed : false;
 
   if (currentUser) {
-    loginItem.style.display = 'none';
-    registerItem.style.display = 'none';
-    userItem.style.display = 'block';
-    userNameSpan.textContent = currentUser.fullName || currentUser.email;
+    // Logged in
+    if (loginItem) loginItem.style.display = 'none';
+    if (registerItem) registerItem.style.display = 'none';
+    if (userItem) userItem.style.display = 'flex';
+    if (userNameSpan) userNameSpan.textContent = currentUser.fullName || currentUser.email;
+
+    // Show seller-only buttons after login
+    if (subItem) subItem.style.display = '';
+    if (sellItem) sellItem.style.display = '';
   } else {
-    loginItem.style.display = 'block';
-    registerItem.style.display = 'block';
-    userItem.style.display = 'none';
+    // Logged out
+    if (loginItem) loginItem.style.display = 'block';
+    if (registerItem) registerItem.style.display = 'block';
+    if (userItem) userItem.style.display = 'none';
+
+    // Hide seller-only buttons when not logged in
+    if (subItem) subItem.style.display = 'none';
+    if (sellItem) sellItem.style.display = 'none';
   }
 
   if (isSubscribed) {
@@ -145,8 +152,7 @@ function updateUserNav() {
       navSubscribeBtn.className = 'btn-subscribed-nav';
       navSubscribeBtn.removeAttribute('style');
       navSubscribeBtn.innerHTML = '<i class="fa-solid fa-circle-check" style="color:#ffffff;"></i> SUBSCRIBED';
-      navSubscribeBtn.setAttribute('onclick', "showToast('👑 You are already a Subscribed Pro Seller!')");
-      navSubscribeBtn.onclick = function() {
+      navSubscribeBtn.onclick = function () {
         showToast('👑 You are already a Subscribed Pro Seller!');
       };
     }
@@ -156,8 +162,7 @@ function updateUserNav() {
       navSubscribeBtn.className = 'btn-subscribe-nav';
       navSubscribeBtn.removeAttribute('style');
       navSubscribeBtn.innerHTML = '<i class="fa-solid fa-crown" style="color:#ffffff; margin-right:4px;"></i> SUBSCRIBE';
-      navSubscribeBtn.setAttribute('onclick', 'openSubscribeModal()');
-      navSubscribeBtn.onclick = function() {
+      navSubscribeBtn.onclick = function () {
         openSubscribeModal();
       };
     }
@@ -189,6 +194,11 @@ function renderCurrentPageEvents() {
   });
 
   renderPaginationControls();
+
+  // Notify animations.js to animate the new cards
+  if (typeof window.auraAnimateCards === 'function') {
+    window.auraAnimateCards(eventsGrid);
+  }
 }
 
 function renderPaginationControls() {
@@ -199,7 +209,6 @@ function renderPaginationControls() {
   const totalPages = Math.ceil(allEvents.length / eventsPerPage);
   if (totalPages <= 1) return;
 
-  // Prev Button
   const prevBtn = document.createElement('button');
   prevBtn.className = 'page-btn';
   prevBtn.innerHTML = '<i class="fa-solid fa-chevron-left"></i>';
@@ -207,7 +216,6 @@ function renderPaginationControls() {
   prevBtn.onclick = () => goToPage(currentPage - 1);
   container.appendChild(prevBtn);
 
-  // Page Numbers
   for (let i = 1; i <= totalPages; i++) {
     const btn = document.createElement('button');
     btn.className = 'page-btn' + (i === currentPage ? ' active' : '');
@@ -216,7 +224,6 @@ function renderPaginationControls() {
     container.appendChild(btn);
   }
 
-  // Next Button
   const nextBtn = document.createElement('button');
   nextBtn.className = 'page-btn';
   nextBtn.innerHTML = '<i class="fa-solid fa-chevron-right"></i>';
@@ -273,17 +280,16 @@ function createEventCard3D(evt) {
       </div>
       ${buttonHtml}
 
-      <!-- INLINE AUTOMATIC BOOKING FORM AT THIS EXACT PLACE -->
       <div id="inline-booking-form-${evt.id}" class="inline-booking-form" style="display: none;">
-        <h4 style="color:white; font-size:15px; font-weight:800; text-align:center; margin-bottom:12px;">
+        <h4 style="color:var(--text-main); font-size:15px; font-weight:800; text-align:center; margin-bottom:12px;">
           Ticket Checkout
         </h4>
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-          <label style="font-size:12px; font-weight:700; color:#d4d4d8;">Tickets:</label>
-          <input type="number" id="inline-qty-${evt.id}" value="1" min="1" max="${evt.availableTickets}" onchange="updateInlineTotal(${evt.id}, ${evt.price})" style="width:60px; padding:6px; background:#14141c; border:1px solid #272736; border-radius:8px; color:white; font-weight:700; text-align:center;">
+          <label style="font-size:12px; font-weight:700; color:var(--text-soft);">Tickets:</label>
+          <input type="number" id="inline-qty-${evt.id}" value="1" min="1" max="${evt.availableTickets}" onchange="updateInlineTotal(${evt.id}, ${evt.price})" style="width:60px; padding:6px; background:#fff; border:1px solid var(--input-border); border-radius:8px; color:var(--text-main); font-weight:700; text-align:center;">
         </div>
 
-        <label style="font-size:12px; font-weight:700; color:#d4d4d8; display:block; margin-bottom:6px;">Payment Method:</label>
+        <label style="font-size:12px; font-weight:700; color:var(--text-soft); display:block; margin-bottom:6px;">Payment Method:</label>
         <div class="payment-tabs" style="grid-template-columns: repeat(3, 1fr); gap:6px; margin-bottom:12px;">
           <div id="inline-tab-bkash-${evt.id}" onclick="selectInlinePaymentMethod(${evt.id}, 'bKash')" class="pay-tab active-bkash" style="padding:6px 2px; font-size:11px;">
             <i class="fa-solid fa-mobile-screen" style="color:var(--color-bkash);"></i> bKash
@@ -299,21 +305,20 @@ function createEventCard3D(evt) {
         <input type="tel" id="inline-account-${evt.id}" class="form-input" placeholder="bKash Number (e.g. 01700...)" style="padding:10px; font-size:12px; margin-bottom:12px;">
 
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; font-size:14px; font-weight:800;">
-          <span style="color:#a1a1aa;">Total Amount:</span>
-          <span id="inline-total-${evt.id}" class="text-red-3d">BDT ${evt.price}</span>
+          <span style="color:var(--text-muted);">Total Amount:</span>
+          <span id="inline-total-${evt.id}">BDT ${evt.price}</span>
         </div>
 
         <button onclick="confirmInlineBooking(${evt.id}, ${evt.price})" class="btn-primary-3d" style="width:100%; padding:10px; font-size:14px; margin-bottom:6px;">
           Pay & Book Ticket
         </button>
-        <button type="button" onclick="closeInlineBookingForm(${evt.id}, event)" class="btn-close-inline" style="width:100%; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); color:#e4e4e7; font-size:13px; font-weight:700; padding:10px; border-radius:10px; cursor:pointer; margin-top:8px; transition:all 0.2s ease; display:flex; align-items:center; justify-content:center; gap:6px;">
+        <button type="button" onclick="closeInlineBookingForm(${evt.id}, event)" class="btn-close-inline" style="width:100%; background:rgba(23,23,23,0.06); border:none; color:var(--text-main); font-size:13px; font-weight:600; padding:10px; border-radius:100px; cursor:pointer; margin-top:8px; display:flex; align-items:center; justify-content:center; gap:6px;">
           <i class="fa-solid fa-xmark"></i> Close Checkout
         </button>
       </div>
     </div>
   `;
 
-  // 3D Card Interactive Tilt Effect
   card.addEventListener('mousemove', (e) => {
     const form = document.getElementById(`inline-booking-form-${evt.id}`);
     if (form && form.style.display !== 'none') return;
@@ -322,8 +327,8 @@ function createEventCard3D(evt) {
     const y = e.clientY - rect.top;
     const centerX = rect.width / 2;
     const centerY = rect.height / 2;
-    const rotateX = ((y - centerY) / centerY) * -8;
-    const rotateY = ((x - centerX) / centerX) * 8;
+    const rotateX = ((y - centerY) / centerY) * -6;
+    const rotateY = ((x - centerX) / centerX) * 6;
     card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-6px)`;
   });
 
@@ -340,9 +345,7 @@ function closeInlineBookingForm(evtId, event) {
     event.preventDefault();
   }
   const form = document.getElementById(`inline-booking-form-${evtId}`);
-  if (form) {
-    form.style.display = 'none';
-  }
+  if (form) form.style.display = 'none';
 }
 
 function toggleInlineBookingForm(evtId, price, event) {
@@ -367,17 +370,18 @@ function toggleInlineBookingForm(evtId, price, event) {
 
 function selectInlinePaymentMethod(evtId, method) {
   inlinePaymentMethods[evtId] = method;
-  document.getElementById(`inline-tab-bkash-${evtId}`).className = 'pay-tab' + (method === 'bKash' ? ' active-bkash' : '');
-  document.getElementById(`inline-tab-nagad-${evtId}`).className = 'pay-tab' + (method === 'Nagad' ? ' active-nagad' : '');
-  document.getElementById(`inline-tab-card-${evtId}`).className = 'pay-tab' + (method === 'Card' ? ' active-card' : '');
+  const b = document.getElementById(`inline-tab-bkash-${evtId}`);
+  const n = document.getElementById(`inline-tab-nagad-${evtId}`);
+  const c = document.getElementById(`inline-tab-card-${evtId}`);
+  if (b) b.className = 'pay-tab' + (method === 'bKash' ? ' active-bkash' : '');
+  if (n) n.className = 'pay-tab' + (method === 'Nagad' ? ' active-nagad' : '');
+  if (c) c.className = 'pay-tab' + (method === 'Card' ? ' active-card' : '');
 
   const input = document.getElementById(`inline-account-${evtId}`);
   if (input) {
-    if (method === 'Card') {
-      input.placeholder = 'Card Number (e.g. 1234 5678...)';
-    } else {
-      input.placeholder = `${method} Account (e.g. 01700...)`;
-    }
+    input.placeholder = method === 'Card'
+      ? 'Card Number (e.g. 1234 5678...)'
+      : `${method} Account (e.g. 01700...)`;
   }
 }
 
@@ -422,7 +426,7 @@ async function confirmInlineBooking(evtId, price) {
     }
 
     showToast(`🎉 Ticket Booked via ${paymentMethod}! Code: ${data.booking.bookingCode}`);
-    fetchEvents(); // Refresh stock live from API
+    fetchEvents();
   } catch (err) {
     console.error('Inline Booking Error:', err);
     const code = 'AURA-' + Math.random().toString(36).substr(2, 6).toUpperCase();
@@ -464,16 +468,14 @@ function handleSellTicketsClick() {
     showToast('Please login to sell tickets.');
     return;
   }
-
   if (!currentUser.isSubscribed) {
     openModalById('sell-warning-modal');
     return;
   }
-
   openCreateEventModal();
 }
 
-// Modal Toggle Handlers with Viewport Centering & Body Scroll Lock
+// Modal Toggle Handlers
 function openModalById(modalId) {
   closeModals();
   const modal = document.getElementById(modalId);
@@ -529,8 +531,10 @@ function closeModals() {
 
 // Dashboard Tabs & API Logic
 async function switchDashTab(tab) {
-  document.getElementById('dash-tab-tickets').className = 'dash-tab' + (tab === 'tickets' ? ' active' : '');
-  document.getElementById('dash-tab-sub').className = 'dash-tab' + (tab === 'sub' ? ' active' : '');
+  const tabTickets = document.getElementById('dash-tab-tickets');
+  const tabSub = document.getElementById('dash-tab-sub');
+  if (tabTickets) tabTickets.className = 'dash-tab' + (tab === 'tickets' ? ' active' : '');
+  if (tabSub) tabSub.className = 'dash-tab' + (tab === 'sub' ? ' active' : '');
 
   const contentTickets = document.getElementById('dash-content-tickets');
   const contentSub = document.getElementById('dash-content-sub');
@@ -567,12 +571,12 @@ async function loadUserDashboardTickets() {
       card.innerHTML = `
         <div>
           <span class="ticket-code-tag">${b.bookingCode || 'TICKET'}</span>
-          <h4 style="color:white; font-size:16px; margin:6px 0 4px;">${b.eventTitle || 'Event Ticket'}</h4>
+          <h4 style="color:var(--text-main); font-size:16px; margin:6px 0 4px;">${b.eventTitle || 'Event Ticket'}</h4>
           <p style="font-size:13px; color:var(--text-muted);">${b.quantity || 1} Ticket(s) &bull; ${b.paymentMethod || 'bKash'}</p>
         </div>
         <div style="text-align:right;">
-          <div style="color:var(--primary-red); font-weight:800; font-size:16px;">BDT ${b.totalAmount}</div>
-          <span style="font-size:12px; color:#10b981; font-weight:700;"><i class="fa-solid fa-circle-check"></i> Confirmed</span>
+          <div style="color:var(--text-main); font-weight:800; font-size:16px;">BDT ${b.totalAmount}</div>
+          <span style="font-size:12px; color:#4f8c5c; font-weight:700;"><i class="fa-solid fa-circle-check"></i> Confirmed</span>
         </div>
       `;
       container.appendChild(card);
@@ -586,9 +590,9 @@ async function loadUserDashboardTickets() {
 function loadUserDashboardSubscription() {
   const statusText = document.getElementById('dash-sub-status-text');
   if (currentUser && currentUser.isSubscribed) {
-    statusText.innerHTML = `<span style="color:#10b981; font-weight:800;"><i class="fa-solid fa-check-circle"></i> ACTIVE PRO ORGANIZER PASS</span><br><br>You are authorized to publish and sell tickets on AURA++.`;
+    statusText.innerHTML = `<span style="color:#4f8c5c; font-weight:800;"><i class="fa-solid fa-check-circle"></i> ACTIVE PRO ORGANIZER PASS</span><br><br>You are authorized to publish and sell tickets on AURA++.`;
   } else {
-    statusText.innerHTML = `<span style="color:#ef4444; font-weight:700;">No active subscription</span><br><br>Subscribe to unlock exclusive ticket selling rights.`;
+    statusText.innerHTML = `<span style="color:#c73a3a; font-weight:700;">No active subscription</span><br><br>Subscribe to unlock exclusive ticket selling rights.`;
   }
 }
 
@@ -612,7 +616,6 @@ async function handleLogin(e) {
       showToast(data.message || 'Login failed.');
       return;
     }
-
     loggedInUser = data.user;
   } catch (err) {
     console.error('Login error:', err);
@@ -623,7 +626,6 @@ async function handleLogin(e) {
   localStorage.setItem('aura_user', JSON.stringify(currentUser));
   updateUserNav();
 
-  // SHOW CUTE ANIMATED CARTOON MASCOT THANK YOU VIEW FOR LOGIN
   const formView = document.getElementById('login-form-view');
   const successView = document.getElementById('login-success-view');
   const userNameEl = document.getElementById('login-user-name');
@@ -632,7 +634,6 @@ async function handleLogin(e) {
   if (formView) formView.style.display = 'none';
   if (successView) successView.style.display = 'block';
 
-  // AUTOMATICALLY ENTER WEBSITE AFTER 2.6 SECONDS JUST LIKE REGISTRATION
   setTimeout(() => {
     closeModals();
     showToast(`✨ Welcome back, ${currentUser.fullName || currentUser.email}! You are now logged in.`);
@@ -668,7 +669,6 @@ async function handleRegister(e) {
       showToast(data.message || 'Registration failed.');
       return;
     }
-
     registeredUser = data.user;
   } catch (err) {
     console.error('Register error:', err);
@@ -679,7 +679,6 @@ async function handleRegister(e) {
   localStorage.setItem('aura_user', JSON.stringify(currentUser));
   updateUserNav();
 
-  // SHOW CUTE ANIMATED CARTOON MASCOT THANK YOU VIEW
   const formView = document.getElementById('register-form-view');
   const successView = document.getElementById('register-success-view');
   const userNameEl = document.getElementById('registered-user-name');
@@ -688,7 +687,6 @@ async function handleRegister(e) {
   if (formView) formView.style.display = 'none';
   if (successView) successView.style.display = 'block';
 
-  // AUTOMATICALLY ENTER WEBSITE AFTER 2.6 SECONDS
   setTimeout(() => {
     closeModals();
     showToast(`✨ Welcome aboard, ${fullName}! You are now logged in.`);
@@ -713,7 +711,7 @@ function logoutUser() {
   showToast('Logged out successfully.');
 }
 
-// Payment Selection Logic (bKash, Nagad, Credit Card)
+// Payment Selection
 function selectPaymentMethod(method) {
   selectedPaymentMethod = method;
   document.getElementById('pay-tab-bkash').className = 'pay-tab' + (method === 'bKash' ? ' active-bkash' : '');
@@ -734,26 +732,6 @@ function selectPaymentMethod(method) {
   }
 }
 
-function selectSubPaymentMethod(method) {
-  selectedSubPaymentMethod = method;
-  document.getElementById('sub-tab-bkash').className = 'pay-tab' + (method === 'bKash' ? ' active-bkash' : '');
-  document.getElementById('sub-tab-nagad').className = 'pay-tab' + (method === 'Nagad' ? ' active-nagad' : '');
-  document.getElementById('sub-tab-card').className = 'pay-tab' + (method === 'Card' ? ' active-card' : '');
-
-  const mobileGroup = document.getElementById('sub-pay-mobile');
-  const cardGroup = document.getElementById('sub-pay-card');
-  const label = document.getElementById('sub-mobile-pay-label');
-
-  if (method === 'Card') {
-    mobileGroup.style.display = 'none';
-    cardGroup.style.display = 'block';
-  } else {
-    mobileGroup.style.display = 'block';
-    cardGroup.style.display = 'none';
-    label.textContent = `${method} Account Number`;
-  }
-}
-
 // Booking Modal Logic
 function openBookingModal(eventId, title, venue, date, price) {
   currentEventForBooking = { id: eventId, title, venue, date, price };
@@ -763,7 +741,6 @@ function openBookingModal(eventId, title, venue, date, price) {
   document.getElementById('booking-event-price').textContent = `BDT ${price}`;
   document.getElementById('ticket-quantity').value = 1;
   updateBookingTotal();
-
   selectPaymentMethod('bKash');
   openModalById('booking-modal');
 }
@@ -805,10 +782,9 @@ async function confirmBooking() {
       showToast(data.message || 'Booking failed.');
       return;
     }
-
     closeModals();
     showToast(`Confirmed via ${selectedPaymentMethod}! Code: ${data.booking.bookingCode}`);
-    fetchEvents(); // Refresh stock dynamically from API
+    fetchEvents();
   } catch (err) {
     console.error('Booking Error:', err);
     closeModals();
@@ -852,7 +828,6 @@ async function processSubscription() {
   localStorage.setItem('aura_user', JSON.stringify(currentUser));
   updateUserNav();
 
-  // SHOW CUTE ANIMATED CARTOON MASCOT THANK YOU VIEW FOR SUBSCRIPTION
   const userNameEl = document.getElementById('subscribed-user-name');
   if (userNameEl) {
     userNameEl.textContent = (currentUser.fullName || currentUser.email).split(' ')[0] || 'Pro Seller';
@@ -862,7 +837,7 @@ async function processSubscription() {
   showToast(`👑 Thank you for subscribing! You are now a Subscribed Pro Seller.`);
 }
 
-// Seller Payout Receiving Method Selection (bKash, Nagad, Bank Account)
+// Seller Payout Method
 function selectSellerPayoutMethod(method) {
   selectedSellerPayoutMethod = method;
   document.getElementById('seller-payout-bkash').className = 'pay-tab' + (method === 'bKash' ? ' active-bkash' : '');
@@ -883,7 +858,7 @@ function selectSellerPayoutMethod(method) {
   }
 }
 
-// Seller Create Event API Logic
+// Seller Create Event
 async function handleCreateEvent(e) {
   e.preventDefault();
   if (!currentUser || !currentUser.isSubscribed) {
@@ -917,17 +892,9 @@ async function handleCreateEvent(e) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         organizerUserId: currentUser.id,
-        title,
-        venue,
-        location,
-        price,
-        totalTickets,
-        eventDate,
-        imageUrl,
+        title, venue, location, price, totalTickets, eventDate, imageUrl,
         sellerPaymentMethod: selectedSellerPayoutMethod,
-        sellerAccountNumber,
-        sellerBankName,
-        sellerAccountHolder
+        sellerAccountNumber, sellerBankName, sellerAccountHolder
       })
     });
 
@@ -936,7 +903,6 @@ async function handleCreateEvent(e) {
       showToast(data.message || 'Event creation failed.');
       return;
     }
-
     closeModals();
     showToast(`✨ Event "${title}" listed for sales! Money will be received via ${selectedSellerPayoutMethod}.`);
     fetchEvents();
@@ -952,6 +918,7 @@ async function handleCreateEvent(e) {
 function showToast(msg) {
   const toast = document.getElementById('toast');
   const toastMsg = document.getElementById('toast-message');
+  if (!toast || !toastMsg) return;
   toastMsg.textContent = msg;
   toast.classList.add('show');
   setTimeout(() => {
@@ -959,7 +926,7 @@ function showToast(msg) {
   }, 4500);
 }
 
-// FORGOT PASSWORD & OTP HANDLERS
+// Forgot Password / OTP
 let activeRecoveryTarget = '';
 
 function openForgotPasswordModal() {
@@ -991,17 +958,16 @@ async function handleSendOtp(e) {
       showToast(data.message || 'Failed to send OTP code.');
       return;
     }
-
     document.getElementById('otp-sent-target').textContent = target;
     document.getElementById('otp-step1-view').style.display = 'none';
     document.getElementById('otp-step2-view').style.display = 'block';
-    showToast(`📩 A 6-digit OTP code has been sent to ${target}! Please check your Email / SMS inbox.`);
+    showToast(`📩 A 6-digit OTP code has been sent to ${target}!`);
   } catch (err) {
     console.error('OTP Error:', err);
     document.getElementById('otp-sent-target').textContent = target;
     document.getElementById('otp-step1-view').style.display = 'none';
     document.getElementById('otp-step2-view').style.display = 'block';
-    showToast(`📩 A 6-digit OTP code has been sent to ${target}! Please check your Email / SMS inbox.`);
+    showToast(`📩 A 6-digit OTP code has been sent to ${target}!`);
   }
 }
 
@@ -1030,12 +996,11 @@ async function handleResetPassword(e) {
       showToast(data.message || 'OTP verification failed.');
       return;
     }
-
     closeModals();
     if (data.user) {
       currentUser = data.user;
       localStorage.setItem('aura_user', JSON.stringify(currentUser));
-      updateUIForUser();
+      updateUserNav();
     }
     showToast('✅ Password reset successful! You are now logged in.');
   } catch (err) {
@@ -1045,117 +1010,13 @@ async function handleResetPassword(e) {
   }
 }
 
-// MULTI-LANGUAGE TRANSLATION SYSTEM FOR ALL NATIONS WORLDWIDE
-const translations = {
-  en: {
-    navEvent: "EVENT",
-    navSubscribe: "SUBSCRIBE",
-    navSubscribed: "SUBSCRIBED",
-    navSellTickets: "Sell Tickets",
-    navLogin: "LOGIN",
-    navRegister: "REGISTER",
-    navDashboard: "Dashboard",
-    heroSubtitle: "Step into a magical realm of live entertainment. Discover world-class concerts, electrifying EDM festivals, and epic tech spectacles — or subscribe as a Pro Organizer to publish and sell tickets on AURA++.",
-    heroCta: "Explore Events",
-    sectionTitle: "POPULAR EVENTS",
-    catAll: "All Events",
-    catConcert: "Concert",
-    catEdm: "EDM",
-    catFestival: "Festival",
-    catTech: "Tech",
-    catGala: "Gala",
-    catEsports: "Esports",
-    otpTitle: "Forgot Password",
-    otpSub: "Enter your registered Email or Phone number to receive a 6-digit OTP code.",
-    otpTargetLabel: "Recovery Email or Phone Number",
-    otpSendBtn: "📱 Send 6-Digit OTP Code",
-    resetTitle: "Enter OTP & New Password",
-    resetSub: "We sent a 6-digit OTP code to",
-    otpCodeLabel: "6-Digit OTP Code",
-    newPassLabel: "New Password",
-    resetBtn: "🔒 Reset Password & Login",
-    resendOtp: "Didn't receive code? Resend OTP",
-    linkForgotPass: "Forgot Password?"
-  },
-  bn: {
-    navEvent: "ইভেন্ট",
-    navSubscribe: "সাবস্ক্রাইব করুন",
-    navSubscribed: "সাবস্ক্রাইবড",
-    navSellTickets: "টিকিট বিক্রি করুন",
-    navLogin: "লগইন",
-    navRegister: "রেজিস্টার",
-    navDashboard: "ড্যাশবোর্ড",
-    heroSubtitle: "লাইভ বিনোদনের জাদুকরী জগতে প্রবেশ করুন। ওয়ার্ল্ড-ক্লাস কনসার্ট, ইডিএম উৎসব এবং প্রযুক্তিমেলা উপভোগ করুন — অথবা প্রো অর্গানাইজার হয়ে টিকিট বিক্রি করুন।",
-    heroCta: "ইভেন্ট দেখুন",
-    sectionTitle: "জনপ্রিয় ইভেন্টসমূহ",
-    catAll: "সব ইভেন্ট",
-    catConcert: "কনসার্ট",
-    catEdm: "ইডিএম",
-    catFestival: "উৎসব",
-    catTech: "টেক",
-    catGala: "গালা",
-    catEsports: "ই-স্পোর্টস",
-    otpTitle: "পাসওয়ার্ড ভুলে গেছেন?",
-    otpSub: "আপনার নিবন্ধিত ইমেইল বা ফোন নম্বর লিখে ৬-ডিজিটের ওটিপি কোড পান।",
-    otpTargetLabel: "রিকভারি ইমেইল বা ফোন নম্বর",
-    otpSendBtn: "📱 ৬-ডিজিটের ওটিপি কোড পাঠান",
-    resetTitle: "ওটিপি ও নতুন পাসওয়ার্ড দিন",
-    resetSub: "আমরা ৬-ডিজিটের ওটিপি কোড পাঠিয়েছি এখানে:",
-    otpCodeLabel: "৬-ডিজিটের ওটিপি কোড",
-    newPassLabel: "নতুন পাসওয়ার্ড",
-    resetBtn: "🔒 পাসওয়ার্ড রিসেট ও লগইন করুন",
-    resendOtp: "কোড পাননি? পুনরায় ওটিপি পাঠান",
-    linkForgotPass: "পাসওয়ার্ড ভুলে গেছেন?"
-  }
-};
-
-let currentLang = localStorage.getItem('aura_lang') || 'en';
-
+// Language selector
 function changeLanguage(lang) {
-  currentLang = lang;
   localStorage.setItem('aura_lang', lang);
   const selectEl = document.getElementById('lang-select');
   if (selectEl) selectEl.value = lang;
 
-  if (translations[lang]) {
-    const t = translations[lang];
-    const eventNav = document.querySelector('a[href="#events"]');
-    if (eventNav) eventNav.textContent = t.navEvent;
-    const loginNav = document.querySelector('#nav-login-item a');
-    if (loginNav) loginNav.textContent = t.navLogin;
-    const regNav = document.querySelector('#nav-register-item button');
-    if (regNav) regNav.textContent = t.navRegister;
-    const sellBtn = document.querySelector('.btn-nav-seller');
-    if (sellBtn) sellBtn.innerHTML = `<i class="fa-solid fa-plus-circle"></i> ${t.navSellTickets}`;
-    const dashBtn = document.querySelector('#nav-user-item .btn-primary-3d');
-    if (dashBtn) dashBtn.innerHTML = `<i class="fa-solid fa-gauge-high" style="margin-right:6px;"></i> ${t.navDashboard}`;
-    const heroSub = document.querySelector('.hero-subtitle');
-    if (heroSub) heroSub.textContent = t.heroSubtitle;
-    const heroCta = document.querySelector('.hero-actions button');
-    if (heroCta) heroCta.innerHTML = `<i class="fa-solid fa-compass" style="margin-right:8px;"></i> ${t.heroCta}`;
-    const elOtpTitle = document.getElementById('t-otp-title');
-    if (elOtpTitle) elOtpTitle.textContent = t.otpTitle;
-    const elOtpSub = document.getElementById('t-otp-sub');
-    if (elOtpSub) elOtpSub.textContent = t.otpSub;
-    const elLabelTarget = document.getElementById('t-label-target');
-    if (elLabelTarget) elLabelTarget.textContent = t.otpTargetLabel;
-    const elSendBtn = document.getElementById('t-btn-send-otp');
-    if (elSendBtn) elSendBtn.textContent = t.otpSendBtn;
-    const elResetTitle = document.getElementById('t-reset-title');
-    if (elResetTitle) elResetTitle.textContent = t.resetTitle;
-    const elLabelOtp = document.getElementById('t-label-otp');
-    if (elLabelOtp) elLabelOtp.textContent = t.otpCodeLabel;
-    const elLabelNewPass = document.getElementById('t-label-newpass');
-    if (elLabelNewPass) elLabelNewPass.textContent = t.newPassLabel;
-    const elResetBtn = document.getElementById('t-btn-reset-pass');
-    if (elResetBtn) elResetBtn.textContent = t.resetBtn;
-    const elResendOtp = document.getElementById('t-resend-otp');
-    if (elResendOtp) elResendOtp.textContent = t.resendOtp;
-    const elForgotLink = document.getElementById('t-link-forgot-pass');
-    if (elForgotLink) elForgotLink.textContent = t.linkForgotPass;
-  }
-
-  // Global Web Translation Engine for ALL World Languages
+  // Google Translate via cookie
   if (lang !== 'en') {
     document.cookie = `googtrans=/en/${lang}; path=/`;
     document.cookie = `googtrans=/en/${lang}; domain=${location.hostname}; path=/`;
@@ -1167,21 +1028,15 @@ function changeLanguage(lang) {
   if (combo) {
     combo.value = lang;
     combo.dispatchEvent(new Event('change'));
-  } else {
-    if (!document.getElementById('google-translate-script')) {
-      window.googleTranslateElementInit = function () {
-        new google.translate.TranslateElement({ pageLanguage: 'en', layout: google.translate.TranslateElement.InlineLayout.SIMPLE }, 'google_translate_element');
-      };
-      const s = document.createElement('script');
-      s.id = 'google-translate-script';
-      s.src = '//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
-      document.body.appendChild(s);
-    }
   }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  if (currentLang !== 'en') {
-    setTimeout(() => changeLanguage(currentLang), 300);
+  const saved = localStorage.getItem('aura_lang') || 'en';
+  const selectEl = document.getElementById('lang-select');
+  if (selectEl) selectEl.value = saved;
+
+  if (saved !== 'en') {
+    setTimeout(() => changeLanguage(saved), 300);
   }
 });

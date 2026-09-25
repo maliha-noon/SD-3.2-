@@ -1,0 +1,293 @@
+/* ============================================================
+   AURA++ — FLOW STAGES
+   Controls: entrance gate → welcome → hero-only → login-only → full site
+   Loaded AFTER site.css. Extends it, doesn't replace it.
+   ============================================================ */
+
+/* ============================================================
+   BASE — hide full site until logged in
+   ============================================================ */
+.site-hidden {
+  display: none !important;
+}
+
+body.logged-in .site-hidden {
+  display: block !important;
+}
+
+body.logged-in nav.navbar.site-hidden {
+  display: flex !important;
+}
+
+body.logged-in .corner-ui.site-hidden {
+  display: flex !important;
+}
+
+/* Prevent scroll during gates */
+body.gate-open,
+body.intro-open,
+body.login-gate-open {
+  overflow: hidden;
+}
+
+/* ============================================================
+   STAGE 3 — INTRO SCREEN (hero-only, 4s hold, then Next button)
+   ============================================================ */
+#intro-screen {
+  position: fixed;
+  inset: 0;
+  background: var(--cream);
+  background-image:
+    radial-gradient(circle at 20% 15%, rgba(184, 176, 212, 0.35), transparent 55%),
+    radial-gradient(circle at 80% 85%, rgba(168, 197, 224, 0.3), transparent 55%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  z-index: 9999990;
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.8s ease, visibility 0.8s ease;
+}
+
+#intro-screen.stage-hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.intro-center {
+  text-align: center;
+  max-width: 1000px;
+}
+
+.intro-title {
+  font-family: 'Fraunces', 'Times New Roman', serif;
+  font-weight: 300;
+  font-size: clamp(56px, 10vw, 148px);
+  line-height: 0.92;
+  letter-spacing: -3px;
+  color: var(--text-main);
+  display: block;
+}
+
+.intro-line {
+  display: block;
+  opacity: 0;
+  transform: translateY(40px);
+}
+
+/* When the intro screen becomes active, animate the lines in */
+#intro-screen.active .intro-line {
+  animation: introLineIn 1s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+#intro-screen.active .intro-line:nth-child(1) { animation-delay: 0.15s; }
+#intro-screen.active .intro-line:nth-child(2) { animation-delay: 0.35s; }
+#intro-screen.active .intro-line:nth-child(3) { animation-delay: 0.55s; }
+
+@keyframes introLineIn {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* The "Next" button — hidden until 4s pass */
+.intro-next-btn {
+  position: absolute;
+  bottom: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--charcoal);
+  color: var(--cream);
+  padding: 16px 40px;
+  border-radius: 100px;
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.intro-next-btn.stage-hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.intro-next-btn.revealed {
+  opacity: 1;
+  pointer-events: auto;
+  animation: introBtnFadeIn 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.intro-next-btn:hover {
+  background: var(--primary-hover);
+  transform: translateX(-50%) translateY(-2px);
+  box-shadow: 0 14px 34px rgba(23, 23, 23, 0.22);
+}
+
+@keyframes introBtnFadeIn {
+  from { opacity: 0; transform: translateX(-50%) translateY(20px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+/* ============================================================
+   STAGE 4 — LOGIN-ONLY GATE
+   ============================================================ */
+#login-gate {
+  position: fixed;
+  inset: 0;
+  background: var(--cream);
+  background-image:
+    radial-gradient(circle at 50% 30%, rgba(184, 176, 212, 0.25), transparent 60%),
+    radial-gradient(circle at 80% 80%, rgba(168, 197, 224, 0.25), transparent 55%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  z-index: 9999985;
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.8s ease, visibility 0.8s ease;
+}
+
+#login-gate.stage-hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.login-gate-inner {
+  background: #ffffff;
+  border-radius: 28px;
+  padding: 60px 48px;
+  max-width: 460px;
+  width: 100%;
+  text-align: center;
+  box-shadow:
+    0 40px 100px rgba(23, 23, 23, 0.12),
+    0 0 0 1px rgba(23, 23, 23, 0.04) inset;
+}
+
+.login-gate-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 40px;
+}
+
+.login-gate-brand .gate-mark {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: var(--charcoal);
+  color: var(--cream);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Fraunces', serif;
+  font-size: 30px;
+  font-weight: 400;
+  font-style: italic;
+  margin: 0;
+}
+
+.login-gate-brand .gate-name {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text-main);
+  opacity: 0.55;
+}
+
+.login-gate-title {
+  font-family: 'Fraunces', serif;
+  font-weight: 400;
+  font-size: 40px;
+  letter-spacing: -1.5px;
+  line-height: 1.05;
+  color: var(--text-main);
+  margin-bottom: 8px;
+}
+
+.login-gate-sub {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  color: var(--text-muted);
+  font-weight: 500;
+  margin-bottom: 36px;
+}
+
+.login-gate-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 28px;
+}
+
+.login-gate-btn {
+  width: 100%;
+  padding: 16px 24px;
+  font-size: 15px;
+  border-radius: 100px;
+  justify-content: center;
+  display: inline-flex;
+  align-items: center;
+}
+
+.login-gate-foot {
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  color: var(--text-muted);
+  opacity: 0.7;
+}
+
+/* ============================================================
+   Full-site fade-in when transitioning from login gate
+   ============================================================ */
+body.logged-in main,
+body.logged-in nav.navbar,
+body.logged-in footer,
+body.logged-in .corner-ui {
+  animation: siteFadeIn 1s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes siteFadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 900px) {
+  .intro-title {
+    font-size: clamp(48px, 13vw, 96px);
+    letter-spacing: -2px;
+  }
+  .intro-next-btn {
+    bottom: 40px;
+  }
+  .login-gate-inner {
+    padding: 40px 28px;
+  }
+  .login-gate-title {
+    font-size: 32px;
+  }
+}
