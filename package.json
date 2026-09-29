@@ -1,0 +1,9 @@
+{
+  "name": "aura-app",
+  "version": "1.0.0",
+  "description": "AURA 3D Ultimate Event Experience Platform",
+  "scripts": {
+    "start": "dotnet run",
+    "node-start": "node server.js"
+  }
+}
