@@ -3,325 +3,465 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login · AURA++</title>
-  <link rel="stylesheet" href="css/design-system.css?v=1.0">
+  <title>AURA | Account Login & Registration Portal</title>
+  <meta name="description" content="Login or Create a new account on AURA - The Ultimate Event Experience & Seller Platform.">
+  
+  <!-- Modern Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700;800;900&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-
-    body {
-      font-family: 'Inter', -apple-system, sans-serif;
-      background: var(--cream);
-      background-image:
-        radial-gradient(circle at 20% 15%, rgba(184, 176, 212, 0.35), transparent 55%),
-        radial-gradient(circle at 80% 85%, rgba(168, 197, 224, 0.3), transparent 55%);
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-      color: var(--text-main);
-      -webkit-font-smoothing: antialiased;
-    }
-
-    .card {
-      background: #ffffff;
-      border-radius: 28px;
-      padding: 48px 44px;
-      max-width: 460px;
-      width: 100%;
-      box-shadow:
-        0 40px 100px rgba(23, 23, 23, 0.12),
-        0 0 0 1px rgba(23, 23, 23, 0.04) inset;
-      position: relative;
-    }
-
-    .brand {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 32px;
-    }
-
-    .brand-mark {
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-      background: var(--charcoal);
-      color: var(--cream);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: 'Fraunces', serif;
-      font-size: 30px;
-      font-style: italic;
-    }
-
-    .brand-name {
-      font-family: 'Inter', sans-serif;
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      color: var(--text-muted);
-    }
-
-    h1 {
-      font-family: 'Fraunces', serif;
-      font-weight: 400;
-      font-size: 40px;
-      letter-spacing: -1.5px;
-      line-height: 1.05;
-      text-align: center;
-      margin-bottom: 8px;
-    }
-
-    .sub {
-      text-align: center;
-      font-size: 14px;
-      color: var(--text-muted);
-      margin-bottom: 32px;
-    }
-
-    .field { margin-bottom: 18px; }
-
-    label {
-      display: block;
-      font-size: 12px;
-      font-weight: 600;
-      letter-spacing: 0.2px;
-      margin-bottom: 8px;
-      color: var(--text-main);
-    }
-
-    input {
-      width: 100%;
-      background: var(--input-bg);
-      border: 1.5px solid var(--input-border);
-      border-radius: 14px;
-      padding: 14px 18px;
-      font-family: 'Inter', sans-serif;
-      font-size: 14px;
-      color: var(--text-main);
-      outline: none;
-      transition: all 0.2s ease;
-    }
-
-    input:focus {
-      border-color: var(--charcoal);
-      box-shadow: 0 0 0 3px rgba(23, 23, 23, 0.08);
-    }
-
-    input::placeholder { color: #a8a0a0; }
-
-    .row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 13px;
-      color: var(--text-muted);
-      margin-bottom: 24px;
-    }
-
-    .row label { display: flex; align-items: center; gap: 6px; margin: 0; font-weight: 500; }
-    .row input[type="checkbox"] { width: auto; }
-    .row a { color: var(--text-main); font-weight: 600; text-decoration: none; }
-    .row a:hover { text-decoration: underline; }
-
-    .btn-primary {
-      width: 100%;
-      background: var(--charcoal);
-      color: var(--cream);
-      padding: 16px;
-      border-radius: 100px;
-      font-family: 'Inter', sans-serif;
-      font-size: 15px;
-      font-weight: 600;
-      border: none;
-      cursor: pointer;
-      transition: all 0.25s ease;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-    }
-
-    .btn-primary:hover {
-      background: #2a2a2a;
-      transform: translateY(-1px);
-      box-shadow: 0 12px 28px rgba(23, 23, 23, 0.2);
-    }
-
-    .btn-primary:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-      transform: none;
-    }
-
-    .divider {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      margin: 24px 0;
-      font-size: 12px;
-      color: var(--text-muted);
-    }
-    .divider::before,
-    .divider::after {
-      content: '';
-      flex: 1;
-      height: 1px;
-      background: var(--border-card);
-    }
-
-    .btn-google {
-      width: 100%;
-      background: #ffffff;
-      color: #111;
-      padding: 14px;
-      border-radius: 100px;
-      font-family: 'Inter', sans-serif;
-      font-size: 14px;
-      font-weight: 600;
-      border: 1.5px solid var(--border-card);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      transition: all 0.2s ease;
-    }
-
-    .btn-google:hover { background: #f8f8f8; }
-
-    .foot {
-      text-align: center;
-      font-size: 13px;
-      color: var(--text-muted);
-      margin-top: 24px;
-    }
-
-    .foot a {
-      color: var(--text-main);
-      font-weight: 700;
-      text-decoration: none;
-    }
-    .foot a:hover { text-decoration: underline; }
-
-    .msg {
-      padding: 12px 16px;
-      border-radius: 12px;
-      font-size: 13px;
-      font-weight: 500;
-      margin-bottom: 18px;
-      display: none;
-    }
-    .msg.error { background: rgba(199, 58, 58, 0.08); color: var(--error); border: 1px solid rgba(199, 58, 58, 0.25); display: block; }
-    .msg.success { background: rgba(79, 140, 92, 0.08); color: #4f8c5c; border: 1px solid rgba(79, 140, 92, 0.25); display: block; }
-
-    .back-link {
-      position: absolute;
-      top: 20px;
-      left: 20px;
-      color: var(--text-muted);
-      font-size: 13px;
-      text-decoration: none;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-weight: 500;
-    }
-    .back-link:hover { color: var(--text-main); }
-  </style>
-  <link rel="stylesheet" href="css/interactions.css?v=1.1">
+  
+  <!-- CSS Stylesheet -->
+  <link rel="stylesheet" href="css/site.css?v=21.0">
 </head>
 <body>
 
-  <div class="card">
-    <a href="index.html" class="back-link">
-      <i class="fa-solid fa-arrow-left"></i> Back
+  <!-- 3D NEON CANVAS BACKGROUND -->
+  <canvas id="aura-canvas"></canvas>
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <a href="index.html" class="brand-logo">
+      AURA<span class="red-plus">+</span>
     </a>
+    
+    <ul class="nav-links">
+      <li><a href="index.html" class="nav-link"><i class="fa-solid fa-house" style="margin-right: 5px;"></i> HOME</a></li>
+      <li><a href="dashboard.html" class="nav-link"><i class="fa-solid fa-chart-line" style="margin-right: 5px;"></i> DASHBOARD</a></li>
+      <li><a href="db.html" class="nav-link"><i class="fa-solid fa-database" style="margin-right: 5px;"></i> DB RECORDS</a></li>
+    </ul>
+  </nav>
 
-    <div class="brand">
-      <div class="brand-mark">A</div>
-      <div class="brand-name">AURA++ · TICKETING PLATFORM</div>
+  <!-- TOAST CONTAINER -->
+  <div id="auth-toast-container"></div>
+
+  <!-- AUTH MAIN CONTAINER -->
+  <div class="auth-page-wrapper">
+    <div class="auth-card">
+
+      <!-- AUTH CARD HEADER -->
+      <div class="auth-header">
+        <div class="auth-badge">
+          <i class="fa-solid fa-shield-halved"></i> SECURE AUTHENTICATION
+        </div>
+        <h2 id="auth-title">Welcome to AURA</h2>
+        <p id="auth-subtitle">Access your account, management dashboard & event tickets</p>
+      </div>
+
+      <!-- TAB SWITCHER -->
+      <div class="auth-tabs">
+        <button type="button" class="auth-tab-btn active" id="tab-btn-login" onclick="switchTab('login')">
+          <i class="fa-solid fa-right-to-bracket"></i> Login
+        </button>
+        <button type="button" class="auth-tab-btn" id="tab-btn-register" onclick="switchTab('register')">
+          <i class="fa-solid fa-user-plus"></i> Register
+        </button>
+        <button type="button" class="auth-tab-btn" id="tab-btn-forgot" onclick="switchTab('forgot')">
+          <i class="fa-solid fa-key"></i> Recover
+        </button>
+      </div>
+
+
+
+      <!-- ==================== LOGIN FORM ==================== -->
+      <form id="form-login" onsubmit="handleLoginSubmit(event)">
+        <div class="auth-form-group">
+          <label class="auth-label">Email Address or Phone Number</label>
+          <div class="input-with-icon">
+            <input type="text" id="login-email" class="auth-input" placeholder="e.g. noonmaliha8@gmail.com or 01793755378" required autocomplete="username">
+            <i class="fa-solid fa-envelope input-icon-left"></i>
+          </div>
+        </div>
+
+        <div class="auth-form-group">
+          <label class="auth-label">Password</label>
+          <div class="input-with-icon">
+            <input type="password" id="login-password" class="auth-input" placeholder="••••••••" required autocomplete="current-password">
+            <i class="fa-solid fa-lock input-icon-left"></i>
+            <button type="button" class="toggle-pwd-btn" onclick="togglePasswordVisibility('login-password', this)">
+              <i class="fa-solid fa-eye"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="auth-options-row">
+          <label class="remember-checkbox">
+            <input type="checkbox" id="login-remember" checked>
+            <span>Remember login</span>
+          </label>
+          <button type="button" class="forgot-link" onclick="switchTab('forgot')">Forgot Password?</button>
+        </div>
+
+        <button type="submit" class="btn-auth-submit" id="btn-login-submit">
+          <i class="fa-solid fa-arrow-right-to-bracket"></i> Sign In
+        </button>
+
+        <div class="auth-divider">
+          <span>Or sign in with</span>
+        </div>
+
+        <div class="social-grid">
+          <button type="button" class="social-btn" onclick="demoSocialLogin('Google')">
+            <i class="fa-brands fa-google" style="color: #ea4335;"></i> Google
+          </button>
+          <button type="button" class="social-btn" onclick="demoSocialLogin('GitHub')">
+            <i class="fa-brands fa-github" style="color: #ffffff;"></i> GitHub
+          </button>
+          <button type="button" class="social-btn" onclick="demoSocialLogin('Facebook')">
+            <i class="fa-brands fa-facebook" style="color: #1877f2;"></i> Facebook
+          </button>
+        </div>
+      </form>
+
+
+      <!-- ==================== REGISTER FORM ==================== -->
+      <form id="form-register" style="display: none;" onsubmit="handleRegisterSubmit(event)">
+        <div class="auth-form-group">
+          <label class="auth-label">Full Name</label>
+          <div class="input-with-icon">
+            <input type="text" id="reg-name" class="auth-input" placeholder="e.g. Maliha Parvin" required>
+            <i class="fa-solid fa-user input-icon-left"></i>
+          </div>
+        </div>
+
+        <div class="auth-form-group">
+          <label class="auth-label">Email Address</label>
+          <div class="input-with-icon">
+            <input type="email" id="reg-email" class="auth-input" placeholder="e.g. maliha@aura.com" required>
+            <i class="fa-solid fa-envelope input-icon-left"></i>
+          </div>
+        </div>
+
+        <div class="auth-form-group">
+          <label class="auth-label">Phone Number</label>
+          <div class="input-with-icon">
+            <input type="tel" id="reg-phone" class="auth-input" placeholder="e.g. 01793755378" required>
+            <i class="fa-solid fa-phone input-icon-left"></i>
+          </div>
+        </div>
+
+        <div class="auth-form-group">
+          <label class="auth-label">Password</label>
+          <div class="input-with-icon">
+            <input type="password" id="reg-password" class="auth-input" placeholder="At least 6 characters" required oninput="checkPasswordStrength(this.value)">
+            <i class="fa-solid fa-lock input-icon-left"></i>
+            <button type="button" class="toggle-pwd-btn" onclick="togglePasswordVisibility('reg-password', this)">
+              <i class="fa-solid fa-eye"></i>
+            </button>
+          </div>
+          <!-- PASSWORD STRENGTH METER -->
+          <div class="pwd-strength-wrap">
+            <div class="pwd-strength-bar">
+              <div id="pwd-strength-fill" class="pwd-strength-fill"></div>
+            </div>
+            <span id="pwd-strength-text" class="pwd-strength-text" style="color: #71717a;">Password Strength</span>
+          </div>
+        </div>
+
+        <div class="auth-form-group">
+          <label class="auth-label">Confirm Password</label>
+          <div class="input-with-icon">
+            <input type="password" id="reg-confirm-password" class="auth-input" placeholder="Re-enter password" required oninput="checkPasswordMatch()">
+            <i class="fa-solid fa-shield-check input-icon-left"></i>
+            <button type="button" class="toggle-pwd-btn" onclick="togglePasswordVisibility('reg-confirm-password', this)">
+              <i class="fa-solid fa-eye"></i>
+            </button>
+          </div>
+          <span id="pwd-match-badge" class="pwd-match-badge"></span>
+        </div>
+
+        <div class="auth-options-row">
+          <label class="remember-checkbox">
+            <input type="checkbox" id="reg-terms" required checked>
+            <span>I agree to the <a href="#" style="color: #ef4444;" onclick="event.preventDefault(); showToast('Terms and conditions agreed.', 'info');">Terms & Service</a></span>
+          </label>
+        </div>
+
+        <button type="submit" class="btn-auth-submit" id="btn-register-submit">
+          <i class="fa-solid fa-user-plus"></i> Create Account & Join AURA
+        </button>
+
+        <div class="auth-divider">
+          <span>Or register with</span>
+        </div>
+
+        <div class="social-grid">
+          <button type="button" class="social-btn" onclick="demoSocialLogin('Google')">
+            <i class="fa-brands fa-google" style="color: #ea4335;"></i> Google
+          </button>
+          <button type="button" class="social-btn" onclick="demoSocialLogin('GitHub')">
+            <i class="fa-brands fa-github" style="color: #ffffff;"></i> GitHub
+          </button>
+          <button type="button" class="social-btn" onclick="demoSocialLogin('Facebook')">
+            <i class="fa-brands fa-facebook" style="color: #1877f2;"></i> Facebook
+          </button>
+        </div>
+      </form>
+
+
+      <!-- ==================== FORGOT / RECOVER PASSWORD FORM ==================== -->
+      <div id="form-forgot" style="display: none;">
+        
+        <!-- STEP 1: REQUEST OTP -->
+        <form id="forgot-step-1" onsubmit="handleSendOtp(event)">
+          <div class="auth-form-group">
+            <label class="auth-label">Recovery Email or Phone Number</label>
+            <div class="input-with-icon">
+              <input type="text" id="forgot-target" class="auth-input" placeholder="e.g. noonmaliha8@gmail.com or 01793755378" required>
+              <i class="fa-solid fa-paper-plane input-icon-left"></i>
+            </div>
+          </div>
+          <button type="submit" class="btn-auth-submit" id="btn-otp-send">
+            <i class="fa-solid fa-paper-plane"></i> Send 6-Digit OTP Code
+          </button>
+        </form>
+
+        <!-- STEP 2: VERIFY OTP CODE -->
+        <form id="forgot-step-2" style="display: none;" onsubmit="handleVerifyOtp(event)">
+          <div style="background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); padding: 12px; border-radius: 12px; margin-bottom: 16px; font-size: 12px; color: #93c5fd;">
+            <i class="fa-solid fa-circle-info"></i> OTP sent to <strong id="otp-target-display"></strong>. Check your inbox or SMS.
+          </div>
+
+          <div class="auth-form-group">
+            <label class="auth-label">Enter 6-Digit OTP Code</label>
+            <div class="input-with-icon">
+              <input type="text" id="forgot-otp-code" class="auth-input" placeholder="123456" maxlength="6" required style="letter-spacing: 4px; font-weight: 800; font-size: 18px; text-align: center;">
+              <i class="fa-solid fa-key input-icon-left"></i>
+            </div>
+          </div>
+
+          <button type="submit" class="btn-auth-submit" id="btn-otp-verify">
+            <i class="fa-solid fa-check-circle"></i> Verify OTP Code
+          </button>
+        </form>
+
+        <!-- STEP 3: RESET PASSWORD -->
+        <form id="forgot-step-3" style="display: none;" onsubmit="handleResetPassword(event)">
+          <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); padding: 12px; border-radius: 12px; margin-bottom: 16px; font-size: 12px; color: #6ee7b7;">
+            <i class="fa-solid fa-circle-check"></i> OTP verified successfully! Enter your new password below.
+          </div>
+
+          <div class="auth-form-group">
+            <label class="auth-label">New Password</label>
+            <div class="input-with-icon">
+              <input type="password" id="reset-new-password" class="auth-input" placeholder="Enter new password" required>
+              <i class="fa-solid fa-lock input-icon-left"></i>
+              <button type="button" class="toggle-pwd-btn" onclick="togglePasswordVisibility('reset-new-password', this)">
+                <i class="fa-solid fa-eye"></i>
+              </button>
+            </div>
+          </div>
+
+          <button type="submit" class="btn-auth-submit" id="btn-password-reset">
+            <i class="fa-solid fa-key"></i> Update Password & Sign In
+          </button>
+        </form>
+
+      </div>
+
     </div>
-
-    <h1>Welcome Back</h1>
-    <p class="sub">Sign in to continue to AURA++</p>
-
-    <div id="msg" class="msg" role="status" aria-live="polite"></div>
-
-    <form id="login-form">
-      <div class="field">
-        <label for="email">Email Address</label>
-        <input type="email" id="email" placeholder="you@example.com" required autocomplete="email">
-      </div>
-
-      <div class="field">
-        <label for="password">Password</label>
-        <input type="password" id="password" placeholder="Enter your password" required autocomplete="current-password">
-      </div>
-
-      <div class="row">
-        <label><input type="checkbox"> Remember me</label>
-        <a href="javascript:void(0)" onclick="alert('Password recovery is not available yet. Please contact support.')">Forgot Password?</a>
-      </div>
-
-      <button type="submit" class="btn-primary" id="submit-btn">
-        <i class="fa-solid fa-right-to-bracket"></i>
-        <span>Login</span>
-      </button>
-    </form>
-
-    <div class="divider">OR</div>
-
-      <button type="button" class="btn-google" onclick="handleGoogleLogin()">
-      <i class="fa-brands fa-google" style="color:#4285f4;"></i>
-      Login with Google
-    </button>
-
-    <p class="foot">
-      Don't have an account? <a href="register.html">Create Account</a>
-    </p>
   </div>
 
+
+  <!-- JASVASCRIPT SCRIPT FOR AUTH LOGIC & ANIMATION -->
   <script>
-    /* ---------- login page controller ---------- */
-    const form = document.getElementById('login-form');
-    const submitBtn = document.getElementById('submit-btn');
-    const msg = document.getElementById('msg');
+    // Particle Canvas Animation
+    (function initCanvas() {
+      const canvas = document.getElementById('aura-canvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      let width = canvas.width = window.innerWidth;
+      let height = canvas.height = window.innerHeight;
 
-    function showMessage(text, type) {
-      msg.textContent = text;
-      msg.className = 'msg ' + type;
-    }
+      window.addEventListener('resize', () => {
+        width = canvas.width = window.innerWidth;
+        height = canvas.height = window.innerHeight;
+      });
 
-    function redirectToSite(user) {
-      // Save the user so index.html knows they're logged in
-      localStorage.setItem('aura_user', JSON.stringify(user));
-      // Short delay so success message is visible
+      const particles = Array.from({ length: 45 }, () => ({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        vx: (Math.random() - 0.5) * 0.8,
+        vy: (Math.random() - 0.5) * 0.8,
+        radius: Math.random() * 2.5 + 1,
+        alpha: Math.random() * 0.6 + 0.2
+      }));
+
+      function render() {
+        ctx.clearRect(0, 0, width, height);
+        const gradient = ctx.createRadialGradient(width / 2, height / 2, 100, width / 2, height / 2, Math.max(width, height));
+        gradient.addColorStop(0, 'rgba(30, 10, 20, 0.85)');
+        gradient.addColorStop(1, 'rgba(8, 8, 14, 0.98)');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, width, height);
+
+        particles.forEach(p => {
+          p.x += p.vx;
+          p.y += p.vy;
+          if (p.x < 0 || p.x > width) p.vx *= -1;
+          if (p.y < 0 || p.y > height) p.vy *= -1;
+
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(239, 68, 68, ${p.alpha})`;
+          ctx.shadowBlur = 10;
+          ctx.shadowColor = '#ef4444';
+          ctx.fill();
+        });
+
+        requestAnimationFrame(render);
+      }
+      render();
+    })();
+
+    // Toast Notification System
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('auth-toast-container');
+      const toast = document.createElement('div');
+      toast.className = `auth-toast ${type}`;
+      
+      let icon = 'fa-circle-info';
+      if (type === 'success') icon = 'fa-circle-check';
+      if (type === 'error') icon = 'fa-triangle-exclamation';
+
+      toast.innerHTML = `<i class="fa-solid ${icon}"></i> <span>${message}</span>`;
+      container.appendChild(toast);
+
       setTimeout(() => {
-        window.location.href = 'index.html';
-      }, 400);
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(50px)';
+        toast.style.transition = 'all 0.3s ease';
+        setTimeout(() => toast.remove(), 300);
+      }, 4000);
     }
 
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const email = document.getElementById('email').value.trim();
-      const password = document.getElementById('password').value;
+    // Tab Switching Logic
+    function switchTab(tabName) {
+      const loginForm = document.getElementById('form-login');
+      const registerForm = document.getElementById('form-register');
+      const forgotForm = document.getElementById('form-forgot');
+      const autofillBar = document.getElementById('autofill-bar');
 
-      if (!email || !password) {
-        showMessage('Please fill in both email and password.', 'error');
+      const btnLogin = document.getElementById('tab-btn-login');
+      const btnRegister = document.getElementById('tab-btn-register');
+      const btnForgot = document.getElementById('tab-btn-forgot');
+
+      const title = document.getElementById('auth-title');
+      const subtitle = document.getElementById('auth-subtitle');
+
+      [btnLogin, btnRegister, btnForgot].forEach(b => b.classList.remove('active'));
+      loginForm.style.display = 'none';
+      registerForm.style.display = 'none';
+      forgotForm.style.display = 'none';
+
+      if (tabName === 'login') {
+        btnLogin.classList.add('active');
+        loginForm.style.display = 'block';
+        autofillBar.style.display = 'flex';
+        title.textContent = 'Welcome Back';
+        subtitle.textContent = 'Sign in to access your AURA account & dashboard';
+      } else if (tabName === 'register') {
+        btnRegister.classList.add('active');
+        registerForm.style.display = 'block';
+        autofillBar.style.display = 'none';
+        title.textContent = 'Create Account';
+        subtitle.textContent = 'Join AURA today for instant ticket booking & event selling';
+      } else if (tabName === 'forgot') {
+        btnForgot.classList.add('active');
+        forgotForm.style.display = 'block';
+        autofillBar.style.display = 'none';
+        title.textContent = 'Account Recovery';
+        subtitle.textContent = 'Reset your password via 6-digit OTP code';
+      }
+    }
+
+    // Auto-fill Functions
+    function autofillAdmin() {
+      switchTab('login');
+      document.getElementById('login-email').value = 'noonmaliha8@gmail.com';
+      document.getElementById('login-password').value = '22222';
+      showToast('⚡ Admin credentials auto-filled!', 'success');
+    }
+
+    function autofillUser() {
+      switchTab('login');
+      document.getElementById('login-email').value = 'maliha@aura.com';
+      document.getElementById('login-password').value = '123456';
+      showToast('👤 User credentials auto-filled!', 'info');
+    }
+
+    // Toggle Password Visibility
+    function togglePasswordVisibility(inputId, btn) {
+      const input = document.getElementById(inputId);
+      const icon = btn.querySelector('i');
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.className = 'fa-solid fa-eye-slash';
+      } else {
+        input.type = 'password';
+        icon.className = 'fa-solid fa-eye';
+      }
+    }
+
+    // Password Strength & Match Checkers
+    function checkPasswordStrength(password) {
+      const fill = document.getElementById('pwd-strength-fill');
+      const text = document.getElementById('pwd-strength-text');
+
+      fill.className = 'pwd-strength-fill';
+      if (!password) {
+        text.textContent = 'Password Strength';
+        text.style.color = '#71717a';
         return;
       }
 
-      submitBtn.disabled = true;
-      submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> <span>Signing in...</span>';
+      if (password.length < 6) {
+        fill.classList.add('pwd-strength-weak');
+        text.textContent = 'Weak (Needs 6+ characters)';
+        text.style.color = '#ef4444';
+      } else if (password.length < 10 || !/\d/.test(password)) {
+        fill.classList.add('pwd-strength-medium');
+        text.textContent = 'Medium (Add numbers/symbols)';
+        text.style.color = '#f59e0b';
+      } else {
+        fill.classList.add('pwd-strength-strong');
+        text.textContent = 'Strong Password';
+        text.style.color = '#10b981';
+      }
+      checkPasswordMatch();
+    }
 
-      let user = null;
+    function checkPasswordMatch() {
+      const pwd = document.getElementById('reg-password').value;
+      const confirm = document.getElementById('reg-confirm-password').value;
+      const badge = document.getElementById('pwd-match-badge');
+
+      if (!confirm) {
+        badge.textContent = '';
+        return;
+      }
+
+      if (pwd === confirm) {
+        badge.textContent = '✓ Passwords match';
+        badge.className = 'pwd-match-badge pwd-match-success';
+      } else {
+        badge.textContent = '✕ Passwords do not match';
+        badge.className = 'pwd-match-badge pwd-match-error';
+      }
+    }
+
+    // LOGIN API SUBMISSION
+    async function handleLoginSubmit(e) {
+      e.preventDefault();
+      const email = document.getElementById('login-email').value.trim();
+      const password = document.getElementById('login-password').value;
+      const btn = document.getElementById('btn-login-submit');
+
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Authenticating...';
 
       try {
         const res = await fetch('/api/auth/login', {
@@ -332,26 +472,312 @@
 
         const data = await res.json();
 
-        if (res.ok && data.user) {
-          user = data.user;
-          showMessage('Login successful! Redirecting...', 'success');
-          redirectToSite(user);
-          return;
+        if (res.ok) {
+          localStorage.setItem('aura_user', JSON.stringify(data.user));
+          showThankYouCartoon(data.user.fullName, () => { window.location.href = 'dashboard.html'; });
         } else {
-          showMessage(data.message || 'Login failed. Check your email and password.', 'error');
+          showToast(data.message || 'Invalid email/phone or password.', 'error');
         }
       } catch (err) {
-        console.warn('[login] API unavailable:', err);
-        showMessage('AURA could not reach the sign-in service. Check your connection and try again.', 'error');
+        showToast('Server connection error. Please try again.', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-arrow-right-to-bracket"></i> Sign In';
+      }
+    }
+
+    // REGISTER API SUBMISSION
+    async function handleRegisterSubmit(e) {
+      e.preventDefault();
+      const fullName = document.getElementById('reg-name').value.trim();
+      const email = document.getElementById('reg-email').value.trim();
+      const phone = document.getElementById('reg-phone').value.trim();
+      const password = document.getElementById('reg-password').value;
+      const confirm = document.getElementById('reg-confirm-password').value;
+      const btn = document.getElementById('btn-register-submit');
+
+      if (password !== confirm) {
+        showToast('Passwords do not match.', 'error');
+        return;
       }
 
-      submitBtn.disabled = false;
-      submitBtn.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i> <span>Login</span>';
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Creating Account...';
+
+      try {
+        const res = await fetch('/api/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ fullName, email, phone, password })
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+          localStorage.setItem('aura_user', JSON.stringify(data.user));
+          showThankYouCartoon(data.user.fullName, () => { window.location.href = 'dashboard.html'; });
+        } else {
+          showToast(data.message || 'Registration failed.', 'error');
+        }
+      } catch (err) {
+        showToast('Network error during registration.', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-user-plus"></i> Create Account & Join AURA';
+      }
+    }
+
+    // FORGOT PASSWORD / OTP HANDLERS
+    let recoveryTarget = '';
+    let verifiedOtp = '';
+
+    async function handleSendOtp(e) {
+      e.preventDefault();
+      recoveryTarget = document.getElementById('forgot-target').value.trim();
+      const btn = document.getElementById('btn-otp-send');
+
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Dispatching OTP...';
+
+      try {
+        const res = await fetch('/api/auth/forgot-password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ target: recoveryTarget })
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+          showToast(data.message, 'success');
+          document.getElementById('otp-target-display').textContent = recoveryTarget;
+          document.getElementById('forgot-step-1').style.display = 'none';
+          document.getElementById('forgot-step-2').style.display = 'block';
+        } else {
+          showToast(data.message || 'Could not send OTP.', 'error');
+        }
+      } catch (err) {
+        showToast('Network error sending OTP.', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Send 6-Digit OTP Code';
+      }
+    }
+
+    async function handleVerifyOtp(e) {
+      e.preventDefault();
+      const otpCode = document.getElementById('forgot-otp-code').value.trim();
+      const btn = document.getElementById('btn-otp-verify');
+
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Verifying...';
+
+      try {
+        const res = await fetch('/api/auth/verify-otp', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ target: recoveryTarget, otpCode })
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+          verifiedOtp = otpCode;
+          showToast('OTP verified! Choose a new password.', 'success');
+          document.getElementById('forgot-step-2').style.display = 'none';
+          document.getElementById('forgot-step-3').style.display = 'block';
+        } else {
+          showToast(data.message || 'Invalid or expired OTP.', 'error');
+        }
+      } catch (err) {
+        showToast('Network error verifying OTP.', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-check-circle"></i> Verify OTP Code';
+      }
+    }
+
+    async function handleResetPassword(e) {
+      e.preventDefault();
+      const newPassword = document.getElementById('reset-new-password').value;
+      const btn = document.getElementById('btn-password-reset');
+
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Resetting...';
+
+      try {
+        const res = await fetch('/api/auth/reset-password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ target: recoveryTarget, otpCode: verifiedOtp, newPassword })
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+          showToast('Password reset successful! Logging you in...', 'success');
+          if (data.user) {
+            localStorage.setItem('aura_user', JSON.stringify(data.user));
+          }
+          setTimeout(() => {
+            window.location.href = 'dashboard.html';
+          }, 1200);
+        } else {
+          showToast(data.message || 'Failed to reset password.', 'error');
+        }
+      } catch (err) {
+        showToast('Network error resetting password.', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-key"></i> Update Password & Sign In';
+      }
+    }
+
+    function demoSocialLogin(provider) {
+      showToast(`Redirecting to ${provider} OAuth authentication...`, 'info');
+      setTimeout(() => {
+        autofillUser();
+        showToast(`Signed in via ${provider}!`, 'success');
+      }, 1000);
+    }
+
+    // Read URL Parameters to switch tab if requested (e.g. login.html?tab=register)
+    window.addEventListener('DOMContentLoaded', () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const tabParam = urlParams.get('tab') || urlParams.get('mode');
+      if (tabParam === 'register' || tabParam === 'signup') {
+        switchTab('register');
+      } else if (tabParam === 'forgot' || tabParam === 'recover') {
+        switchTab('forgot');
+      } else {
+        switchTab('login');
+      }
     });
 
-    function handleGoogleLogin() {
-      showMessage('Google sign in is not connected yet.', 'error');
+    // ====================================================
+    // THANK-YOU CARTOON OVERLAY (after login / register)
+    // ====================================================
+    function showThankYouCartoon(name, callback) {
+      const overlay = document.createElement('div');
+      overlay.id = 'ty-overlay';
+      overlay.style.cssText = `
+        position: fixed; inset: 0; z-index: 99999;
+        background: rgba(0,0,0,0.92); backdrop-filter: blur(18px);
+        display: flex; flex-direction: column;
+        align-items: center; justify-content: center;
+        animation: fadeInOverlay 0.4s ease;
+      `;
+      overlay.innerHTML = `
+        <style>
+          @keyframes fadeInOverlay { from { opacity:0 } to { opacity:1 } }
+          @keyframes bounceIn {
+            0%   { transform: scale(0.3) translateY(80px); opacity:0 }
+            60%  { transform: scale(1.12) translateY(-10px); opacity:1 }
+            80%  { transform: scale(0.95) translateY(4px) }
+            100% { transform: scale(1) translateY(0) }
+          }
+          @keyframes floatBody { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+          @keyframes blink { 0%,90%,100%{transform:scaleY(1)} 95%{transform:scaleY(0.1)} }
+          @keyframes waveHand { 0%,100%{transform:rotate(0deg)} 25%{transform:rotate(-20deg)} 75%{transform:rotate(20deg)} }
+          @keyframes sparkle { 0%,100%{opacity:0;transform:scale(0)} 50%{opacity:1;transform:scale(1)} }
+          @keyframes slideUpMsg { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
+          #ty-cartoon-wrap { animation: bounceIn 0.7s cubic-bezier(.36,.07,.19,.97) both; }
+          #ty-body { animation: floatBody 2.5s ease-in-out infinite; }
+          #ty-leye, #ty-reye { animation: blink 3s ease-in-out infinite; transform-origin: center; }
+          #ty-larm { animation: waveHand 1s ease-in-out infinite; transform-origin: top right; }
+          .ty-star { animation: sparkle 1.4s ease-in-out infinite; }
+          #ty-msg { animation: slideUpMsg 0.5s 0.6s ease both; }
+          #ty-btn { 
+            animation: slideUpMsg 0.5s 1s ease both;
+            background: linear-gradient(135deg,#dc2626,#991b1b);
+            border: none; color: #fff; padding: 14px 40px;
+            border-radius: 50px; font-size: 16px; font-weight: 800;
+            cursor: pointer; margin-top: 24px;
+            box-shadow: 0 8px 24px rgba(220,38,38,0.5);
+            transition: transform 0.2s, box-shadow 0.2s;
+          }
+          #ty-btn:hover { transform: scale(1.05); box-shadow: 0 12px 30px rgba(220,38,38,0.7); }
+        </style>
+
+        <!-- Sparkles -->
+        <div style="position:relative;width:340px;text-align:center;">
+          <svg class="ty-star" style="position:absolute;top:10px;left:30px;animation-delay:0s" width="24" height="24" viewBox="0 0 24 24"><polygon points="12,2 15,9 22,9 17,14 19,21 12,17 5,21 7,14 2,9 9,9" fill="#f59e0b"/></svg>
+          <svg class="ty-star" style="position:absolute;top:0;right:40px;animation-delay:0.4s" width="18" height="18" viewBox="0 0 24 24"><polygon points="12,2 15,9 22,9 17,14 19,21 12,17 5,21 7,14 2,9 9,9" fill="#ef4444"/></svg>
+          <svg class="ty-star" style="position:absolute;top:60px;left:10px;animation-delay:0.8s" width="14" height="14" viewBox="0 0 24 24"><polygon points="12,2 15,9 22,9 17,14 19,21 12,17 5,21 7,14 2,9 9,9" fill="#a78bfa"/></svg>
+          <svg class="ty-star" style="position:absolute;top:50px;right:15px;animation-delay:1.1s" width="20" height="20" viewBox="0 0 24 24"><polygon points="12,2 15,9 22,9 17,14 19,21 12,17 5,21 7,14 2,9 9,9" fill="#34d399"/></svg>
+
+          <!-- Cartoon Character SVG -->
+          <div id="ty-cartoon-wrap">
+            <svg id="ty-body" width="180" height="200" viewBox="0 0 180 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <!-- Body -->
+              <ellipse cx="90" cy="155" rx="42" ry="38" fill="#dc2626"/>
+              <!-- AURA text on shirt -->
+              <text x="90" y="160" text-anchor="middle" font-size="13" font-weight="900" fill="white" font-family="Arial">AURA</text>
+              <!-- Neck -->
+              <rect x="81" y="105" width="18" height="18" rx="4" fill="#FBBF8A"/>
+              <!-- Head -->
+              <ellipse cx="90" cy="88" rx="36" ry="34" fill="#FBBF8A"/>
+              <!-- Hair -->
+              <ellipse cx="90" cy="58" rx="34" ry="18" fill="#7c3aed"/>
+              <ellipse cx="62" cy="72" rx="10" ry="14" fill="#7c3aed"/>
+              <ellipse cx="118" cy="72" rx="10" ry="14" fill="#7c3aed"/>
+              <!-- Eyes -->
+              <g id="ty-leye"><ellipse cx="76" cy="88" rx="7" ry="8" fill="white"/><circle cx="77" cy="89" r="4" fill="#1e1b4b"/><circle cx="79" cy="87" r="1.5" fill="white"/></g>
+              <g id="ty-reye"><ellipse cx="104" cy="88" rx="7" ry="8" fill="white"/><circle cx="105" cy="89" r="4" fill="#1e1b4b"/><circle cx="107" cy="87" r="1.5" fill="white"/></g>
+              <!-- Smile -->
+              <path d="M77 102 Q90 116 103 102" stroke="#c2410c" stroke-width="3" fill="none" stroke-linecap="round"/>
+              <!-- Cheeks -->
+              <ellipse cx="68" cy="98" rx="8" ry="5" fill="#fb7185" opacity="0.6"/>
+              <ellipse cx="112" cy="98" rx="8" ry="5" fill="#fb7185" opacity="0.6"/>
+              <!-- Left arm (waving) -->
+              <g id="ty-larm">
+                <rect x="42" y="120" width="14" height="38" rx="7" fill="#dc2626"/>
+                <ellipse cx="49" cy="163" rx="11" ry="11" fill="#FBBF8A"/>
+                <!-- Hand wave lines -->
+                <line x1="44" y1="155" x2="38" y2="148" stroke="#FBBF8A" stroke-width="3" stroke-linecap="round"/>
+                <line x1="44" y1="160" x2="36" y2="155" stroke="#FBBF8A" stroke-width="3" stroke-linecap="round"/>
+              </g>
+              <!-- Right arm -->
+              <rect x="124" y="120" width="14" height="38" rx="7" fill="#dc2626"/>
+              <ellipse cx="131" cy="163" rx="11" ry="11" fill="#FBBF8A"/>
+              <!-- Legs -->
+              <rect x="68" y="188" width="18" height="10" rx="5" fill="#1e1b4b"/>
+              <rect x="94" y="188" width="18" height="10" rx="5" fill="#1e1b4b"/>
+            </svg>
+          </div>
+
+          <!-- Speech Bubble -->
+          <div id="ty-msg" style="
+            background: white; border-radius: 20px; padding: 16px 24px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+            font-family: 'Inter',sans-serif; position: relative; margin-top: 8px;
+          ">
+            <div style="position:absolute;top:-14px;left:50%;transform:translateX(-50%);
+              width:0;height:0;border-left:14px solid transparent;
+              border-right:14px solid transparent;border-bottom:14px solid white;"></div>
+            <p style="margin:0;font-size:22px;font-weight:900;color:#dc2626;">Thank you! 🎉</p>
+            <p style="margin:6px 0 0;font-size:14px;color:#374151;font-weight:600;">
+              Welcome to AURA, <strong>${name}</strong>!<br>
+              <span style="color:#6b7280;font-size:13px;">Redirecting you to your dashboard...</span>
+            </p>
+          </div>
+
+          <button id="ty-btn" onclick="document.getElementById('ty-overlay').remove(); (window._tyCallback && window._tyCallback());">
+            🚀 Let's Go!
+          </button>
+        </div>
+      `;
+      window._tyCallback = callback;
+      document.body.appendChild(overlay);
+      // Auto-redirect after 3.5s
+      setTimeout(() => {
+        if (document.getElementById('ty-overlay')) {
+          overlay.remove();
+          callback();
+        }
+      }, 3500);
     }
+
   </script>
 </body>
 </html>

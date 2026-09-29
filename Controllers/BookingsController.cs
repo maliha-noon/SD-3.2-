@@ -123,16 +123,63 @@ public class BookingsController : ControllerBase
                     b.Event.Currency,
                     b.Event.ImageUrl
                 }
-            }).ToListAsync());
-    }
+            }
 
-    [HttpGet("user/{userId}")]
-    public async Task<IActionResult> GetUserBookings(int userId)
-    {
-        var uid = await GetEffectiveUserIdAsync();
-        return Ok(await db.Bookings.Where(b => b.UserId == userId)
-            .OrderByDescending(b => b.BookingDate)
-            .Select(b => new
+            string effectiveMethod = dto.PaymentMethod;
+            if (!string.IsNullOrWhiteSpace(dto.PaymentSubMethod))
+            {
+                effectiveMethod = $"{dto.PaymentMethod} ({dto.PaymentSubMethod})";
+            }
+            else if (dto.PaymentMethod == "Card" && !string.IsNullOrWhiteSpace(dto.CardType))
+            {
+                effectiveMethod = $"Card ({dto.CardType})";
+            }
+
+            string paymentAccount = dto.PaymentMethod switch
+            {
+                "bKash" => !string.IsNullOrEmpty(dto.AccountNumber) ? dto.AccountNumber : "bKash Account",
+                "Nagad" => !string.IsNullOrEmpty(dto.AccountNumber) ? dto.AccountNumber : "Nagad Account",
+                "Card" => !string.IsNullOrEmpty(dto.CardNumber) && dto.CardNumber.Length >= 4
+                          ? $"{(!string.IsNullOrWhiteSpace(dto.CardType) ? dto.CardType : "Card")} **** {dto.CardNumber[^4..]}"
+                          : (!string.IsNullOrWhiteSpace(dto.CardHolderName) ? dto.CardHolderName : "Card Payment"),
+                _ => !string.IsNullOrEmpty(dto.AccountNumber) ? dto.AccountNumber : dto.PaymentMethod
+            };
+
+            string txPrefix = dto.PaymentMethod switch
+            {
+                "bKash" => "BKASH-",
+                "Nagad" => "NAGAD-",
+                "Card" => (!string.IsNullOrWhiteSpace(dto.CardType) && dto.CardType.ToUpper().Contains("AMEX")) ? "AMEX-" :
+                          (!string.IsNullOrWhiteSpace(dto.CardType) && dto.CardType.ToUpper().Contains("VISA")) ? "VISA-" :
+                          (!string.IsNullOrWhiteSpace(dto.CardType) && dto.CardType.ToUpper().Contains("MASTER")) ? "MC-" : "CARD-",
+                _ => "TXN-"
+            };
+
+            var txId = txPrefix + Guid.NewGuid().ToString("N")[..10].ToUpper();
+            var seat = !string.IsNullOrWhiteSpace(dto.SeatNumber) ? dto.SeatNumber : ("A-" + Random.Shared.Next(1, 50));
+
+            var booking = new Booking
+            {
+                UserId = user.Id,
+                EventId = dto.EventId,
+                UserName = user.FullName,
+                UserEmail = user.Email,
+                EventTitle = evt.Title,
+                Quantity = dto.Quantity,
+                SeatNumber = seat,
+                PaymentMethod = effectiveMethod,
+                PaymentAccount = paymentAccount,
+                TransactionId = txId,
+                BookingDate = DateTime.UtcNow,
+                BookingCode = "TKT-" + Guid.NewGuid().ToString("N")[..8].ToUpper(),
+                Status = "Confirmed"
+            };
+
+            evt.AvailableTickets -= dto.Quantity;
+            _context.Bookings.Add(booking);
+            await _context.SaveChangesAsync();
+
+            return Ok(new
             {
                 b.Id,
                 b.BookingCode,
@@ -145,79 +192,177 @@ public class BookingsController : ControllerBase
                 b.EventTitle,
                 Event = b.Event == null ? null : new
                 {
-                    b.Event.Id,
-                    b.Event.Title,
-                    b.Event.Venue,
-                    b.Event.Location,
-                    b.Event.EventDate,
-                    b.Event.Price,
-                    b.Event.Currency,
-                    b.Event.ImageUrl
+                    booking.Id,
+                    booking.BookingCode,
+                    SeatNumber = booking.SeatNumber,
+                    TotalAmount = evt.Price * dto.Quantity,
+                    booking.Quantity,
+                    booking.PaymentMethod,
+                    booking.TransactionId,
+                    booking.Status,
+                    EventTitle = evt.Title,
+                    evt.Venue,
+                    evt.Location,
+                    evt.EventDate
                 }
             }).ToListAsync());
     }
 
-    [HttpGet("tickets")]
-    public async Task<IActionResult> Tickets()
-    {
-        var uid = await GetEffectiveUserIdAsync();
-        return Ok(await db.Tickets.Include(t => t.Event).Include(t => t.Booking)
-            .Where(t => t.OwnerUserId == uid)
-            .OrderByDescending(t => t.IssuedAt)
-            .Select(t => new
+        [HttpGet("user/{userId}")]
+        public async Task<IActionResult> GetUserBookings(int userId)
+        {
+            var bookings = await _context.Bookings
+                .Include(b => b.Event)
+                .Where(b => b.UserId == userId)
+                .OrderByDescending(b => b.BookingDate)
+                .Select(b => new
+                {
+                    b.Id,
+                    b.BookingCode,
+                    SeatNumber = "A-25",
+                    EventTitle = !string.IsNullOrEmpty(b.EventTitle) ? b.EventTitle : (b.Event != null ? b.Event.Title : "Event Ticket"),
+                    b.Quantity,
+                    TotalAmount = b.Event != null ? b.Event.Price * b.Quantity : 0,
+                    b.PaymentMethod,
+                    b.TransactionId,
+                    b.BookingDate,
+                    b.Status,
+                    Event = new
+                    {
+                        b.Event!.Id,
+                        b.Event.Title,
+                        b.Event.Venue,
+                        b.Event.Location,
+                        b.Event.EventDate,
+                        b.Event.Price,
+                        b.Event.Currency,
+                        b.Event.ImageUrl
+                    }
+                })
+                .ToListAsync();
+
+            return Ok(bookings);
+        }
+
+        [HttpGet("all")]
+        public async Task<IActionResult> GetAllBookings()
+        {
+            var bookings = await _context.Bookings
+                .Include(b => b.Event)
+                .OrderByDescending(b => b.BookingDate)
+                .Select(b => new
+                {
+                    b.Id,
+                    b.BookingCode,
+                    SeatNumber = "A-25",
+                    b.UserName,
+                    b.UserEmail,
+                    EventTitle = !string.IsNullOrEmpty(b.EventTitle) ? b.EventTitle : (b.Event != null ? b.Event.Title : "Event Ticket"),
+                    b.Quantity,
+                    TotalAmount = b.Event != null ? b.Event.Price * b.Quantity : 0,
+                    b.PaymentMethod,
+                    b.TransactionId,
+                    b.BookingDate,
+                    b.Status,
+                    Venue = b.Event != null ? b.Event.Venue : "City Convention Center",
+                    Location = b.Event != null ? b.Event.Location : "Dhaka, Bangladesh",
+                    EventDate = b.Event != null ? b.Event.EventDate : b.BookingDate
+                })
+                .ToListAsync();
+
+            return Ok(bookings);
+        }
+
+        public class ScanRequestDto
+        {
+            public string Code { get; set; } = string.Empty;
+        }
+
+        [HttpPost("verify")]
+        public async Task<IActionResult> VerifyTicket([FromBody] ScanRequestDto dto)
+        {
+            var code = (dto.Code ?? string.Empty).Trim().ToUpper();
+            var booking = await _context.Bookings
+                .Include(b => b.Event)
+                .FirstOrDefaultAsync(b => b.BookingCode.ToUpper() == code || b.TransactionId.ToUpper() == code);
+
+            if (booking == null)
             {
-                t.Id,
-                t.TicketCode,
-                t.Status,
-                t.Price,
-                t.IssuedAt,
-                t.EventId,
-                Event = t.Event == null ? null : new { t.Event.Title, t.Event.EventDate, t.Event.Venue, t.Event.Location, t.Event.ImageUrl },
-                Booking = t.Booking == null ? null : new { t.Booking.BookingCode, t.Booking.TransactionId, t.Booking.BookingDate, t.Booking.PaymentMethod }
-            }).ToListAsync());
-    }
+                return NotFound(new { valid = false, status = "NOT_FOUND", message = $"No ticket record found matching '{code}'." });
+            }
 
-    [HttpPost("verify")]
-    public async Task<IActionResult> VerifyBooking(VerifyBookingDto dto)
-    {
-        var code = (dto.BookingCode ?? "").Trim().ToUpperInvariant();
-        if (code.Length == 0) return BadRequest(new { state = "invalid", message = "Enter a ticket ID to verify." });
-
-        var ticket = await db.Tickets.Include(t => t.Event).Include(t => t.Owner).FirstOrDefaultAsync(t => t.TicketCode == code);
-        var booking = ticket == null ? await db.Bookings.Include(b => b.Event).Include(b => b.User).FirstOrDefaultAsync(b => b.BookingCode == code) : null;
-        var result = ticket?.Status ?? booking?.Status ?? "NotFound";
-        var state = result.Equals("Used", StringComparison.OrdinalIgnoreCase) || result.Equals("Redeemed", StringComparison.OrdinalIgnoreCase) ? "used"
-            : result.Equals("Cancelled", StringComparison.OrdinalIgnoreCase) ? "cancelled"
-            : result.Equals("Resold", StringComparison.OrdinalIgnoreCase) ? "resold"
-            : ticket != null && ticket.Status == "Valid" || booking?.Status == "Confirmed" ? "verified" : "notFound";
-
-        var uid = CurrentUserId;
-        db.VerificationAttempts.Add(new VerificationAttempt { UserId = uid, TicketCode = code, Result = state, CheckedAt = DateTime.UtcNow });
-        await db.SaveChangesAsync();
-
-        if (state == "notFound") return NotFound(new { state = "notFound", message = "Ticket not found. This ticket could not be verified through AURA." });
-
-        object ticketInfo = ticket != null
-            ? new { ticketId = ticket.TicketCode, ticket.Status, ticket.Price, ticketType = "General admission", @event = ticket.Event?.Title, eventDate = ticket.Event?.EventDate, venue = ticket.Event?.Venue, owner = uid == ticket.OwnerUserId ? ticket.Owner?.FullName : null }
-            : new { ticketId = booking!.BookingCode, booking.Status, price = 0m, ticketType = "Booking", @event = booking.Event?.Title, eventDate = booking.Event?.EventDate, venue = booking.Event?.Venue, owner = (string?)null };
-
-        return Ok(new { state, message = state switch { "verified" => "Verified ticket. Ownership and active status confirmed through AURA.", "used" => "Ticket already used.", "cancelled" => "This ticket was cancelled.", "resold" => "This ticket was transferred to a new owner.", _ => "Ticket could not be verified." }, ticket = ticketInfo });
-    }
-
-    [HttpGet("verification-history")]
-    public async Task<IActionResult> VerificationHistory()
-    {
-        var uid = await GetEffectiveUserIdAsync();
-        return Ok(await db.VerificationAttempts.Where(v => v.UserId == uid)
-            .OrderByDescending(v => v.CheckedAt)
-            .Take(100)
-            .Select(v => new
+            bool isUsed = booking.Status == "Checked In";
+            return Ok(new
             {
-                v.Id,
-                v.TicketCode,
-                v.Result,
-                v.CheckedAt,
-                EventTitle = db.Tickets.Where(t => t.TicketCode == v.TicketCode).Select(t => t.Event!.Title).FirstOrDefault() ?? db.Bookings.Where(b => b.BookingCode == v.TicketCode).Select(b => b.Event!.Title).FirstOrDefault()
-            }).ToListAsync());
+                valid = !isUsed,
+                status = isUsed ? "USED" : "VALID",
+                message = isUsed ? "Ticket has already been checked-in!" : "Ticket is Valid and Ready for Gate Entry!",
+                booking = new
+                {
+                    booking.Id,
+                    booking.BookingCode,
+                    EventTitle = booking.EventTitle ?? booking.Event?.Title,
+                    booking.UserName,
+                    booking.UserEmail,
+                    booking.Quantity,
+                    booking.Status,
+                    booking.PaymentMethod
+                }
+            });
+        }
+
+        [HttpPost("checkin")]
+        public async Task<IActionResult> CheckInTicket([FromBody] ScanRequestDto dto)
+        {
+            var code = (dto.Code ?? string.Empty).Trim().ToUpper();
+            var booking = await _context.Bookings
+                .Include(b => b.Event)
+                .FirstOrDefaultAsync(b => b.BookingCode.ToUpper() == code || b.TransactionId.ToUpper() == code);
+
+            if (booking == null)
+            {
+                return NotFound(new { success = false, message = "Ticket code invalid or not found." });
+            }
+
+            if (booking.Status == "Checked In")
+            {
+                return BadRequest(new { success = false, status = "ALREADY_USED", message = $"Ticket {booking.BookingCode} was ALREADY checked in." });
+            }
+
+            booking.Status = "Checked In";
+            await _context.SaveChangesAsync();
+
+            return Ok(new
+            {
+                success = true,
+                message = $"TICKET VALIDATED! Welcome {booking.UserName} to {booking.EventTitle}",
+                booking
+            });
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteBooking(int id)
+        {
+            var booking = await _context.Bookings.FindAsync(id);
+            if (booking == null)
+            {
+                return NotFound(new { success = false, message = "Booking record not found." });
+            }
+
+            if (booking.EventId > 0)
+            {
+                var evt = await _context.Events.FindAsync(booking.EventId);
+                if (evt != null)
+                {
+                    evt.AvailableTickets += booking.Quantity;
+                }
+            }
+
+            _context.Bookings.Remove(booking);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { success = true, message = $"Booking #{id} deleted successfully." });
+        }
     }
 }
+

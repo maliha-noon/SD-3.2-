@@ -14,16 +14,76 @@ public class EventsController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetEvents([FromQuery]string? q,[FromQuery]string? category,[FromQuery]string? location,[FromQuery]DateTime? from,[FromQuery]DateTime? to,[FromQuery]decimal? minPrice,[FromQuery]decimal? maxPrice,[FromQuery]string? sort)
     {
-        var query=db.Events.AsNoTracking().Where(e=>e.EventDate>=DateTime.UtcNow.AddHours(-6));
-        if(!string.IsNullOrWhiteSpace(q)) query=query.Where(e=>e.Title.Contains(q)||e.Description.Contains(q)||e.Venue.Contains(q)||e.Location.Contains(q)||e.Category.Contains(q));
-        if(!string.IsNullOrWhiteSpace(category)&&category!="all") query=query.Where(e=>e.Category.ToLower()==category.ToLower());
-        if(!string.IsNullOrWhiteSpace(location)) query=query.Where(e=>e.Location.Contains(location)||e.Venue.Contains(location));
-        if(from.HasValue) query=query.Where(e=>e.EventDate>=from.Value);
-        if(to.HasValue) query=query.Where(e=>e.EventDate<=to.Value);
-        if(minPrice.HasValue) query=query.Where(e=>e.Price>=minPrice.Value);
-        if(maxPrice.HasValue) query=query.Where(e=>e.Price<=maxPrice.Value);
-        query=sort switch {"price"=>query.OrderBy(e=>e.Price),"price-desc"=>query.OrderByDescending(e=>e.Price),"popular"=>query.OrderByDescending(e=>e.TotalTickets-e.AvailableTickets),_=>query.OrderBy(e=>e.EventDate)};
-        return Ok(await query.Select(e => new { e.Id, e.Title, e.Description, e.Venue, e.Location, e.EventDate, e.Price, e.Currency, e.ImageUrl, e.TotalTickets, e.AvailableTickets, e.Category, e.OrganizerUserId }).ToListAsync());
+        private readonly AuraDbContext _context;
+
+        public EventsController(AuraDbContext context)
+        {
+            _context = context;
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetEvents()
+        {
+            var events = await _context.Events.OrderBy(e => e.EventDate).ToListAsync();
+            return Ok(events);
+        }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetEvent(int id)
+        {
+            var evt = await _context.Events.FindAsync(id);
+            if (evt == null)
+            {
+                return NotFound(new { message = "Event not found." });
+            }
+            return Ok(evt);
+        }
+
+        [HttpPost("create")]
+        public async Task<IActionResult> CreateEvent([FromBody] CreateEventDto dto)
+        {
+            var user = await _context.Users.FindAsync(dto.OrganizerUserId);
+            if (user == null)
+            {
+                return BadRequest(new { message = "Organizer user not found." });
+            }
+
+            if (!user.IsSubscribed || (user.SubscriptionExpiresAt.HasValue && user.SubscriptionExpiresAt < DateTime.UtcNow))
+            {
+                return Unauthorized(new { message = "Only Subscribed Pro Organizers can list and sell tickets on AURA. Please subscribe to unlock seller features." });
+            }
+
+            var evt = new Event
+            {
+                Title = dto.Title,
+                Description = dto.Description,
+                Venue = dto.Venue,
+                Location = dto.Location,
+                EventDate = dto.EventDate,
+                Price = dto.Price,
+                Currency = dto.Currency ?? "BDT",
+                ImageUrl = string.IsNullOrWhiteSpace(dto.ImageUrl)
+                    ? "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=800"
+                    : dto.ImageUrl,
+                TotalTickets = dto.TotalTickets,
+                AvailableTickets = dto.TotalTickets,
+                Category = dto.Category ?? "Concert",
+                OrganizerUserId = dto.OrganizerUserId,
+                SellerPaymentMethod = string.IsNullOrWhiteSpace(dto.SellerPaymentMethod) ? "bKash" : dto.SellerPaymentMethod,
+                SellerAccountNumber = dto.SellerAccountNumber ?? string.Empty,
+                SellerBankName = dto.SellerBankName ?? string.Empty,
+                SellerAccountHolder = dto.SellerAccountHolder ?? string.Empty
+            };
+
+            _context.Events.Add(evt);
+            await _context.SaveChangesAsync();
+
+            return Ok(new
+            {
+                message = "Event created successfully and listed for ticket sales!",
+                evt
+            });
+        }
     }
     [HttpGet("{id:int}")]
     public async Task<IActionResult> GetEvent(int id)

@@ -1,0 +1,3 @@
+@echo off
+echo Starting AURA ASP.NET Core Website on http://localhost:5000 ...
+dotnet run

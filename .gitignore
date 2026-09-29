@@ -1,38 +1,6 @@
-## AURA++ — .gitignore
-
-# Build output
 bin/
 obj/
-tmp-build/
-
-# .NET user secrets
-*.user
-appsettings.Development.json
-
-# SQLite database files
-*.db
-*.db-shm
-*.db-wal
-
-# Docker secrets / environment
-.env
-!.env.example
-
-# IDE folders
 .vs/
-.vscode/
-.idea/
-*.suo
+publish/
+aura.db
 *.user
-
-# OS generated files
-.DS_Store
-Thumbs.db
-
-# Logs
-*.log
-logs/
-
-# Temp / scratch
-fix_*.py
-*.bak

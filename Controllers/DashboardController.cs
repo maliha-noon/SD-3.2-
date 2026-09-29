@@ -1,100 +1,125 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using AuraApp.Data;
+using AuraApp.Models;
 
-namespace AuraApp.Controllers;
-
-[ApiController, Route("api/dashboard")]
-public class DashboardController : ControllerBase
+namespace AuraApp.Controllers
 {
-    private readonly AuraDbContext db;
-    public DashboardController(AuraDbContext context) => db = context;
-
-    // ── Overview Summary Stats ──────────────────────────────────────────────────
-    [HttpGet("summary")]
-    public async Task<IActionResult> GetDashboardSummary()
+    [ApiController]
+    [Route("api/[controller]")]
+    public class DashboardController : ControllerBase
     {
-        var totalTicketsSold = await db.Bookings.Where(b => b.Status == "Confirmed").SumAsync(b => b.Quantity);
-        var pendingTickets = await db.Bookings.Where(b => b.Status == "Pending").SumAsync(b => b.Quantity);
-        var activeTickets = await db.Tickets.CountAsync(t => t.Status == "Valid");
-        var resaleListings = await db.ResaleListings.CountAsync(r => r.Status == "Active");
-        
-        var totalRevenue = await db.Bookings
-            .Where(b => b.Status == "Confirmed")
-            .Join(db.Events, b => b.EventId, e => e.Id, (b, e) => b.Quantity * e.Price)
-            .SumAsync();
+        private readonly AuraDbContext _context;
 
-        return Ok(new
+        public DashboardController(AuraDbContext context)
         {
-            ticketsSold    = totalTicketsSold > 0 ? totalTicketsSold : 1420,
-            pendingTickets = pendingTickets > 0 ? pendingTickets : 18,
-            activeTickets  = activeTickets > 0 ? activeTickets : 45,
-            resaleListings = resaleListings > 0 ? resaleListings : 12,
-            totalRevenue   = totalRevenue > 0 ? totalRevenue : 426000,
-            adminName      = "Maliha Parvin"
-        });
-    }
+            _context = context;
+        }
 
-    // ── Sold Tickets Records ────────────────────────────────────────────────────
-    [HttpGet("sold-tickets")]
-    public async Task<IActionResult> GetSoldTickets()
-    {
-        var soldTickets = await db.Bookings
-            .Where(b => b.Status == "Confirmed")
-            .OrderByDescending(b => b.BookingDate)
-            .Select(b => new
+        /// <summary>
+        /// Gets overall system analytics summary stats for the master dashboard.
+        /// </summary>
+        [HttpGet("summary")]
+        public async Task<IActionResult> GetSummary()
+        {
+            var totalBookings = await _context.Bookings.CountAsync();
+            var acceptedCount = await _context.Bookings.CountAsync(b => b.Status == "Confirmed" || b.Status == "Accepted");
+            var pendingCount = await _context.Bookings.CountAsync(b => b.Status == "Pending");
+            
+            var bookingsWithEvents = await _context.Bookings.Include(b => b.Event).ToListAsync();
+            var totalRevenue = bookingsWithEvents.Sum(b => (b.Event != null ? b.Event.Price * b.Quantity : 300 * b.Quantity));
+
+            var totalEvents = await _context.Events.CountAsync();
+            var activeSubscriptions = await _context.Subscriptions.CountAsync();
+
+            return Ok(new
             {
-                b.Id,
-                TicketCode      = b.BookingCode,
-                BuyerEmail      = string.IsNullOrWhiteSpace(b.UserEmail) ? (b.User != null ? b.User.Email : "buyer@aura.com") : b.UserEmail,
-                BuyerName       = string.IsNullOrWhiteSpace(b.UserName) ? (b.User != null ? b.User.FullName : "Customer") : b.UserName,
-                EventTitle      = b.EventTitle ?? (b.Event != null ? b.Event.Title : "Event Ticket"),
-                PaymentMethod   = b.PaymentMethod,
-                BookingDate     = b.BookingDate,
-                Quantity        = b.Quantity,
-                Price           = b.Event != null ? b.Event.Price * b.Quantity : 300 * b.Quantity,
-                Status          = b.Status
-            })
-            .ToListAsync();
+                totalBookings,
+                acceptedCount,
+                pendingCount,
+                totalRevenue,
+                totalEvents,
+                activeSubscriptions
+            });
+        }
 
-        return Ok(soldTickets);
-    }
+        /// <summary>
+        /// Gets all system booking records with optional status filter (ALL, ACCEPTED, PENDING).
+        /// </summary>
+        [HttpGet("records")]
+        public async Task<IActionResult> GetRecords([FromQuery] string status = "ALL")
+        {
+            var query = _context.Bookings.Include(b => b.Event).AsQueryable();
 
-    // ── Pending Tickets Records ─────────────────────────────────────────────────
-    [HttpGet("pending-tickets")]
-    public async Task<IActionResult> GetPendingTickets()
-    {
-        var pendingTickets = await db.Bookings
-            .Where(b => b.Status == "Pending")
-            .OrderByDescending(b => b.BookingDate)
-            .Select(b => new
+            if (!string.IsNullOrWhiteSpace(status) && !status.Equals("ALL", StringComparison.OrdinalIgnoreCase))
             {
-                b.Id,
-                TicketCode       = b.BookingCode,
-                ConfirmationSign = "CONF-" + b.BookingCode,
-                BuyerName        = string.IsNullOrWhiteSpace(b.UserName) ? (b.User != null ? b.User.FullName : "Guest Customer") : b.UserName,
-                BuyerEmail       = string.IsNullOrWhiteSpace(b.UserEmail) ? (b.User != null ? b.User.Email : "buyer@aura.com") : b.UserEmail,
-                EventTitle       = b.EventTitle ?? (b.Event != null ? b.Event.Title : "Event Ticket"),
-                Quantity         = b.Quantity,
-                Price            = b.Event != null ? b.Event.Price * b.Quantity : 300 * b.Quantity,
-                Status           = "Pending"
-            })
-            .ToListAsync();
+                if (status.Equals("ACCEPTED", StringComparison.OrdinalIgnoreCase))
+                {
+                    query = query.Where(b => b.Status == "Confirmed" || b.Status == "Accepted");
+                }
+                else if (status.Equals("PENDING", StringComparison.OrdinalIgnoreCase))
+                {
+                    query = query.Where(b => b.Status == "Pending");
+                }
+            }
 
-        return Ok(pendingTickets);
-    }
+            var records = await query
+                .OrderByDescending(b => b.BookingDate)
+                .Select(b => new
+                {
+                    b.Id,
+                    b.BookingCode,
+                    SeatNumber = "A-25",
+                    b.UserName,
+                    b.UserEmail,
+                    EventTitle = !string.IsNullOrEmpty(b.EventTitle) ? b.EventTitle : (b.Event != null ? b.Event.Title : "Event Ticket"),
+                    b.Quantity,
+                    TotalAmount = b.Event != null ? b.Event.Price * b.Quantity : 300 * b.Quantity,
+                    b.PaymentMethod,
+                    b.TransactionId,
+                    b.BookingDate,
+                    b.Status,
+                    Venue = b.Event != null ? b.Event.Venue : "City Stadium",
+                    Location = b.Event != null ? b.Event.Location : "Dhaka, Bangladesh",
+                    EventDate = b.Event != null ? b.Event.EventDate : b.BookingDate
+                })
+                .ToListAsync();
 
-    // ── Admin Delete Pending Ticket (Admin Maliha Parvin Action) ────────────────
-    [HttpDelete("pending-tickets/{id:int}")]
-    [HttpPost("pending-tickets/{id:int}/delete")]
-    public async Task<IActionResult> DeletePendingTicket(int id)
-    {
-        var booking = await db.Bookings.FindAsync(id);
-        if (booking == null) return NotFound(new { message = "Pending ticket record not found." });
+            return Ok(records);
+        }
 
-        db.Bookings.Remove(booking);
-        await db.SaveChangesAsync();
+        /// <summary>
+        /// Gets all subscription pass records.
+        /// </summary>
+        [HttpGet("subscriptions")]
+        public async Task<IActionResult> GetSubscriptions()
+        {
+            var subs = await _context.Subscriptions
+                .OrderByDescending(s => s.CreatedAt)
+                .ToListAsync();
+            return Ok(subs);
+        }
 
-        return Ok(new { message = "Pending ticket deleted successfully by Admin Maliha Parvin.", deletedId = id });
+        /// <summary>
+        /// Approves and accepts a pending ticket booking by ID.
+        /// </summary>
+        [HttpPost("approve/{id}")]
+        public async Task<IActionResult> ApproveBooking(int id)
+        {
+            var booking = await _context.Bookings.FindAsync(id);
+            if (booking == null)
+            {
+                return NotFound(new { message = "Booking record not found." });
+            }
+
+            booking.Status = "Accepted";
+            await _context.SaveChangesAsync();
+
+            return Ok(new
+            {
+                message = $"Ticket {booking.BookingCode} status updated to ACCEPTED!",
+                booking
+            });
+        }
     }
 }
