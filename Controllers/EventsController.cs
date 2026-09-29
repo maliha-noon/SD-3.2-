@@ -45,7 +45,7 @@ namespace AuraApp.Controllers
 
             if (!user.IsSubscribed || (user.SubscriptionExpiresAt.HasValue && user.SubscriptionExpiresAt < DateTime.UtcNow))
             {
-                return Unauthorized(new { message = "Only Subscribed Pro Organizers can list and sell tickets on AURA++. Please subscribe to unlock seller features." });
+                return Unauthorized(new { message = "Only Subscribed Pro Organizers can list and sell tickets on AURA. Please subscribe to unlock seller features." });
             }
 
             var evt = new Event

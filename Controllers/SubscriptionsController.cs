@@ -40,19 +40,37 @@ namespace AuraApp.Controllers
                 }
             }
 
-            var txId = "SUB-FREE-" + Guid.NewGuid().ToString("N")[..8].ToUpper();
+            string payMethod = string.IsNullOrWhiteSpace(dto.PaymentMethod) ? "FREE" : dto.PaymentMethod;
+            if (!string.IsNullOrWhiteSpace(dto.PaymentSubMethod))
+            {
+                payMethod = $"{dto.PaymentMethod} ({dto.PaymentSubMethod})";
+            }
+            else if (dto.PaymentMethod == "Card" && !string.IsNullOrWhiteSpace(dto.CardType))
+            {
+                payMethod = $"Card ({dto.CardType})";
+            }
+
+            string txPrefix = dto.PaymentMethod switch
+            {
+                "bKash" => "SUB-BKASH-",
+                "Nagad" => "SUB-NAGAD-",
+                "Card" => "SUB-CARD-",
+                _ => "SUB-FREE-"
+            };
+
+            var txId = txPrefix + Guid.NewGuid().ToString("N")[..8].ToUpper();
             var subscription = new Subscription
             {
                 UserId = user.Id,
                 UserName = user.FullName,
                 UserEmail = user.Email,
                 UserPhone = user.Phone,
-                PlanName = string.IsNullOrWhiteSpace(dto.PlanName) ? "Pro Organizer (FREE)" : dto.PlanName,
-                Amount = 0,
-                PaymentMethod = "FREE",
+                PlanName = string.IsNullOrWhiteSpace(dto.PlanName) ? "Pro Organizer Pass" : dto.PlanName,
+                Amount = payMethod == "FREE" ? 0 : 999,
+                PaymentMethod = payMethod,
                 TransactionId = txId,
                 CreatedAt = DateTime.UtcNow,
-                ExpiresAt = DateTime.UtcNow.AddYears(10)
+                ExpiresAt = DateTime.UtcNow.AddYears(1)
             };
 
             user.IsSubscribed = true;
@@ -100,6 +118,35 @@ namespace AuraApp.Controllers
                 user.SubscriptionExpiresAt,
                 canSell = user.IsSubscribed && (user.SubscriptionExpiresAt == null || user.SubscriptionExpiresAt > DateTime.UtcNow)
             });
+        }
+
+        [HttpGet("all")]
+        public async Task<IActionResult> GetAllSubscriptions()
+        {
+            var subs = await _context.Subscriptions
+                .OrderByDescending(s => s.CreatedAt)
+                .ToListAsync();
+
+            if (!subs.Any())
+            {
+                var users = await _context.Users.Where(u => u.IsSubscribed).ToListAsync();
+                subs = users.Select(u => new Subscription
+                {
+                    Id = u.Id,
+                    UserId = u.Id,
+                    UserName = string.IsNullOrWhiteSpace(u.FullName) ? "Maliha" : u.FullName,
+                    UserEmail = string.IsNullOrWhiteSpace(u.Email) ? "maliha@aura.com" : u.Email,
+                    UserPhone = string.IsNullOrWhiteSpace(u.Phone) ? "+880 1700-000000" : u.Phone,
+                    PlanName = "Pro Organizer Pass",
+                    Amount = 0,
+                    PaymentMethod = "FREE / bKash",
+                    TransactionId = "SUB-PRO-" + u.Id,
+                    CreatedAt = u.CreatedAt,
+                    ExpiresAt = u.SubscriptionExpiresAt ?? DateTime.UtcNow.AddYears(1)
+                }).ToList();
+            }
+
+            return Ok(subs);
         }
     }
 }

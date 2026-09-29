@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AuraApp.Models
 {
@@ -29,6 +30,7 @@ namespace AuraApp.Models
         public string Venue { get; set; } = string.Empty;
         public string Location { get; set; } = string.Empty;
         public DateTime EventDate { get; set; }
+        [Column(TypeName = "decimal(18,2)")]
         public decimal Price { get; set; }
         public string Currency { get; set; } = "BDT";
         public string ImageUrl { get; set; } = string.Empty;
@@ -56,6 +58,8 @@ namespace AuraApp.Models
         public string TransactionId { get; set; } = string.Empty;
         public DateTime BookingDate { get; set; } = DateTime.UtcNow;
         public string BookingCode { get; set; } = string.Empty;
+        [NotMapped]
+        public string SeatNumber { get; set; } = "A-25";
         public string Status { get; set; } = "Confirmed";
 
         public User? User { get; set; }
@@ -70,6 +74,7 @@ namespace AuraApp.Models
         public string UserEmail { get; set; } = string.Empty;  // snapshot of email
         public string UserPhone { get; set; } = string.Empty;  // snapshot of phone
         public string PlanName { get; set; } = "Pro Organizer";
+        [Column(TypeName = "decimal(18,2)")]
         public decimal Amount { get; set; } = 0;
         public string PaymentMethod { get; set; } = "FREE";
         public string TransactionId { get; set; } = string.Empty;
@@ -77,6 +82,32 @@ namespace AuraApp.Models
         public DateTime ExpiresAt { get; set; } = DateTime.UtcNow.AddDays(30);
 
         public User? User { get; set; }
+    }
+
+    public class Review
+    {
+        public int Id { get; set; }
+        public int? UserId { get; set; }
+        [Required]
+        public string UserName { get; set; } = "Guest";
+        [Required]
+        public string Content { get; set; } = string.Empty;
+        public int Rating { get; set; } = 5;
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    }
+
+    public class Notification
+    {
+        public int Id { get; set; }
+        public int? UserId { get; set; }   // null = broadcast to all
+        [Required]
+        public string Title { get; set; } = string.Empty;
+        [Required]
+        public string Message { get; set; } = string.Empty;
+        public string Type { get; set; } = "info";   // info, success, warning, error
+        public string Icon { get; set; } = "fa-bell";
+        public bool IsRead { get; set; } = false;
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }
 
     // DTOs
@@ -99,9 +130,13 @@ namespace AuraApp.Models
         public int UserId { get; set; }
         public int EventId { get; set; }
         public int Quantity { get; set; } = 1;
-        public string PaymentMethod { get; set; } = "bKash"; // bKash, Nagad, Card
+        public string SeatNumber { get; set; } = "A-25";
+        public string PaymentMethod { get; set; } = "bKash"; // bKash, Nagad, Card, etc.
+        public string PaymentSubMethod { get; set; } = string.Empty; // e.g. Direct Online, Merchant QR, Send Money, Visa, Mastercard, AMEX
         public string AccountNumber { get; set; } = string.Empty;
+        public string CardHolderName { get; set; } = string.Empty;
         public string CardNumber { get; set; } = string.Empty;
+        public string CardType { get; set; } = string.Empty; // Visa, MasterCard, AMEX, DBBL Nexus
         public string ExpiryDate { get; set; } = string.Empty;
         public string Cvv { get; set; } = string.Empty;
     }
@@ -111,8 +146,11 @@ namespace AuraApp.Models
         public int UserId { get; set; }
         public string PlanName { get; set; } = "Pro Organizer";
         public string PaymentMethod { get; set; } = "bKash"; // bKash, Nagad, Card
+        public string PaymentSubMethod { get; set; } = string.Empty;
         public string AccountNumber { get; set; } = string.Empty;
+        public string CardHolderName { get; set; } = string.Empty;
         public string CardNumber { get; set; } = string.Empty;
+        public string CardType { get; set; } = string.Empty;
         public string ExpiryDate { get; set; } = string.Empty;
         public string Cvv { get; set; } = string.Empty;
     }
@@ -134,6 +172,23 @@ namespace AuraApp.Models
         public string SellerAccountNumber { get; set; } = string.Empty;
         public string SellerBankName { get; set; } = string.Empty;
         public string SellerAccountHolder { get; set; } = string.Empty;
+    }
+
+    public class CreateReviewDto
+    {
+        public int? UserId { get; set; }
+        public string UserName { get; set; } = string.Empty;
+        public string Content { get; set; } = string.Empty;
+        public int Rating { get; set; } = 5;
+    }
+
+    public class CreateNotificationDto
+    {
+        public int? UserId { get; set; }
+        public string Title { get; set; } = string.Empty;
+        public string Message { get; set; } = string.Empty;
+        public string Type { get; set; } = "info";
+        public string Icon { get; set; } = "fa-bell";
     }
 
     public class ForgotPasswordDto

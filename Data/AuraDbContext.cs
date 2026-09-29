@@ -11,6 +11,8 @@ namespace AuraApp.Data
         public DbSet<Event> Events { get; set; } = null!;
         public DbSet<Booking> Bookings { get; set; } = null!;
         public DbSet<Subscription> Subscriptions { get; set; } = null!;
+        public DbSet<Review> Reviews { get; set; } = null!;
+        public DbSet<Notification> Notifications { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -256,6 +258,216 @@ namespace AuraApp.Data
                     TotalTickets = 1500,
                     AvailableTickets = 840,
                     Category = "Festival"
+                },
+                new Event
+                {
+                    Id = 17,
+                    Title = "FIFA World Stadium Championship Super Match",
+                    Description = "Witness live football stadium action with top international teams battling in a packed arena.",
+                    Venue = "Santiago Bernabéu Stadium",
+                    Location = "Madrid, Spain",
+                    EventDate = new DateTime(2026, 10, 10, 18, 0, 0),
+                    Price = 500,
+                    Currency = "BDT",
+                    ImageUrl = "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?q=80&w=800",
+                    TotalTickets = 1500,
+                    AvailableTickets = 920,
+                    Category = "Football & Stadium"
+                },
+                new Event
+                {
+                    Id = 18,
+                    Title = "Royal Horse Riding & Polo Derby",
+                    Description = "Premier outdoor equestrian show jumping, royal polo tournament, and horse riding exhibition.",
+                    Venue = "Windsor Outdoor Polo Club",
+                    Location = "London, UK",
+                    EventDate = new DateTime(2026, 10, 25, 14, 0, 0),
+                    Price = 450,
+                    Currency = "BDT",
+                    ImageUrl = "https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=800",
+                    TotalTickets = 600,
+                    AvailableTickets = 340,
+                    Category = "Horse Riding"
+                },
+                new Event
+                {
+                    Id = 19,
+                    Title = "Outdoor Extreme Kayaking & Rapids Fest",
+                    Description = "Adrenaline-pumping river kayaking, outdoor water sports, and mountain wilderness adventure.",
+                    Venue = "Zambezi River Rapids",
+                    Location = "Victoria Falls, Africa",
+                    EventDate = new DateTime(2026, 11, 05, 9, 0, 0),
+                    Price = 350,
+                    Currency = "BDT",
+                    ImageUrl = "https://images.unsplash.com/photo-1544551763-46a013bb70d5?q=80&w=800",
+                    TotalTickets = 400,
+                    AvailableTickets = 210,
+                    Category = "Outdoor Sports"
+                },
+                new Event
+                {
+                    Id = 20,
+                    Title = "Grand Slam Tennis Masters Finals",
+                    Description = "Live stadium court action featuring world number one tennis champions in a heated final match.",
+                    Venue = "Arthur Ashe Stadium",
+                    Location = "New York, USA",
+                    EventDate = new DateTime(2026, 11, 18, 15, 30, 0),
+                    Price = 400,
+                    Currency = "BDT",
+                    ImageUrl = "https://images.unsplash.com/photo-1622279457486-62dcc4a431d6?q=80&w=800",
+                    TotalTickets = 800,
+                    AvailableTickets = 490,
+                    Category = "Football & Stadium"
+                },
+                new Event
+                {
+                    Id = 21,
+                    Title = "Outdoor Desert Dune Safari & Quad Games",
+                    Description = "Thrilling desert sandboarding, quad bike races, and traditional Bedouin campfire under open skies.",
+                    Venue = "Al Lahbab Red Dunes",
+                    Location = "Dubai, UAE",
+                    EventDate = new DateTime(2026, 12, 01, 16, 0, 0),
+                    Price = 300,
+                    Currency = "BDT",
+                    ImageUrl = "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=800",
+                    TotalTickets = 500,
+                    AvailableTickets = 380,
+                    Category = "Outdoor Sports"
+                },
+                new Event
+                {
+                    Id = 22,
+                    Title = "Red Bull Outdoor Formula Circuit Racing",
+                    Description = "High-octane outdoor motorsport racing with roaring engines, tight chicane turns, and podium glory.",
+                    Venue = "Silverstone Circuit",
+                    Location = "Towcester, UK",
+                    EventDate = new DateTime(2026, 12, 15, 13, 0, 0),
+                    Price = 550,
+                    Currency = "BDT",
+                    ImageUrl = "https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?q=80&w=800",
+                    TotalTickets = 1000,
+                    AvailableTickets = 670,
+                    Category = "Outdoor Sports"
+                },
+                new Event
+                {
+                    Id = 35,
+                    Title = "Valorant World Championship Finals 2026",
+                    Description = "Watch top international esports teams clash live in high-stakes tactical FPS battles.",
+                    Venue = "Bashundhara Convention Centre",
+                    Location = "Dhaka, Bangladesh",
+                    EventDate = new DateTime(2026, 11, 15, 14, 0, 0),
+                    Price = 350,
+                    Currency = "BDT",
+                    ImageUrl = "https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=800",
+                    TotalTickets = 2000,
+                    AvailableTickets = 1420,
+                    Category = "Gaming"
+                },
+                new Event
+                {
+                    Id = 36,
+                    Title = "PUBG Mobile Global Invitational Dhaka",
+                    Description = "Adrenaline-fueled battle royale showdown with 16 elite squads fighting for the championship trophy.",
+                    Venue = "Army Stadium Arena",
+                    Location = "Dhaka, Bangladesh",
+                    EventDate = new DateTime(2026, 11, 20, 15, 30, 0),
+                    Price = 300,
+                    Currency = "BDT",
+                    ImageUrl = "https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=800",
+                    TotalTickets = 2500,
+                    AvailableTickets = 1890,
+                    Category = "Gaming"
+                },
+                new Event
+                {
+                    Id = 37,
+                    Title = "League of Legends Worlds Arena 2026",
+                    Description = "The premier MOBA tournament featuring live orchestration, holo-stage visuals, and world-class pro teams.",
+                    Venue = "Bangabandhu International Conference Center",
+                    Location = "Dhaka, Bangladesh",
+                    EventDate = new DateTime(2026, 11, 28, 16, 0, 0),
+                    Price = 400,
+                    Currency = "BDT",
+                    ImageUrl = "https://images.unsplash.com/photo-1538481199705-c710c4e965fc?q=80&w=800",
+                    TotalTickets = 1800,
+                    AvailableTickets = 1250,
+                    Category = "Gaming"
+                },
+                new Event
+                {
+                    Id = 38,
+                    Title = "Dota 2 International Major Dhaka",
+                    Description = "Multi-million dollar Aegis cup tournament with legendary drafting, teamfights, and caster commentary.",
+                    Venue = "Hatirjheel Amphitheatre",
+                    Location = "Dhaka, Bangladesh",
+                    EventDate = new DateTime(2026, 12, 05, 13, 0, 0),
+                    Price = 450,
+                    Currency = "BDT",
+                    ImageUrl = "https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=800",
+                    TotalTickets = 1500,
+                    AvailableTickets = 980,
+                    Category = "Gaming"
+                },
+                new Event
+                {
+                    Id = 39,
+                    Title = "Counter-Strike 2 Major Championship",
+                    Description = "High-octane tactical shooter major with clutch defuses, sniper showdowns, and live audience roar.",
+                    Venue = "Pan Pacific Ballroom",
+                    Location = "Dhaka, Bangladesh",
+                    EventDate = new DateTime(2026, 12, 12, 17, 0, 0),
+                    Price = 380,
+                    Currency = "BDT",
+                    ImageUrl = "https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=800",
+                    TotalTickets = 1600,
+                    AvailableTickets = 1100,
+                    Category = "Gaming"
+                },
+                new Event
+                {
+                    Id = 40,
+                    Title = "EA FC 26 FIFA Esports Masters",
+                    Description = "Compete or watch live digital football stadium finals with commentary and pro gaming booths.",
+                    Venue = "Dhaka Club Arena",
+                    Location = "Dhaka, Bangladesh",
+                    EventDate = new DateTime(2026, 12, 18, 12, 0, 0),
+                    Price = 250,
+                    Currency = "BDT",
+                    ImageUrl = "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?q=80&w=800",
+                    TotalTickets = 1200,
+                    AvailableTickets = 850,
+                    Category = "Gaming"
+                },
+                new Event
+                {
+                    Id = 41,
+                    Title = "Tekken 8 World Tour Dhaka Finals",
+                    Description = "Fierce 1v1 fighting game tournament with electric combos, arcade sticks, and international grandmasters.",
+                    Venue = "International Convention City",
+                    Location = "Dhaka, Bangladesh",
+                    EventDate = new DateTime(2026, 12, 24, 14, 0, 0),
+                    Price = 280,
+                    Currency = "BDT",
+                    ImageUrl = "https://images.unsplash.com/photo-1529699211952-734e80c4d42b?q=80&w=800",
+                    TotalTickets = 1000,
+                    AvailableTickets = 740,
+                    Category = "Gaming"
+                },
+                new Event
+                {
+                    Id = 42,
+                    Title = "Mobile Legends M6 Global Cup",
+                    Description = "Mobile gaming spectacle with intense 5v5 laning battles and live cosplay showcases.",
+                    Venue = "National Stadium",
+                    Location = "Dhaka, Bangladesh",
+                    EventDate = new DateTime(2026, 12, 30, 16, 0, 0),
+                    Price = 220,
+                    Currency = "BDT",
+                    ImageUrl = "https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=800",
+                    TotalTickets = 3000,
+                    AvailableTickets = 2200,
+                    Category = "Gaming"
                 }
             );
         }

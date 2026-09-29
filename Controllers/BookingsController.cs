@@ -50,17 +50,38 @@ namespace AuraApp.Controllers
                 }
             }
 
+            string effectiveMethod = dto.PaymentMethod;
+            if (!string.IsNullOrWhiteSpace(dto.PaymentSubMethod))
+            {
+                effectiveMethod = $"{dto.PaymentMethod} ({dto.PaymentSubMethod})";
+            }
+            else if (dto.PaymentMethod == "Card" && !string.IsNullOrWhiteSpace(dto.CardType))
+            {
+                effectiveMethod = $"Card ({dto.CardType})";
+            }
+
             string paymentAccount = dto.PaymentMethod switch
             {
-                "bKash" => dto.AccountNumber,
-                "Nagad" => dto.AccountNumber,
+                "bKash" => !string.IsNullOrEmpty(dto.AccountNumber) ? dto.AccountNumber : "bKash Account",
+                "Nagad" => !string.IsNullOrEmpty(dto.AccountNumber) ? dto.AccountNumber : "Nagad Account",
                 "Card" => !string.IsNullOrEmpty(dto.CardNumber) && dto.CardNumber.Length >= 4
-                          ? "**** **** **** " + dto.CardNumber[^4..]
-                          : "Card Payment",
-                _ => dto.AccountNumber
+                          ? $"{(!string.IsNullOrWhiteSpace(dto.CardType) ? dto.CardType : "Card")} **** {dto.CardNumber[^4..]}"
+                          : (!string.IsNullOrWhiteSpace(dto.CardHolderName) ? dto.CardHolderName : "Card Payment"),
+                _ => !string.IsNullOrEmpty(dto.AccountNumber) ? dto.AccountNumber : dto.PaymentMethod
             };
 
-            var txId = "TXN-" + Guid.NewGuid().ToString("N")[..10].ToUpper();
+            string txPrefix = dto.PaymentMethod switch
+            {
+                "bKash" => "BKASH-",
+                "Nagad" => "NAGAD-",
+                "Card" => (!string.IsNullOrWhiteSpace(dto.CardType) && dto.CardType.ToUpper().Contains("AMEX")) ? "AMEX-" :
+                          (!string.IsNullOrWhiteSpace(dto.CardType) && dto.CardType.ToUpper().Contains("VISA")) ? "VISA-" :
+                          (!string.IsNullOrWhiteSpace(dto.CardType) && dto.CardType.ToUpper().Contains("MASTER")) ? "MC-" : "CARD-",
+                _ => "TXN-"
+            };
+
+            var txId = txPrefix + Guid.NewGuid().ToString("N")[..10].ToUpper();
+            var seat = !string.IsNullOrWhiteSpace(dto.SeatNumber) ? dto.SeatNumber : ("A-" + Random.Shared.Next(1, 50));
 
             var booking = new Booking
             {
@@ -70,11 +91,12 @@ namespace AuraApp.Controllers
                 UserEmail = user.Email,
                 EventTitle = evt.Title,
                 Quantity = dto.Quantity,
-                PaymentMethod = dto.PaymentMethod,
+                SeatNumber = seat,
+                PaymentMethod = effectiveMethod,
                 PaymentAccount = paymentAccount,
                 TransactionId = txId,
                 BookingDate = DateTime.UtcNow,
-                BookingCode = "AURA-" + Guid.NewGuid().ToString("N")[..8].ToUpper(),
+                BookingCode = "TKT-" + Guid.NewGuid().ToString("N")[..8].ToUpper(),
                 Status = "Confirmed"
             };
 
@@ -89,10 +111,12 @@ namespace AuraApp.Controllers
                 {
                     booking.Id,
                     booking.BookingCode,
+                    SeatNumber = booking.SeatNumber,
                     TotalAmount = evt.Price * dto.Quantity,
                     booking.Quantity,
                     booking.PaymentMethod,
                     booking.TransactionId,
+                    booking.Status,
                     EventTitle = evt.Title,
                     evt.Venue,
                     evt.Location,
@@ -112,6 +136,8 @@ namespace AuraApp.Controllers
                 {
                     b.Id,
                     b.BookingCode,
+                    SeatNumber = "A-25",
+                    EventTitle = !string.IsNullOrEmpty(b.EventTitle) ? b.EventTitle : (b.Event != null ? b.Event.Title : "Event Ticket"),
                     b.Quantity,
                     TotalAmount = b.Event != null ? b.Event.Price * b.Quantity : 0,
                     b.PaymentMethod,
@@ -134,5 +160,126 @@ namespace AuraApp.Controllers
 
             return Ok(bookings);
         }
+
+        [HttpGet("all")]
+        public async Task<IActionResult> GetAllBookings()
+        {
+            var bookings = await _context.Bookings
+                .Include(b => b.Event)
+                .OrderByDescending(b => b.BookingDate)
+                .Select(b => new
+                {
+                    b.Id,
+                    b.BookingCode,
+                    SeatNumber = "A-25",
+                    b.UserName,
+                    b.UserEmail,
+                    EventTitle = !string.IsNullOrEmpty(b.EventTitle) ? b.EventTitle : (b.Event != null ? b.Event.Title : "Event Ticket"),
+                    b.Quantity,
+                    TotalAmount = b.Event != null ? b.Event.Price * b.Quantity : 0,
+                    b.PaymentMethod,
+                    b.TransactionId,
+                    b.BookingDate,
+                    b.Status,
+                    Venue = b.Event != null ? b.Event.Venue : "City Convention Center",
+                    Location = b.Event != null ? b.Event.Location : "Dhaka, Bangladesh",
+                    EventDate = b.Event != null ? b.Event.EventDate : b.BookingDate
+                })
+                .ToListAsync();
+
+            return Ok(bookings);
+        }
+
+        public class ScanRequestDto
+        {
+            public string Code { get; set; } = string.Empty;
+        }
+
+        [HttpPost("verify")]
+        public async Task<IActionResult> VerifyTicket([FromBody] ScanRequestDto dto)
+        {
+            var code = (dto.Code ?? string.Empty).Trim().ToUpper();
+            var booking = await _context.Bookings
+                .Include(b => b.Event)
+                .FirstOrDefaultAsync(b => b.BookingCode.ToUpper() == code || b.TransactionId.ToUpper() == code);
+
+            if (booking == null)
+            {
+                return NotFound(new { valid = false, status = "NOT_FOUND", message = $"No ticket record found matching '{code}'." });
+            }
+
+            bool isUsed = booking.Status == "Checked In";
+            return Ok(new
+            {
+                valid = !isUsed,
+                status = isUsed ? "USED" : "VALID",
+                message = isUsed ? "Ticket has already been checked-in!" : "Ticket is Valid and Ready for Gate Entry!",
+                booking = new
+                {
+                    booking.Id,
+                    booking.BookingCode,
+                    EventTitle = booking.EventTitle ?? booking.Event?.Title,
+                    booking.UserName,
+                    booking.UserEmail,
+                    booking.Quantity,
+                    booking.Status,
+                    booking.PaymentMethod
+                }
+            });
+        }
+
+        [HttpPost("checkin")]
+        public async Task<IActionResult> CheckInTicket([FromBody] ScanRequestDto dto)
+        {
+            var code = (dto.Code ?? string.Empty).Trim().ToUpper();
+            var booking = await _context.Bookings
+                .Include(b => b.Event)
+                .FirstOrDefaultAsync(b => b.BookingCode.ToUpper() == code || b.TransactionId.ToUpper() == code);
+
+            if (booking == null)
+            {
+                return NotFound(new { success = false, message = "Ticket code invalid or not found." });
+            }
+
+            if (booking.Status == "Checked In")
+            {
+                return BadRequest(new { success = false, status = "ALREADY_USED", message = $"Ticket {booking.BookingCode} was ALREADY checked in." });
+            }
+
+            booking.Status = "Checked In";
+            await _context.SaveChangesAsync();
+
+            return Ok(new
+            {
+                success = true,
+                message = $"TICKET VALIDATED! Welcome {booking.UserName} to {booking.EventTitle}",
+                booking
+            });
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteBooking(int id)
+        {
+            var booking = await _context.Bookings.FindAsync(id);
+            if (booking == null)
+            {
+                return NotFound(new { success = false, message = "Booking record not found." });
+            }
+
+            if (booking.EventId > 0)
+            {
+                var evt = await _context.Events.FindAsync(booking.EventId);
+                if (evt != null)
+                {
+                    evt.AvailableTickets += booking.Quantity;
+                }
+            }
+
+            _context.Bookings.Remove(booking);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { success = true, message = $"Booking #{id} deleted successfully." });
+        }
     }
 }
+
