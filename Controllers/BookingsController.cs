@@ -1,52 +1,127 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using AuraApp.Data;
 using AuraApp.Models;
 
-namespace AuraApp.Controllers
+namespace AuraApp.Controllers;
+
+[ApiController, Route("api/bookings")]
+public class BookingsController : ControllerBase
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    public class BookingsController : ControllerBase
+    private readonly AuraDbContext db;
+    public BookingsController(AuraDbContext context) => db = context;
+
+    private int? CurrentUserId => int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var id) ? id : null;
+
+    private async Task<int> GetEffectiveUserIdAsync()
     {
-        private readonly AuraDbContext _context;
+        var id = CurrentUserId;
+        if (id.HasValue && await db.Users.AnyAsync(u => u.Id == id.Value)) return id.Value;
+        var firstUser = await db.Users.OrderBy(u => u.Id).FirstOrDefaultAsync();
+        return firstUser?.Id ?? 1;
+    }
 
-        public BookingsController(AuraDbContext context)
+    [HttpPost]
+    public async Task<IActionResult> CreateBooking(CreateBookingDto dto)
+    {
+        if (dto.Quantity is < 1 or > 10) return BadRequest(new { message = "Choose between 1 and 10 tickets." });
+        if (dto.PaymentMethod != "Reservation") return BadRequest(new { message = "Choose reservation to continue." });
+
+        var userId = await GetEffectiveUserIdAsync();
+        var user = await db.Users.FindAsync(userId);
+        if (user == null) return Unauthorized(new { message = "User record not found." });
+
+        await using var transaction = await db.Database.BeginTransactionAsync(System.Data.IsolationLevel.Serializable);
+        var inventoryUpdated = await db.Events.Where(e => e.Id == dto.EventId && e.AvailableTickets >= dto.Quantity)
+            .ExecuteUpdateAsync(setters => setters.SetProperty(e => e.AvailableTickets, e => e.AvailableTickets - dto.Quantity));
+        if (inventoryUpdated == 0)
         {
-            _context = context;
+            if (!await db.Events.AnyAsync(e => e.Id == dto.EventId)) return NotFound(new { message = "Event not found." });
+            return Conflict(new { message = "Not enough tickets are available." });
         }
+        var evt = await db.Events.AsNoTracking().FirstAsync(e => e.Id == dto.EventId);
 
-        [HttpPost]
-        public async Task<IActionResult> CreateBooking([FromBody] CreateBookingDto dto)
+        var booking = new Booking
         {
-            var evt = await _context.Events.FindAsync(dto.EventId);
-            if (evt == null)
-            {
-                return NotFound(new { message = "Event not found." });
-            }
+            UserId = user.Id,
+            EventId = evt.Id,
+            UserName = user.FullName,
+            UserEmail = user.Email,
+            EventTitle = evt.Title,
+            Quantity = dto.Quantity,
+            PaymentMethod = "Reservation",
+            PaymentAccount = "",
+            TransactionId = "",
+            BookingDate = DateTime.UtcNow,
+            BookingCode = "AURA-" + Guid.NewGuid().ToString("N")[..10].ToUpperInvariant(),
+            Status = "Confirmed"
+        };
+        db.Bookings.Add(booking);
+        await db.SaveChangesAsync();
 
-            if (evt.AvailableTickets < dto.Quantity)
+        for (var i = 0; i < dto.Quantity; i++)
+        {
+            db.Tickets.Add(new Ticket
             {
-                return BadRequest(new { message = "Not enough available tickets." });
-            }
+                BookingId = booking.Id,
+                EventId = evt.Id,
+                OwnerUserId = user.Id,
+                Price = evt.Price,
+                TicketCode = "AURAT-" + Guid.NewGuid().ToString("N")[..12].ToUpperInvariant(),
+                Status = "Valid"
+            });
+        }
+        await db.SaveChangesAsync();
+        await transaction.CommitAsync();
 
-            var user = await _context.Users.FindAsync(dto.UserId);
-            if (user == null)
+        return Ok(new
+        {
+            message = "Booking confirmed.",
+            booking = new
             {
-                user = await _context.Users.FirstOrDefaultAsync();
-                if (user == null)
+                booking.Id,
+                booking.BookingCode,
+                booking.Quantity,
+                TotalAmount = evt.Price * dto.Quantity,
+                booking.PaymentMethod,
+                booking.TransactionId,
+                EventTitle = evt.Title,
+                evt.Venue,
+                evt.Location,
+                evt.EventDate
+            },
+            tickets = await db.Tickets.Where(t => t.BookingId == booking.Id).Select(t => t.TicketCode).ToListAsync()
+        });
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Mine()
+    {
+        var uid = await GetEffectiveUserIdAsync();
+        return Ok(await db.Bookings.Where(b => b.UserId == uid)
+            .OrderByDescending(b => b.BookingDate)
+            .Select(b => new
+            {
+                b.Id,
+                b.BookingCode,
+                b.Quantity,
+                TotalAmount = b.Event == null ? 0 : b.Event.Price * b.Quantity,
+                b.PaymentMethod,
+                b.TransactionId,
+                b.BookingDate,
+                b.Status,
+                Event = b.Event == null ? null : new
                 {
-                    user = new User
-                    {
-                        FullName = "Maliha xd",
-                        Email = "maliha@aura.com",
-                        Phone = "01700000000",
-                        PasswordHash = "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3",
-                        IsSubscribed = false,
-                        CreatedAt = DateTime.UtcNow
-                    };
-                    _context.Users.Add(user);
-                    await _context.SaveChangesAsync();
+                    b.Event.Id,
+                    b.Event.Title,
+                    b.Event.Venue,
+                    b.Event.Location,
+                    b.Event.EventDate,
+                    b.Event.Price,
+                    b.Event.Currency,
+                    b.Event.ImageUrl
                 }
             }
 
@@ -106,8 +181,16 @@ namespace AuraApp.Controllers
 
             return Ok(new
             {
-                message = "Booking confirmed successfully!",
-                booking = new
+                b.Id,
+                b.BookingCode,
+                b.Quantity,
+                TotalAmount = b.Event == null ? 0 : b.Event.Price * b.Quantity,
+                b.PaymentMethod,
+                b.TransactionId,
+                b.BookingDate,
+                b.Status,
+                b.EventTitle,
+                Event = b.Event == null ? null : new
                 {
                     booking.Id,
                     booking.BookingCode,
@@ -122,8 +205,8 @@ namespace AuraApp.Controllers
                     evt.Location,
                     evt.EventDate
                 }
-            });
-        }
+            }).ToListAsync());
+    }
 
         [HttpGet("user/{userId}")]
         public async Task<IActionResult> GetUserBookings(int userId)

@@ -15,7 +15,7 @@ Featuring a modern glassmorphism UI with dynamic 3D neon canvas particle backgro
 
 ---
 
-## 👥 Project Team & Contributors
+## 🌟 Key Features
 
 | Name | Student ID | Role & Responsibilities |
 |---|---|---|
@@ -82,14 +82,16 @@ The application automatically initializes and seeds the SQL database with 5 core
 4. **`Subscriptions`**: Pro Seller subscriptions, transaction IDs, subscriber details, and expiry dates.
 5. **`Reviews`**: Customer testimonials, star ratings, and community feedback.
 
----
+# 2. Build and run the ASP.NET Core web application
+dotnet run
 
-## 🚦 Getting Started & Local Setup
+# 3. Access in browser
+# http://localhost:5000 or http://localhost:5005
+```
 
 ### Prerequisites
 - [.NET 8.0 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) installed.
 
-### 1. Clone the Repository
 ```bash
 git clone https://github.com/maliha-noon/SD-3.2-.git
 cd SD-3.2-
@@ -104,6 +106,32 @@ dotnet build
 # Run ASP.NET Core & React Application
 dotnet run --urls "http://localhost:5000"
 ```
+SD-3.2-source/
+├── .github/
+│   └── workflows/
+│       └── ci-cd.yml          # GitHub Actions CI/CD Pipeline
+├── Controllers/               # C# ASP.NET Core Web API Controllers
+│   ├── AccountController.cs
+│   ├── AdminController.cs    # Admin Maliha Control & Buyers Endpoints
+│   ├── AuthController.cs
+│   ├── BookingsController.cs
+│   ├── EventsController.cs
+│   └── ResaleController.cs
+├── Data/
+│   └── AuraDbContext.cs      # EF Core DbContext & Seed Data
+├── Models/
+│   └── Models.cs              # C# Data Models & Entities
+├── wwwroot/                   # Static Frontend Web Assets
+│   ├── css/                   # Design system & Admin panel CSS
+│   ├── js/                    # Dashboard & Auth JS logic
+│   └── index.html             # Main Dashboard & Admin UI
+├── Dockerfile                 # Multi-stage Dockerfile
+├── docker-compose.yml         # Container Orchestration
+├── Program.cs                 # C# App Entrypoint & Middleware
+└── README.md                  # Project Documentation
+```
+
+---
 
 
 ---

@@ -1,9 +1,12 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using AuraApp.Data;
 using AuraApp.Models;
-
-namespace AuraApp.Controllers
+namespace AuraApp.Controllers;
+[ApiController,Route("api/subscriptions")]
+public class SubscriptionsController:ControllerBase
 {
     [ApiController]
     [Route("api/[controller]")]

@@ -22,9 +22,56 @@
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 </head>
-<body>
+<body class="gate-open aura-motion-pending">
 
-  <!-- 3D MAGICAL NEON CANVAS BACKGROUND -->
+  <!-- STAGE 1 Ã¢â‚¬â€ ENTRANCE GATE -->
+  <div id="entrance-gate">
+    <div class="gate-top">
+      <div class="gate-top-logo">AURA++ <sup>Ã‚Â®</sup></div>
+      <div class="gate-top-links"><span>EST. 2026</span></div>
+    </div>
+    <div class="gate-center">
+      <div class="gate-mark">A</div>
+      <div class="gate-name">AURA++ Ã‚Â· TICKETING PLATFORM</div>
+      <p class="gate-desc">
+        A modern event platform for discovering concerts, festivals, tech expos and more Ã¢â‚¬â€ book tickets in seconds, or become a Pro Seller and publish your own events.
+      </p>
+      <button class="gate-enter-btn" onclick="enterSite()">
+        Enter <span class="arrow">Ã¢â€ Ëœ</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- STAGE 2 Ã¢â‚¬â€ WELCOME MODAL -->
+  <div id="welcome-modal" class="modal-overlay">
+    <div class="modal-box welcome-modal-box">
+      <button class="close-modal" aria-label="Close dialog" onclick="closeWelcome()">&times;</button>
+      <div class="welcome-emoji">Ã°Å¸â€˜â€¹</div>
+      <h2 class="modal-title">Welcome to AURA++</h2>
+      <p class="modal-subtitle">
+        Thanks for visiting! Discover concerts, festivals, tech expos, and more. Book tickets in seconds, or become a Pro Seller and publish your own events.
+      </p>
+      <button class="btn-primary-3d welcome-continue-btn" onclick="closeWelcome()">
+        Let's Explore More <i class="fa-solid fa-arrow-right"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- STAGE 3 Ã¢â‚¬â€ INTRO SCREEN -->
+  <div id="intro-screen" class="stage-hidden">
+    <div class="intro-center">
+      <h1 class="intro-title">
+        <span class="intro-line">ULTIMATE</span>
+        <span class="intro-line">EVENT</span>
+        <span class="intro-line">EXPERIENCE</span>
+      </h1>
+    </div>
+    <button id="intro-next-btn" class="intro-next-btn stage-hidden" onclick="advanceToDiscovery()">
+      Discover events <i class="fa-solid fa-arrow-right"></i>
+    </button>
+  </div>
+
+  <!-- FULL SITE -->
   <canvas id="aura-canvas"></canvas>
 
   <!-- REACT ROOT CONTAINER -->

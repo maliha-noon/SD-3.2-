@@ -18,6 +18,22 @@ namespace AuraApp.Data
         {
             base.OnModelCreating(modelBuilder);
 
+            modelBuilder.Entity<Ticket>().HasIndex(t => t.TicketCode).IsUnique();
+            modelBuilder.Entity<User>().HasIndex(u => u.Email).IsUnique();
+            modelBuilder.Entity<Ticket>().HasOne(t => t.Booking).WithMany(b => b.Tickets).HasForeignKey(t => t.BookingId).OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<Ticket>().HasOne(t => t.Event).WithMany().HasForeignKey(t => t.EventId).OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<Ticket>().HasOne(t => t.Owner).WithMany().HasForeignKey(t => t.OwnerUserId).OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<ResaleListing>().HasOne(l => l.Ticket).WithMany().HasForeignKey(l => l.TicketId).OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<SavedEvent>().HasIndex(x => new { x.UserId, x.EventId }).IsUnique();
+            modelBuilder.Entity<SavedEvent>().HasOne<User>().WithMany().HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<SavedEvent>().HasOne<Event>().WithMany().HasForeignKey(x => x.EventId).OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<VerificationAttempt>().HasOne<User>().WithMany().HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.SetNull);
+            modelBuilder.Entity<ResaleListing>().HasOne<User>().WithMany().HasForeignKey(x => x.SellerUserId).OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<EventSubmission>().HasOne<User>().WithMany().HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<TicketTransfer>().HasOne<Ticket>().WithMany().HasForeignKey(x => x.TicketId).OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<TicketTransfer>().HasOne<User>().WithMany().HasForeignKey(x => x.FromUserId).OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<TicketTransfer>().HasOne<User>().WithMany().HasForeignKey(x => x.ToUserId).OnDelete(DeleteBehavior.Restrict);
+
             modelBuilder.Entity<Event>().HasData(
                 new Event
                 {

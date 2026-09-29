@@ -1,9 +1,28 @@
 using Microsoft.EntityFrameworkCore;
 using AuraApp.Data;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.DataProtection;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
 
 builder.Services.AddControllers();
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options =>
+{
+    options.Cookie.Name = "aura.session";
+    options.Cookie.HttpOnly = true;
+    options.Cookie.SameSite = SameSiteMode.Lax;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+    options.ExpireTimeSpan = TimeSpan.FromDays(14);
+    options.SlidingExpiration = true;
+    options.Events.OnRedirectToLogin = context => { context.Response.StatusCode = 401; return Task.CompletedTask; };
+    options.Events.OnRedirectToAccessDenied = context => { context.Response.StatusCode = 403; return Task.CompletedTask; };
+});
+builder.Services.AddAuthorization();
+var auraKeyPath = Path.Combine(Path.GetTempPath(), "aura-dataprotection-keys");
+Directory.CreateDirectory(auraKeyPath);
+builder.Services.AddDataProtection().PersistKeysToFileSystem(new DirectoryInfo(auraKeyPath));
 builder.Services.AddEndpointsApiExplorer();
 
 var sqlServerConnStr = builder.Configuration.GetConnectionString("SqlServerConnection") ?? "Server=.\\SQLEXPRESS;Database=aura_db;Trusted_Connection=True;TrustServerCertificate=True;";
@@ -169,6 +188,42 @@ using (var scope = app.Services.CreateScope())
     {
         var dbContext = scope.ServiceProvider.GetRequiredService<AuraDbContext>();
         dbContext.Database.EnsureCreated();
+        EnsureAdditiveSchema(dbContext);
+
+        var demoCategories = new[] { "Cinema", "Classical", "Comedy", "Concert", "Convention", "EDM", "eSports" };
+        var eventIdeas = new Dictionary<string, string[]> {
+            ["Cinema"] = new[] { "Dhaka Independent Film Week", "Bangla Classics on the Big Screen", "Short Film Showcase Dhaka" },
+            ["Classical"] = new[] { "An Evening of South Asian Strings", "Dhaka Chamber Orchestra: New Voices", "Moonlight Piano Recital" },
+            ["Comedy"] = new[] { "Dhaka Stand-up Social", "The Friday Laugh Room", "New Voices in Comedy" },
+            ["Concert"] = new[] { "Dhaka Indie Sessions", "Rooftop Sound: Live in Dhaka", "Bangla Acoustic Night" },
+            ["Convention"] = new[] { "Dhaka Creator Convention", "Bangladesh Pop Culture Expo", "Future Makers Dhaka" },
+            ["EDM"] = new[] { "Monsoon Frequencies: Dhaka", "Neon River Electronic Night", "Pulse District: Dhaka" },
+            ["eSports"] = new[] { "Dhaka Arena Open: Valorant", "Bangladesh Esports Weekend", "Campus Rivals Finals" }
+        };
+        foreach (var category in demoCategories)
+        {
+            var remaining = Math.Max(0, 3 - dbContext.Events.Count(e => e.Category.ToLower() == category.ToLower() && e.EventDate >= DateTime.UtcNow));
+            foreach (var title in eventIdeas[category].Take(remaining))
+            {
+                var offset = dbContext.Events.Count() + 1;
+                dbContext.Events.Add(new AuraApp.Models.Event
+                {
+                    Title = title,
+                    Description = "Sample listing: This illustrative event is not a confirmed announcement.",
+                    Category = category, Venue = "Bangladesh Shilpakala Academy", Location = "Dhaka, Bangladesh",
+                    EventDate = DateTime.UtcNow.Date.AddDays(45 + offset * 12).AddHours(18), Price = 500 + offset * 50,
+                    Currency = "BDT", TotalTickets = 250, AvailableTickets = 250,
+                    ImageUrl = "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?q=80&w=1000"
+                });
+            }
+        }
+        foreach (var seededEvent in dbContext.Events.Where(e => e.Id <= 16 || e.Title.Contains("Demo concept")))
+        {
+            seededEvent.Title = seededEvent.Title.Replace(" (Demo concept)", "").Replace("AURA Demo", "Dhaka");
+            if (seededEvent.Id <= 16 || seededEvent.Description.StartsWith("Sample AURA event concept;", StringComparison.OrdinalIgnoreCase))
+                seededEvent.Description = "Sample listing: This illustrative event is not a confirmed announcement.";
+        }
+        dbContext.SaveChanges();
 
         // Ensure the review table also exists for databases created before reviews were added.
         var isSqlServerProvider = (dbContext.Database.ProviderName ?? "").Contains("SqlServer", StringComparison.OrdinalIgnoreCase);
@@ -487,7 +542,25 @@ using (var scope = app.Services.CreateScope())
             Console.WriteLine($"Seeded {missingExpansionEvents.Count} additional category events.");
         }
 
-        // Drop TotalAmount column from MySQL if it exists from previous schema
+        // Convert legacy booking records into individually addressable AURA tickets once.
+        foreach (var booking in dbContext.Bookings.Include(b => b.Event).Where(b => b.Status == "Confirmed").ToList())
+        {
+            if (dbContext.Tickets.Any(t => t.BookingId == booking.Id)) continue;
+            var ticketCount = Math.Clamp(booking.Quantity, 0, 10);
+            for (var index = 0; index < ticketCount; index++)
+                dbContext.Tickets.Add(new AuraApp.Models.Ticket
+                {
+                    BookingId = booking.Id, EventId = booking.EventId, OwnerUserId = booking.UserId,
+                    Price = booking.Event?.Price ?? 0, Status = "Valid",
+                    TicketCode = "AURAT-" + Guid.NewGuid().ToString("N")[..12].ToUpperInvariant(),
+                    IssuedAt = booking.BookingDate
+                });
+        }
+        dbContext.SaveChanges();
+
+        // ============================================================
+        // Schema maintenance â€” non-destructive additions + backfills
+        // ============================================================
         try
         {
             var connection = dbContext.Database.GetDbConnection();
@@ -803,6 +876,8 @@ app.UseStaticFiles(new StaticFileOptions
     ContentTypeProvider = contentTypeProvider
 });
 app.UseRouting();
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapControllers();
 app.MapFallbackToFile("index.html");
@@ -825,3 +900,112 @@ if (app.Environment.IsDevelopment())
 }
 
 app.Run();
+
+static void EnsureAdditiveSchema(AuraDbContext db)
+{
+    var sqlite = db.Database.IsSqlite();
+    var statements = sqlite ? new[] {
+        "ALTER TABLE Users ADD COLUMN Preferences TEXT NOT NULL DEFAULT ''",
+        "CREATE TABLE IF NOT EXISTS Tickets (Id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, TicketCode TEXT NOT NULL, BookingId INTEGER NOT NULL, EventId INTEGER NOT NULL, OwnerUserId INTEGER NOT NULL, Price TEXT NOT NULL, Status TEXT NOT NULL, IssuedAt TEXT NOT NULL, FOREIGN KEY(BookingId) REFERENCES Bookings(Id) ON DELETE CASCADE, FOREIGN KEY(EventId) REFERENCES Events(Id) ON DELETE RESTRICT, FOREIGN KEY(OwnerUserId) REFERENCES Users(Id) ON DELETE RESTRICT)",
+        "CREATE UNIQUE INDEX IF NOT EXISTS IX_Tickets_TicketCode ON Tickets(TicketCode)",
+        "CREATE TABLE IF NOT EXISTS VerificationAttempts (Id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, UserId INTEGER NULL, TicketCode TEXT NOT NULL, Result TEXT NOT NULL, CheckedAt TEXT NOT NULL)",
+        "CREATE TABLE IF NOT EXISTS SavedEvents (Id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, UserId INTEGER NOT NULL, EventId INTEGER NOT NULL, CreatedAt TEXT NOT NULL)",
+        "CREATE UNIQUE INDEX IF NOT EXISTS IX_SavedEvents_UserId_EventId ON SavedEvents(UserId, EventId)",
+        "CREATE TABLE IF NOT EXISTS ResaleListings (Id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, TicketId INTEGER NOT NULL, SellerUserId INTEGER NOT NULL, AskingPrice TEXT NOT NULL, Status TEXT NOT NULL, CreatedAt TEXT NOT NULL, FOREIGN KEY(TicketId) REFERENCES Tickets(Id) ON DELETE CASCADE)",
+        "CREATE TABLE IF NOT EXISTS EventSubmissions (Id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, UserId INTEGER NOT NULL, Title TEXT NOT NULL, Category TEXT NOT NULL, Description TEXT NOT NULL, Venue TEXT NOT NULL, Location TEXT NOT NULL, EventDate TEXT NOT NULL, Price TEXT NOT NULL, Quantity INTEGER NOT NULL, Status TEXT NOT NULL, SubmittedAt TEXT NOT NULL)",
+        "CREATE TABLE IF NOT EXISTS TicketTransfers (Id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, TicketId INTEGER NOT NULL, FromUserId INTEGER NOT NULL, ToUserId INTEGER NOT NULL, Price TEXT NOT NULL, TransferredAt TEXT NOT NULL)"
+    } : new[] {
+        "ALTER TABLE Users ADD COLUMN Preferences VARCHAR(1000) NOT NULL DEFAULT ''",
+        "CREATE TABLE IF NOT EXISTS Tickets (Id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, TicketCode VARCHAR(255) NOT NULL, BookingId INT NOT NULL, EventId INT NOT NULL, OwnerUserId INT NOT NULL, Price DECIMAL(65,30) NOT NULL, Status VARCHAR(255) NOT NULL, IssuedAt DATETIME(6) NOT NULL, UNIQUE KEY IX_Tickets_TicketCode(TicketCode))",
+        "CREATE TABLE IF NOT EXISTS VerificationAttempts (Id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, UserId INT NULL, TicketCode VARCHAR(255) NOT NULL, Result VARCHAR(255) NOT NULL, CheckedAt DATETIME(6) NOT NULL)",
+        "CREATE TABLE IF NOT EXISTS SavedEvents (Id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, UserId INT NOT NULL, EventId INT NOT NULL, CreatedAt DATETIME(6) NOT NULL, UNIQUE KEY IX_SavedEvents_UserId_EventId(UserId, EventId))",
+        "CREATE TABLE IF NOT EXISTS ResaleListings (Id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, TicketId INT NOT NULL, SellerUserId INT NOT NULL, AskingPrice DECIMAL(65,30) NOT NULL, Status VARCHAR(255) NOT NULL, CreatedAt DATETIME(6) NOT NULL)",
+        "CREATE TABLE IF NOT EXISTS EventSubmissions (Id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, UserId INT NOT NULL, Title VARCHAR(255) NOT NULL, Category VARCHAR(255) NOT NULL, Description LONGTEXT NOT NULL, Venue VARCHAR(255) NOT NULL, Location VARCHAR(255) NOT NULL, EventDate DATETIME(6) NOT NULL, Price DECIMAL(65,30) NOT NULL, Quantity INT NOT NULL, Status VARCHAR(255) NOT NULL, SubmittedAt DATETIME(6) NOT NULL)",
+        "CREATE TABLE IF NOT EXISTS TicketTransfers (Id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, TicketId INT NOT NULL, FromUserId INT NOT NULL, ToUserId INT NOT NULL, Price DECIMAL(65,30) NOT NULL, TransferredAt DATETIME(6) NOT NULL)"
+    };
+    foreach (var sql in statements)
+    {
+        if (sql.StartsWith("ALTER TABLE Users ADD COLUMN Preferences", StringComparison.OrdinalIgnoreCase))
+        {
+            var exists = false;
+            var connection = db.Database.GetDbConnection();
+            if (connection.State != System.Data.ConnectionState.Open) connection.Open();
+            using var check = connection.CreateCommand();
+            if (sqlite) check.CommandText = "PRAGMA table_info(Users)";
+            else check.CommandText = "SELECT COLUMN_NAME FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'Users'";
+            using var reader = check.ExecuteReader();
+            while (reader.Read())
+            {
+                var column = sqlite ? reader.GetString(1) : reader.GetString(0);
+                if (column.Equals("Preferences", StringComparison.OrdinalIgnoreCase)) exists = true;
+            }
+            reader.Close();
+            if (!exists) db.Database.ExecuteSqlRaw(sql);
+            continue;
+        }
+        try { db.Database.ExecuteSqlRaw(sql); }
+        catch (Exception ex) when (sql.StartsWith("ALTER TABLE", StringComparison.OrdinalIgnoreCase))
+        { Console.WriteLine("Schema column already exists or requires manual migration: " + ex.Message); }
+    }
+    try
+    {
+        foreach (var (name, type) in new[] { ("ImageUrl", sqlite ? "TEXT NOT NULL DEFAULT ''" : "LONGTEXT NOT NULL"), ("ContactEmail", sqlite ? "TEXT NOT NULL DEFAULT ''" : "VARCHAR(255) NOT NULL DEFAULT ''"), ("ContactPhone", sqlite ? "TEXT NOT NULL DEFAULT ''" : "VARCHAR(100) NOT NULL DEFAULT ''") })
+        {
+            var exists = false;
+            var connection = db.Database.GetDbConnection();
+            if (connection.State != System.Data.ConnectionState.Open) connection.Open();
+            using var check = connection.CreateCommand();
+            if (sqlite) check.CommandText = "PRAGMA table_info(EventSubmissions)";
+            else check.CommandText = "SELECT COLUMN_NAME FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'EventSubmissions'";
+            using var reader = check.ExecuteReader();
+            while (reader.Read()) if ((sqlite ? reader.GetString(1) : reader.GetString(0)).Equals(name, StringComparison.OrdinalIgnoreCase)) exists = true;
+            reader.Close();
+            if (!exists) db.Database.ExecuteSqlRaw("ALTER TABLE EventSubmissions ADD COLUMN " + name + " " + type);
+        }
+        var conn = db.Database.GetDbConnection();
+        if (conn.State != System.Data.ConnectionState.Open) conn.Open();
+        using (var duplicateCheck = conn.CreateCommand())
+        {
+            duplicateCheck.CommandText = "SELECT COUNT(*) FROM (SELECT LOWER(Email) FROM Users GROUP BY LOWER(Email) HAVING COUNT(*) > 1) duplicates";
+            if (Convert.ToInt32(duplicateCheck.ExecuteScalar()) == 0)
+            {
+                if (sqlite) db.Database.ExecuteSqlRaw("CREATE UNIQUE INDEX IF NOT EXISTS IX_Users_Email ON Users(Email)");
+                else
+                {
+                    using var indexCheck = conn.CreateCommand();
+                    indexCheck.CommandText = "SELECT COUNT(*) FROM information_schema.STATISTICS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'Users' AND INDEX_NAME = 'IX_Users_Email'";
+                    if (Convert.ToInt32(indexCheck.ExecuteScalar()) == 0) db.Database.ExecuteSqlRaw("CREATE UNIQUE INDEX IX_Users_Email ON Users(Email)");
+                }
+            }
+        }
+        if (!sqlite)
+        {
+            var constraints = new[] {
+                ("Tickets","FK_Tickets_Bookings_BookingId","ALTER TABLE Tickets ADD CONSTRAINT FK_Tickets_Bookings_BookingId FOREIGN KEY (BookingId) REFERENCES Bookings(Id) ON DELETE CASCADE"),
+                ("Tickets","FK_Tickets_Events_EventId","ALTER TABLE Tickets ADD CONSTRAINT FK_Tickets_Events_EventId FOREIGN KEY (EventId) REFERENCES Events(Id) ON DELETE RESTRICT"),
+                ("Tickets","FK_Tickets_Users_OwnerUserId","ALTER TABLE Tickets ADD CONSTRAINT FK_Tickets_Users_OwnerUserId FOREIGN KEY (OwnerUserId) REFERENCES Users(Id) ON DELETE RESTRICT"),
+                ("SavedEvents","FK_SavedEvents_Users_UserId","ALTER TABLE SavedEvents ADD CONSTRAINT FK_SavedEvents_Users_UserId FOREIGN KEY (UserId) REFERENCES Users(Id) ON DELETE CASCADE"),
+                ("SavedEvents","FK_SavedEvents_Events_EventId","ALTER TABLE SavedEvents ADD CONSTRAINT FK_SavedEvents_Events_EventId FOREIGN KEY (EventId) REFERENCES Events(Id) ON DELETE CASCADE"),
+                ("VerificationAttempts","FK_VerificationAttempts_Users_UserId","ALTER TABLE VerificationAttempts ADD CONSTRAINT FK_VerificationAttempts_Users_UserId FOREIGN KEY (UserId) REFERENCES Users(Id) ON DELETE SET NULL"),
+                ("ResaleListings","FK_ResaleListings_Tickets_TicketId","ALTER TABLE ResaleListings ADD CONSTRAINT FK_ResaleListings_Tickets_TicketId FOREIGN KEY (TicketId) REFERENCES Tickets(Id) ON DELETE CASCADE"),
+                ("ResaleListings","FK_ResaleListings_Users_SellerUserId","ALTER TABLE ResaleListings ADD CONSTRAINT FK_ResaleListings_Users_SellerUserId FOREIGN KEY (SellerUserId) REFERENCES Users(Id) ON DELETE RESTRICT"),
+                ("EventSubmissions","FK_EventSubmissions_Users_UserId","ALTER TABLE EventSubmissions ADD CONSTRAINT FK_EventSubmissions_Users_UserId FOREIGN KEY (UserId) REFERENCES Users(Id) ON DELETE CASCADE"),
+                ("TicketTransfers","FK_TicketTransfers_Tickets_TicketId","ALTER TABLE TicketTransfers ADD CONSTRAINT FK_TicketTransfers_Tickets_TicketId FOREIGN KEY (TicketId) REFERENCES Tickets(Id) ON DELETE RESTRICT"),
+                ("TicketTransfers","FK_TicketTransfers_Users_FromUserId","ALTER TABLE TicketTransfers ADD CONSTRAINT FK_TicketTransfers_Users_FromUserId FOREIGN KEY (FromUserId) REFERENCES Users(Id) ON DELETE RESTRICT"),
+                ("TicketTransfers","FK_TicketTransfers_Users_ToUserId","ALTER TABLE TicketTransfers ADD CONSTRAINT FK_TicketTransfers_Users_ToUserId FOREIGN KEY (ToUserId) REFERENCES Users(Id) ON DELETE RESTRICT")
+            };
+            foreach (var (table, name, sql) in constraints)
+            {
+                using var check = conn.CreateCommand();
+                check.CommandText = "SELECT COUNT(*) FROM information_schema.TABLE_CONSTRAINTS WHERE CONSTRAINT_SCHEMA = DATABASE() AND TABLE_NAME = @table AND CONSTRAINT_NAME = @name AND CONSTRAINT_TYPE = 'FOREIGN KEY'";
+                var tableParam = check.CreateParameter(); tableParam.ParameterName = "@table"; tableParam.Value = table; check.Parameters.Add(tableParam);
+                var nameParam = check.CreateParameter(); nameParam.ParameterName = "@name"; nameParam.Value = name; check.Parameters.Add(nameParam);
+                if (Convert.ToInt32(check.ExecuteScalar()) == 0) db.Database.ExecuteSqlRaw(sql);
+            }
+        }
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine("Schema maintenance note: " + ex.Message);
+    }
+}

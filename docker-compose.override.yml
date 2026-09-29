@@ -1,0 +1,23 @@
+# ============================================================
+# AURA++ — docker-compose.override.yml
+# Local development overrides (auto-loaded by docker compose)
+# ============================================================
+
+version: "3.9"
+
+services:
+  aura:
+    build:
+      args:
+        BUILD_CONFIGURATION: Debug
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      # Enable detailed logging in dev
+      Logging__LogLevel__Default: Debug
+      Logging__LogLevel__Microsoft.AspNetCore: Information
+    ports:
+      - "5000:8080"
+      - "5001:8443"
+    # Mount source for hot reload in development
+    volumes:
+      - aura_sqlite_data:/app/data
