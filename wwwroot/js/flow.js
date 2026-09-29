@@ -1,25 +1,19 @@
 /* ============================================================
    AURA++ — FLOW CONTROLLER
    Stage sequence:
-     1. Entrance gate     (Enter button)
-     2. Welcome modal     (Let's Explore More button)
-     3. Intro screen      (ULTIMATE EVENT EXPERIENCE, 4s + Next)
-     4. Login gate        (Login / Create Account buttons)
-     5. Full site         (shown only after login)
-   If already logged in → skip straight to stage 5.
+     1. Entrance gate → 2. Welcome modal → 3. Intro screen
+     → 4. Public discovery (accounts are needed for booking/account tools)
+   Returning users skip straight to the full site.
    ============================================================ */
 
 (function () {
   'use strict';
 
-  // How long the intro screen stays before "Next" appears (ms)
-  const INTRO_DURATION = 4000;
+  const INTRO_DURATION = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 4000;
 
-  // Dev shortcut: add ?skipIntro=1 to URL to bypass stages 1-4
   const params = new URLSearchParams(window.location.search);
   const devSkip = params.get('skipIntro') === '1';
 
-  // ---------- helpers ----------
   const $ = id => document.getElementById(id);
 
   function isLoggedIn() {
@@ -32,41 +26,27 @@
   }
 
   function showSite() {
-    document.body.classList.remove('gate-open', 'intro-open', 'login-gate-open');
-    document.body.classList.add('logged-in');
+    document.body.classList.remove('gate-open', 'intro-open');
+    document.body.classList.add('aura-site-open');
+    if (typeof window.auraPlayHero === 'function') window.auraPlayHero();
 
-    // Hide all gates
     const gate = $('entrance-gate');
     const intro = $('intro-screen');
-    const loginGate = $('login-gate');
     const welcome = $('welcome-modal');
 
     if (gate) gate.classList.add('hidden');
     if (intro) intro.classList.add('stage-hidden');
-    if (loginGate) loginGate.classList.add('stage-hidden');
     if (welcome) welcome.classList.remove('active');
+    if (welcome) welcome.setAttribute('aria-hidden', 'true');
 
-    // Let the animations refresh (ScrollTrigger) after site becomes visible
     setTimeout(() => {
       if (typeof ScrollTrigger !== 'undefined') {
         try { ScrollTrigger.refresh(); } catch (e) {}
       }
-      // app.js needs to re-run updateUserNav so navbar shows correctly
       if (typeof window.updateUserNav === 'function') {
         try { window.updateUserNav(); } catch (e) {}
       }
     }, 120);
-  }
-
-  function showLoginGate() {
-    const intro = $('intro-screen');
-    const loginGate = $('login-gate');
-
-    if (intro) intro.classList.add('stage-hidden');
-    if (loginGate) loginGate.classList.remove('stage-hidden');
-
-    document.body.classList.remove('intro-open');
-    document.body.classList.add('login-gate-open');
   }
 
   function showIntroScreen() {
@@ -77,15 +57,15 @@
     if (welcome) welcome.classList.remove('active');
     if (intro) {
       intro.classList.remove('stage-hidden');
-      // Force reflow so the animation starts from scratch
       void intro.offsetWidth;
       intro.classList.add('active');
+      const title = intro.querySelector('.intro-title');
+      if (title) { title.tabIndex = -1; title.focus({ preventScroll: true }); }
     }
 
     document.body.classList.add('intro-open');
-    document.body.classList.remove('gate-open', 'login-gate-open');
+    document.body.classList.remove('gate-open');
 
-    // After INTRO_DURATION, reveal the Next button
     if (nextBtn) {
       nextBtn.classList.remove('revealed');
       setTimeout(() => {
@@ -96,7 +76,7 @@
   }
 
   // ============================================================
-  // PUBLIC FUNCTIONS — used by inline onclick handlers
+  // PUBLIC
   // ============================================================
 
   window.enterSite = function () {
@@ -104,77 +84,56 @@
     if (gate) gate.classList.add('hidden');
     document.body.classList.remove('gate-open');
 
-    // If already logged in, skip straight to the full site
     if (isLoggedIn()) {
       showSite();
       return;
     }
 
-    // Otherwise, show welcome modal after gate fades
     setTimeout(() => {
       const welcome = $('welcome-modal');
-      if (welcome) welcome.classList.add('active');
-    }, 700);
+      if (welcome) {
+        welcome.setAttribute('aria-hidden', 'false');
+        welcome.classList.add('active');
+        const focusTarget = welcome.querySelector('button:not(:disabled)');
+        focusTarget?.focus({ preventScroll: true });
+      }
+    }, INTRO_DURATION ? 700 : 0);
   };
 
   window.closeWelcome = function () {
     const welcome = $('welcome-modal');
     if (welcome) welcome.classList.remove('active');
+    if (welcome) welcome.setAttribute('aria-hidden', 'true');
 
-    // If logged in, go straight to site
     if (isLoggedIn()) {
       showSite();
       return;
     }
 
-    // Otherwise show intro screen
-    setTimeout(showIntroScreen, 250);
+    setTimeout(showIntroScreen, INTRO_DURATION ? 250 : 0);
   };
 
-  window.advanceToLogin = function () {
-    showLoginGate();
+  window.advanceToDiscovery = function () {
+    showSite();
   };
-
-  // ============================================================
-  // Hook into login/register success
-  // We poll for the aura_user key in localStorage because app.js
-  // sets it via localStorage.setItem — not through a function call
-  // we can hook into directly.
-  // ============================================================
-  function watchLoginState() {
-    setInterval(() => {
-      if (isLoggedIn() && !document.body.classList.contains('logged-in')) {
-        // User just logged in somewhere (modal), advance to site
-        showSite();
-      }
-    }, 400);
-  }
 
   // ============================================================
   // INIT
   // ============================================================
   function init() {
-    // If already logged in on page load, skip straight to site
     if (isLoggedIn()) {
       showSite();
       return;
     }
 
-    // Dev shortcut — skip everything
     if (devSkip) {
       showSite();
       return;
     }
 
-    // Default: entrance gate is visible (body has .gate-open in HTML)
-    // Make sure intro & login-gate are hidden initially
     const intro = $('intro-screen');
-    const loginGate = $('login-gate');
     if (intro) intro.classList.add('stage-hidden');
-    if (loginGate) loginGate.classList.add('stage-hidden');
 
-    // Start watching for login events
-    watchLoginState();
   }
 
   if (document.readyState === 'loading') {

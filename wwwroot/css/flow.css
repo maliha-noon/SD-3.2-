@@ -1,41 +1,57 @@
 /* ============================================================
    AURA++ — FLOW STAGES
-   Controls: entrance gate → welcome → hero-only → login-only → full site
+   Entrance gate → welcome → intro → public event discovery
    Loaded AFTER site.css. Extends it, doesn't replace it.
    ============================================================ */
 
 /* ============================================================
-   BASE — hide full site until logged in
+   BASE — reveal the full site when the intro has completed
    ============================================================ */
 .site-hidden {
   display: none !important;
 }
 
-body.logged-in .site-hidden {
+body.aura-site-open .site-hidden {
   display: block !important;
 }
 
-body.logged-in nav.navbar.site-hidden {
+body.aura-site-open nav.navbar.site-hidden {
   display: flex !important;
 }
 
-body.logged-in .corner-ui.site-hidden {
+body.aura-site-open .corner-ui.site-hidden {
+  display: flex !important;
+}
+
+/* Dashboard View layout overrides */
+body.aura-site-open #dashboard-view.site-hidden,
+body.dashboard-open #dashboard-view,
+body.dashboard-open .dash-view {
   display: flex !important;
 }
 
 /* Prevent scroll during gates */
 body.gate-open,
-body.intro-open,
-body.login-gate-open {
+body.intro-open {
   overflow: hidden;
 }
 
-/* ============================================================
-   STAGE 3 — INTRO SCREEN (hero-only, 4s hold, then Next button)
-   ============================================================ */
+/* Make absolutely sure the stage overlays cover everything */
+#entrance-gate,
 #intro-screen {
   position: fixed;
   inset: 0;
+  z-index: 9999990;
+}
+
+#entrance-gate {
+  z-index: 9999999;
+}
+
+/* ============================================================
+   STAGE 3 — INTRO SCREEN (hero-only, 4s hold, then Next)
+   ============================================================ */
+#intro-screen {
   background: var(--cream);
   background-image:
     radial-gradient(circle at 20% 15%, rgba(184, 176, 212, 0.35), transparent 55%),
@@ -45,7 +61,6 @@ body.login-gate-open {
   align-items: center;
   justify-content: center;
   padding: 40px;
-  z-index: 9999990;
   opacity: 1;
   visibility: visible;
   transition: opacity 0.8s ease, visibility 0.8s ease;
@@ -70,6 +85,7 @@ body.login-gate-open {
   letter-spacing: -3px;
   color: var(--text-main);
   display: block;
+  margin: 0;
 }
 
 .intro-line {
@@ -78,7 +94,6 @@ body.login-gate-open {
   transform: translateY(40px);
 }
 
-/* When the intro screen becomes active, animate the lines in */
 #intro-screen.active .intro-line {
   animation: introLineIn 1s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
@@ -88,17 +103,10 @@ body.login-gate-open {
 #intro-screen.active .intro-line:nth-child(3) { animation-delay: 0.55s; }
 
 @keyframes introLineIn {
-  from {
-    opacity: 0;
-    transform: translateY(40px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(40px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
-/* The "Next" button — hidden until 4s pass */
 .intro-next-btn {
   position: absolute;
   bottom: 60px;
@@ -145,126 +153,12 @@ body.login-gate-open {
 }
 
 /* ============================================================
-   STAGE 4 — LOGIN-ONLY GATE
+   Full-site fade-in
    ============================================================ */
-#login-gate {
-  position: fixed;
-  inset: 0;
-  background: var(--cream);
-  background-image:
-    radial-gradient(circle at 50% 30%, rgba(184, 176, 212, 0.25), transparent 60%),
-    radial-gradient(circle at 80% 80%, rgba(168, 197, 224, 0.25), transparent 55%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 40px;
-  z-index: 9999985;
-  opacity: 1;
-  visibility: visible;
-  transition: opacity 0.8s ease, visibility 0.8s ease;
-}
-
-#login-gate.stage-hidden {
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-}
-
-.login-gate-inner {
-  background: #ffffff;
-  border-radius: 28px;
-  padding: 60px 48px;
-  max-width: 460px;
-  width: 100%;
-  text-align: center;
-  box-shadow:
-    0 40px 100px rgba(23, 23, 23, 0.12),
-    0 0 0 1px rgba(23, 23, 23, 0.04) inset;
-}
-
-.login-gate-brand {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 14px;
-  margin-bottom: 40px;
-}
-
-.login-gate-brand .gate-mark {
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  background: var(--charcoal);
-  color: var(--cream);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: 'Fraunces', serif;
-  font-size: 30px;
-  font-weight: 400;
-  font-style: italic;
-  margin: 0;
-}
-
-.login-gate-brand .gate-name {
-  font-family: 'Inter', sans-serif;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  color: var(--text-main);
-  opacity: 0.55;
-}
-
-.login-gate-title {
-  font-family: 'Fraunces', serif;
-  font-weight: 400;
-  font-size: 40px;
-  letter-spacing: -1.5px;
-  line-height: 1.05;
-  color: var(--text-main);
-  margin-bottom: 8px;
-}
-
-.login-gate-sub {
-  font-family: 'Inter', sans-serif;
-  font-size: 14px;
-  color: var(--text-muted);
-  font-weight: 500;
-  margin-bottom: 36px;
-}
-
-.login-gate-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin-bottom: 28px;
-}
-
-.login-gate-btn {
-  width: 100%;
-  padding: 16px 24px;
-  font-size: 15px;
-  border-radius: 100px;
-  justify-content: center;
-  display: inline-flex;
-  align-items: center;
-}
-
-.login-gate-foot {
-  font-family: 'Inter', sans-serif;
-  font-size: 12px;
-  color: var(--text-muted);
-  opacity: 0.7;
-}
-
-/* ============================================================
-   Full-site fade-in when transitioning from login gate
-   ============================================================ */
-body.logged-in main,
-body.logged-in nav.navbar,
-body.logged-in footer,
-body.logged-in .corner-ui {
+body.aura-site-open main,
+body.aura-site-open nav.navbar,
+body.aura-site-open footer,
+body.aura-site-open .corner-ui {
   animation: siteFadeIn 1s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
@@ -283,11 +177,5 @@ body.logged-in .corner-ui {
   }
   .intro-next-btn {
     bottom: 40px;
-  }
-  .login-gate-inner {
-    padding: 40px 28px;
-  }
-  .login-gate-title {
-    font-size: 32px;
   }
 }

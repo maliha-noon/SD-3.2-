@@ -4,43 +4,41 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AURA++ | Ultimate Event Experience</title>
-  <meta name="description" content="Book tickets and sell events on AURA++ with bKash, Nagad, and Card payments.">
+  <meta name="description" content="Discover live events and reserve tickets on AURA++. Find concerts, festivals, and experiences near you.">
+  <link rel="stylesheet" href="css/design-system.css?v=1.0">
   <link rel="stylesheet" href="css/site.css?v=12.0">
-  <link rel="stylesheet" href="css/flow.css?v=1.0">
+  <link rel="stylesheet" href="css/flow.css?v=3.0">
+  <link rel="stylesheet" href="css/dashboard.css?v=2.0">
+  <link rel="stylesheet" href="css/admin-panel.css?v=1.0">
+  <link rel="stylesheet" href="css/home.css?v=3.0">
+  <link rel="stylesheet" href="css/interactions.css?v=1.1">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body class="gate-open">
+<body class="gate-open aura-motion-pending">
 
-  <!-- ============================================================
-       STAGE 1 — ENTRANCE GATE
-       ============================================================ -->
+  <!-- STAGE 1 Ã¢â‚¬â€ ENTRANCE GATE -->
   <div id="entrance-gate">
     <div class="gate-top">
-      <div class="gate-top-logo">AURA++ <sup>®</sup></div>
-      <div class="gate-top-links">
-        <span>EST. 2026</span>
-      </div>
+      <div class="gate-top-logo">AURA++ <sup>Ã‚Â®</sup></div>
+      <div class="gate-top-links"><span>EST. 2026</span></div>
     </div>
-
     <div class="gate-center">
       <div class="gate-mark">A</div>
-      <div class="gate-name">AURA++ · TICKETING PLATFORM</div>
+      <div class="gate-name">AURA++ Ã‚Â· TICKETING PLATFORM</div>
       <p class="gate-desc">
-        A modern event platform for discovering concerts, festivals, tech expos and more — book tickets in seconds, or become a Pro Seller and publish your own events.
+        A modern event platform for discovering concerts, festivals, tech expos and more Ã¢â‚¬â€ book tickets in seconds, or become a Pro Seller and publish your own events.
       </p>
       <button class="gate-enter-btn" onclick="enterSite()">
-        Enter <span class="arrow">↘</span>
+        Enter <span class="arrow">Ã¢â€ Ëœ</span>
       </button>
     </div>
   </div>
 
-  <!-- ============================================================
-       STAGE 2 — WELCOME MODAL
-       ============================================================ -->
+  <!-- STAGE 2 Ã¢â‚¬â€ WELCOME MODAL -->
   <div id="welcome-modal" class="modal-overlay">
     <div class="modal-box welcome-modal-box">
-      <button class="close-modal" onclick="closeWelcome()">&times;</button>
-      <div class="welcome-emoji">👋</div>
+      <button class="close-modal" aria-label="Close dialog" onclick="closeWelcome()">&times;</button>
+      <div class="welcome-emoji">Ã°Å¸â€˜â€¹</div>
       <h2 class="modal-title">Welcome to AURA++</h2>
       <p class="modal-subtitle">
         Thanks for visiting! Discover concerts, festivals, tech expos, and more. Book tickets in seconds, or become a Pro Seller and publish your own events.
@@ -51,9 +49,7 @@
     </div>
   </div>
 
-  <!-- ============================================================
-       STAGE 3 — HERO-ONLY INTRO SCREEN
-       ============================================================ -->
+  <!-- STAGE 3 Ã¢â‚¬â€ INTRO SCREEN -->
   <div id="intro-screen" class="stage-hidden">
     <div class="intro-center">
       <h1 class="intro-title">
@@ -62,549 +58,751 @@
         <span class="intro-line">EXPERIENCE</span>
       </h1>
     </div>
-    <button id="intro-next-btn" class="intro-next-btn stage-hidden" onclick="advanceToLogin()">
-      Next <i class="fa-solid fa-arrow-right"></i>
+    <button id="intro-next-btn" class="intro-next-btn stage-hidden" onclick="advanceToDiscovery()">
+      Discover events <i class="fa-solid fa-arrow-right"></i>
     </button>
   </div>
 
-  <!-- ============================================================
-       STAGE 4 — LOGIN-ONLY GATE
-       ============================================================ -->
-  <div id="login-gate" class="stage-hidden">
-    <div class="login-gate-inner">
-      <div class="login-gate-brand">
-        <div class="gate-mark">A</div>
-        <div class="gate-name">AURA++ · TICKETING PLATFORM</div>
-      </div>
-
-      <h2 class="login-gate-title">Welcome</h2>
-      <p class="login-gate-sub">Sign in or create an account to continue</p>
-
-      <div class="login-gate-actions">
-        <button class="btn-primary-3d login-gate-btn" onclick="openLoginModal()">
-          <i class="fa-solid fa-right-to-bracket" style="margin-right:8px;"></i> Login
-        </button>
-        <button class="btn-glass-3d login-gate-btn" onclick="openRegisterModal()">
-          <i class="fa-solid fa-user-plus" style="margin-right:8px;"></i> Create Account
-        </button>
-      </div>
-
-      <p class="login-gate-foot">
-        By continuing, you agree to AURA++ Terms of Service.
-      </p>
-    </div>
-  </div>
-
-  <!-- ============================================================
-       STAGE 5 — FULL SITE (shown only when logged in)
-       ============================================================ -->
-
+  <!-- FULL SITE -->
   <canvas id="aura-canvas"></canvas>
 
-  <!-- NAVBAR -->
   <nav class="navbar site-hidden">
     <a href="#" class="brand-logo">AURA<span class="red-plus">++</span></a>
-
     <ul class="nav-links">
       <li><a href="#events" class="nav-link">EVENTS</a></li>
-
+      <li><a href="#ticket-verification" class="nav-link">VERIFY TICKET</a></li>
+      <li><a href="#resale" class="nav-link">RESALE</a></li>
+      <li><button onclick="openDashboard()" class="nav-link" style="background:none;border:none;cursor:pointer;font-family:inherit;">
+        <i class="fa-solid fa-gauge-high" style="margin-right:4px;"></i> DASHBOARD
+      </button></li>
       <li id="nav-subscribe-item" style="display: none;">
         <button id="nav-subscribe-btn" onclick="openSubscribeModal()" class="btn-subscribe-nav">
           <i class="fa-solid fa-crown" style="margin-right:4px;"></i> SUBSCRIBE
         </button>
       </li>
-
       <li id="nav-sell-item" style="display: none;">
         <button onclick="handleSellTicketsClick()" class="btn-nav-seller">
           <i class="fa-solid fa-plus-circle"></i> Sell Tickets
         </button>
       </li>
-
       <li id="nav-login-item" style="display: none;">
         <a href="javascript:void(0)" onclick="openLoginModal()" class="nav-link">LOGIN</a>
       </li>
-
       <li id="nav-register-item" style="display: none;">
         <button onclick="openRegisterModal()" class="btn-register-nav">REGISTER</button>
       </li>
-
       <li id="nav-user-item" style="display: none;">
         <div class="user-profile-badge" style="display:flex; align-items:center; gap:8px;">
-          <button onclick="openDashboardModal()" class="btn-primary-3d" style="padding: 7px 16px; font-size: 12px;">
-            <i class="fa-solid fa-gauge-high" style="margin-right:6px;"></i> Dashboard
-          </button>
-          <span id="logged-user-name" class="user-name" style="font-weight:700;">User</span>
+          <a id="logged-user-name" class="user-name user-profile-link" href="/profile" aria-label="My Profile" title="My Profile" style="font-weight:700;color:inherit;text-decoration:none;">User</a>
           <span id="sub-badge-status" class="sub-badge" style="display:none;">PRO SELLER</span>
           <button onclick="logoutUser()" class="btn-logout" title="Logout" style="background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:16px; margin-left:6px;">
             <i class="fa-solid fa-right-from-bracket"></i>
           </button>
         </div>
       </li>
-
       <li class="lang-selector-item">
         <select id="lang-select" onchange="changeLanguage(this.value)" class="lang-dropdown">
-          <option value="en">🌐 English (USA / Global)</option>
-          <option value="bn">🇧🇩 বাংলা (Bangla - Bangladesh)</option>
-          <option value="es">🇪🇸 Español (Spanish)</option>
-          <option value="fr">🇫🇷 Français (French)</option>
-          <option value="de">🇩🇪 Deutsch (German)</option>
-          <option value="zh-CN">🇨🇳 中文 (Chinese Simplified)</option>
-          <option value="ja">🇯🇵 日本語 (Japanese)</option>
-          <option value="ar">🇸🇦 العربية (Arabic)</option>
-          <option value="hi">🇮🇳 हिन्दी (Hindi)</option>
-          <option value="ru">🇷🇺 Русский (Russian)</option>
-          <option value="pt">🇵🇹 Português (Portuguese)</option>
-          <option value="ko">🇰🇷 한국어 (Korean)</option>
-          <option value="it">🇮🇹 Italiano (Italian)</option>
-          <option value="tr">🇹🇷 Türkçe (Turkish)</option>
-          <option value="ur">🇵🇰 اردو (Urdu)</option>
-          <option value="vi">🇻🇳 Tiếng Việt (Vietnamese)</option>
-          <option value="id">🇮🇩 Bahasa Indonesia (Indonesian)</option>
-          <option value="th">🇹🇭 ไทย (Thai)</option>
-          <option value="nl">🇳🇱 Nederlands (Dutch)</option>
-          <option value="pl">🇵🇱 Polski (Polish)</option>
-          <option value="ms">🇲🇾 Bahasa Melayu (Malay)</option>
-          <option value="tl">🇵🇭 Tagalog (Filipino)</option>
-          <option value="el">🇬🇷 Ελληνικά (Greek)</option>
-          <option value="sv">🇸🇪 Svenska (Swedish)</option>
-          <option value="uk">🇺🇦 Українська (Ukrainian)</option>
-          <option value="fa">🇮🇷 فارسی (Persian)</option>
+          <option value="en">English</option>
         </select>
       </li>
       <div id="google_translate_element" style="display:none;"></div>
     </ul>
   </nav>
 
-  <!-- MAIN -->
   <main class="site-hidden">
-
-    <section class="hero" id="hero">
-      <div class="hero-content">
-        <span class="hero-eyebrow" data-anim="fade-up">AURA++ · EVENT PLATFORM</span>
-        <h1 class="hero-title-3d" id="hero-animated-title" data-anim="split-text">
-          <span class="serif-italic">Experience</span>
-          <span class="sans-bold">the unexpected</span>
-        </h1>
-        <p class="hero-subtitle" data-anim="fade-up" data-anim-delay="0.4">
-          Discover world-class concerts, electrifying EDM festivals, epic tech expos — or subscribe as a Pro Organizer to publish and sell tickets on AURA++.
-        </p>
-        <div class="hero-actions" data-anim="fade-up" data-anim-delay="0.55">
-          <a href="#events" class="btn-primary-3d">
-            <i class="fa-solid fa-compass" style="margin-right:8px;"></i> Explore Events
-          </a>
+    <section class="hero hero-cinema" id="hero" aria-labelledby="hero-animated-title">
+      <div class="hero-backdrop" data-hero-layer="backdrop" aria-hidden="true"></div>
+      <div class="hero-grain" aria-hidden="true"></div>
+      <div class="hero-art" data-hero-layer="art" aria-label="Featured AURA event">
+        <div class="hero-art-frame">
+          <img id="hero-event-image" alt="" decoding="async">
+          <div class="hero-art-wash" aria-hidden="true"></div>
+          <span class="hero-art-index">AURA / LIVE FILE 001</span>
+          <div class="hero-art-caption">
+            <span class="hero-art-kicker" id="hero-event-date">A NIGHT OUT, WELL SPENT</span>
+            <h2 id="hero-event-title">Find your next favorite night.</h2>
+            <span id="hero-event-venue">Live experiences, gathered in one place</span>
+          </div>
+          <div class="hero-ticket-object" aria-hidden="true">
+            <span class="hero-ticket-brand">AURA <b>++</b></span>
+            <span class="hero-ticket-rule"></span>
+            <span class="hero-ticket-label">ADMIT ONE</span>
+            <span class="hero-ticket-word">BE THERE.</span>
+            <span class="hero-ticket-stub">LIVE / DHK</span>
+          </div>
         </div>
+        <span class="hero-art-note">GOOD NIGHTS START HERE <i></i> SCROLL TO DISCOVER</span>
       </div>
+
+      <div class="hero-content">
+        <span class="hero-eyebrow hero-identity">AURA++ <i></i> YOUR CITY, AFTER DARK</span>
+        <h1 class="hero-title-3d" id="hero-animated-title">
+          <span class="hero-line"><span class="hero-line-inner">Make a night</span></span>
+          <span class="hero-line"><span class="hero-line-inner">of <em>everything.</em></span></span>
+        </h1>
+        <p class="hero-subtitle">
+          The live music, the lights going down, the people you came with. Find the event that turns a date into a story.
+        </p>
+        <div class="hero-actions">
+          <a href="#events" class="btn-primary-3d hero-primary-cta">Explore events <i class="fa-solid fa-arrow-down" aria-hidden="true"></i></a>
+          <button type="button" class="hero-secondary-cta" onclick="handleSellTicketsClick()">Bring an event to AURA <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></button>
+        </div>
+        <div class="hero-detail-row">
+          <span><i class="fa-solid fa-ticket" aria-hidden="true"></i> One place for your next night out</span>
+          <span class="hero-detail-divider"></span>
+          <span>DISCOVER <b>·</b> BOOK <b>·</b> GO</span>
+        </div>
+        <!-- REACT 18 MOUNT POINTS -->
+        <div id="react-mascot-root" style="margin-top:16px;"></div>
+        <div id="react-stats-root"></div>
+      </div>
+      <a class="hero-scroll-cue" href="#events" aria-label="Scroll to discover events"><span></span> KEEP GOING</a>
     </section>
 
     <section id="events" class="section">
       <div class="section-header">
-        <h2 class="section-title-3d" data-anim="fade-up">Upcoming <span class="text-red-3d">Events</span></h2>
-        <p class="section-subtitle" data-anim="fade-up" data-anim-delay="0.15">Discover and book tickets for amazing events worldwide</p>
+        <div>
+          <span class="section-overline" data-anim="fade-up">DISCOVER / AURA EVENTS</span>
+          <h2 class="section-title-3d" data-anim="fade-up">Find your<br><em>next night.</em></h2>
+        </div>
+        <p class="section-subtitle" data-anim="fade-up" data-anim-delay="0.15">From the first note to the last encore, find the nights worth showing up for.</p>
       </div>
-
-      <div id="events-grid" class="events-grid" data-anim="stagger-cards"></div>
-
+      <div class="event-discovery-tools event-discovery-layout">
+        <div class="event-search-control">
+          <label for="event-search">Search events</label>
+          <div class="event-search-input-wrap"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i><input id="event-search" type="search" placeholder="Search by event, artist, venue, or keyword" autocomplete="off"></div>
+        </div>
+        <details id="event-filter-panel" class="event-filter-panel" open>
+          <summary><span><i class="fa-solid fa-sliders" aria-hidden="true"></i> Filters</span><span id="event-filter-count" class="event-filter-count" aria-label="Active filters">0</span></summary>
+          <div class="event-filter-content">
+            <div class="event-filter-fields">
+              <div class="event-filter-field event-filter-location"><label for="event-location-filter">Where</label><input id="event-location-filter" type="search" placeholder="City or venue" autocomplete="off"></div>
+              <fieldset class="event-filter-field event-filter-dates"><legend>When</legend><div><label for="event-date-from">From</label><input id="event-date-from" type="date" aria-label="Events from date"></div><div><label for="event-date-to">To</label><input id="event-date-to" type="date" aria-label="Events to date"></div></fieldset>
+              <fieldset class="event-filter-field event-filter-prices"><legend>Ticket price (BDT)</legend><div><label for="event-price-min">Minimum</label><input id="event-price-min" type="number" min="0" placeholder="Any" aria-label="Minimum ticket price"></div><div><label for="event-price-max">Maximum</label><input id="event-price-max" type="number" min="0" placeholder="Any" aria-label="Maximum ticket price"></div></fieldset>
+              <div class="event-filter-field event-filter-sort"><label for="event-sort">Sort by</label><select id="event-sort"><option value="date">Soonest</option><option value="price">Price: low to high</option><option value="price-desc">Price: high to low</option><option value="popular">Most booked</option></select></div>
+            </div>
+            <div class="event-category-row"><span class="event-category-label">Categories</span><div id="event-filters" class="event-filters" role="group" aria-label="Filter events by category"></div></div>
+          </div>
+        </details>
+        <div class="event-filter-footer"><p id="event-active-filters" class="event-active-filters" aria-live="polite"></p><button id="event-clear-filters" class="event-clear-filters" type="button" onclick="clearEventFilters()" hidden>Clear filters</button></div>
+        <div class="event-results-row"><p id="event-results-count" class="event-results-count" role="status" aria-live="polite"></p></div>
+      </div>
+      <div id="events-grid" class="events-grid" data-anim="stagger-cards" aria-live="polite" aria-atomic="false"></div>
       <div id="pagination-controls" class="pagination-container"></div>
+      <div class="events-footnote" data-anim="fade-up"><span>01 / DISCOVER</span><span>NEW PLANS, BETTER STORIES</span></div>
     </section>
 
+    <section id="ticket-confidence" class="ticket-story" aria-labelledby="ticket-story-title">
+      <div class="ticket-story-orbit" aria-hidden="true"></div>
+      <div class="ticket-story-copy" data-anim="fade-up">
+        <span class="section-overline">THE MOMENT IS YOURS / 02</span>
+        <h2 id="ticket-story-title">A real ticket<br>for a <em>real night.</em></h2>
+        <p>Every confirmed AURA booking comes with its own booking code. Find your event, payment details and ticket record together in your account.</p>
+        <button type="button" class="story-link story-link-light" onclick="openDashboard('tickets')">View my tickets <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button>
+      </div>
+      <div class="ticket-proof" data-anim="fade-up" aria-hidden="true">
+        <div class="ticket-proof-top"><span>AURA++ / YOUR PASS</span><span class="ticket-proof-status"><i></i> IN YOUR ACCOUNT</span></div>
+        <div class="ticket-proof-main">
+          <span class="ticket-proof-overline">THE NIGHT IS WAITING</span>
+          <strong>Good things<br>happen <em>live.</em></strong>
+          <span class="ticket-proof-dash"></span>
+          <span class="ticket-proof-caption">YOUR BOOKING DETAILS<br>READY WHEN YOU ARE</span>
+        </div>
+        <div class="ticket-proof-code"><span class="ticket-proof-bars"></span><span>YOUR AURA BOOKING</span></div>
+      </div>
+      <span class="ticket-story-index" aria-hidden="true">02</span>
+    </section>
+
+    <section id="ticket-verification" class="verify-experience" aria-labelledby="verify-title">
+      <div class="verify-header">
+        <span class="section-overline">THE AURA CHECK / 03</span>
+        <h2 id="verify-title">Is your ticket <em>real?</em></h2>
+        <p>Enter the booking ID printed on your AURA confirmation. WeÃ¢â‚¬â„¢ll check its status against the booking record.</p>
+      </div>
+      <div class="verify-layout">
+        <div id="verification-ticket" class="verification-ticket" data-state="idle" aria-label="Ticket details will appear after verification">
+          <div class="verification-scanline" aria-hidden="true"></div>
+          <div class="verify-ticket-main">
+            <div class="verify-ticket-brand"><span>AURA<span>++</span></span><span class="verify-ticket-status" id="verify-ticket-status">AWAITING CHECK</span></div>
+            <div class="verify-ticket-event-block">
+              <span class="verify-ticket-kicker">YOUR NIGHT / YOUR PASS</span>
+              <h3 id="verify-ticket-event">The details are on the ticket.</h3>
+              <div class="verify-ticket-details">
+                <div><span>DATE</span><strong id="verify-ticket-date">Ã¢â‚¬â€</strong></div>
+                <div><span>VENUE</span><strong id="verify-ticket-venue">Ã¢â‚¬â€</strong></div>
+                <div><span>TYPE</span><strong id="verify-ticket-type">Ã¢â‚¬â€</strong></div>
+              </div>
+            </div>
+            <div class="verify-ticket-id"><span>TICKET ID</span><strong id="verify-ticket-id">ENTER ID TO CHECK</strong></div>
+          </div>
+          <div class="verify-ticket-stub" aria-hidden="true">
+            <div class="verify-ticket-notch"></div>
+            <svg class="verify-result-mark" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="27"></circle><path d="m18 33 9 9 19-20"></path></svg>
+            <span class="verify-outcome-mark" aria-hidden="true"></span>
+            <span class="verify-stub-label">AURA / ENTRY PASS</span>
+            <span class="verify-stub-bars"></span>
+            <span class="verify-stub-code" id="verify-stub-code">AURA Ã¢â‚¬â€ Ã¢â‚¬â€ Ã¢â‚¬â€</span>
+          </div>
+        </div>
+        <div class="verify-controls">
+          <span class="verify-step">01 <i></i> LOOK IT UP</span>
+          <h3>Check your booking.</h3>
+          <form id="ticket-verification-form" class="verify-form">
+            <label for="ticket-verification-code">Booking ID</label>
+            <div class="verify-input-wrap"><i class="fa-solid fa-ticket" aria-hidden="true"></i><input id="ticket-verification-code" name="bookingCode" type="text" maxlength="40" autocomplete="off" autocapitalize="characters" placeholder="AURA-XXXXXXXX" required></div>
+            <button id="ticket-verification-submit" class="btn-primary-3d verify-submit" type="submit">Verify ticket <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button>
+          </form>
+          <p id="ticket-verification-message" class="verify-message" role="status" aria-live="polite">Results come directly from AURAÃ¢â‚¬â„¢s booking records.</p>
+          <span class="verify-privacy"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i> A private, live booking check</span>
+        </div>
+      </div>
+      <span class="verify-index" aria-hidden="true">03 / 04</span>
+    </section>
+
+    <section id="resale" class="resale-trust" aria-labelledby="resale-story-title">
+      <div class="resale-trust-heading">
+        <span class="section-overline">GOOD NIGHTS TRAVEL / 04</span>
+        <h2 id="resale-story-title">Pass the moment.<br><em>Keep the proof.</em></h2>
+        <p>A ticket should carry a clear record of who it belongs to. HereÃ¢â‚¬â„¢s the path AURA is building, and what the platform can verify today.</p>
+      </div>
+
+      <div class="resale-trust-layout">
+        <div class="resale-flow-wrap">
+          <div class="resale-flow-rail" aria-hidden="true"><span class="resale-flow-progress"></span><span id="resale-transfer-marker" class="resale-transfer-marker"><i class="fa-solid fa-ticket"></i></span></div>
+          <ol id="resale-trust-flow" class="resale-trust-flow" aria-label="AURA ticket resale trust flow">
+            <li class="resale-flow-step is-current" data-flow-step="0">
+              <button type="button" class="resale-flow-select" aria-pressed="true">
+                <span class="resale-flow-number">01</span><span class="resale-flow-copy"><strong>Original ticket</strong><small>Check a booking record created through AURA.</small></span><span class="resale-flow-state is-live">AVAILABLE NOW</span>
+              </button>
+            </li>
+            <li class="resale-flow-step" data-flow-step="1">
+              <button type="button" class="resale-flow-select" aria-pressed="false">
+                <span class="resale-flow-number">02</span><span class="resale-flow-copy"><strong>AURA verification</strong><small>Booking status is checked against the live record.</small></span><span class="resale-flow-state is-live">LOOKUP LIVE</span>
+              </button>
+            </li>
+            <li class="resale-flow-step" data-flow-step="2"><button type="button" class="resale-flow-select" aria-pressed="false"><span class="resale-flow-number">03</span><span class="resale-flow-copy"><strong>Eligible for resale</strong><small>Active subscribers can list eligible, unused tickets from My Tickets.</small></span><span class="resale-flow-state">SUBSCRIBER ACCESS</span></button></li>
+            <li class="resale-flow-step" data-flow-step="3">
+              <button type="button" class="resale-flow-select" aria-pressed="false">
+                <span class="resale-flow-number">04</span><span class="resale-flow-copy"><strong>Buyer</strong><small>Browse active listings from current ticket owners.</small></span><span class="resale-flow-state">DATABASE LISTINGS</span>
+              </button>
+            </li>
+            <li class="resale-flow-step" data-flow-step="4">
+              <button type="button" class="resale-flow-select" aria-pressed="false">
+                <span class="resale-flow-number">05</span><span class="resale-flow-copy"><strong>Ownership transfer</strong><small>AURA records the new owner after a resale transfer.</small></span><span class="resale-flow-state">TRANSFER RECORDED</span>
+              </button>
+            </li>
+            <li class="resale-flow-step" data-flow-step="5">
+              <button type="button" class="resale-flow-select" aria-pressed="false">
+                <span class="resale-flow-number">06</span><span class="resale-flow-copy"><strong>Verified new ticket</strong><small>A transferred ticket remains traceable to its AURA issue record.</small></span><span class="resale-flow-state">TRANSFER RECORDED</span>
+              </button>
+            </li>
+          </ol>
+        </div>
+
+        <div id="resale-market-listings" class="resale-market-listings" aria-live="polite"><p class="dash-empty">Loading current resale listingsâ€¦</p></div>
+        <aside class="resale-trust-panel" aria-labelledby="resale-panel-title">
+          <div class="resale-panel-top"><span>THE AURA RECORD</span><span class="resale-live-indicator"><i></i> LOOKUP AVAILABLE</span></div>
+          <div class="resale-panel-body">
+            <p class="resale-panel-step" id="resale-panel-step" aria-live="polite">01 / ORIGINAL TICKET</p>
+            <h3 id="resale-panel-title">No resale ticket selected.</h3>
+            <p id="resale-panel-description" class="resale-panel-description">Browse active AURA listings below. Each listing is loaded from the ticket ownership records.</p>
+            <dl class="resale-ticket-facts">
+              <div><dt>VERIFICATION STATUS</dt><dd id="resale-ticket-status">Not checked</dd></div>
+              <div><dt>EVENT / DATE / VENUE</dt><dd id="resale-ticket-event">No ticket selected</dd></div>
+              <div><dt>PRICE</dt><dd id="resale-ticket-price">No resale price listed</dd></div>
+              <div><dt>TRANSFER ELIGIBILITY</dt><dd id="resale-ticket-eligibility">Eligible tickets can be listed by active subscribers.</dd></div>
+            </dl>
+            <div class="resale-protection-note"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i><p><strong>Buyer protection, clearly stated</strong><span>Ticket ownership is updated after a transfer is confirmed.</span></p></div>
+            <button type="button" id="resale-buy-cta" class="btn-primary-3d resale-buy-cta" aria-controls="resale-checkpoint" aria-expanded="false">View available listings <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button>
+            <div id="resale-checkpoint" class="resale-checkpoint" hidden role="status" aria-live="polite">
+              <span class="resale-checkpoint-mark"><i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i></span>
+              <div><strong>Verification checkpoint</strong><p>Transferred tickets retain their AURA ownership record.</p><a href="#events" class="resale-primary-link">Browse official event tickets <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a></div>
+            </div>
+            <a href="#ticket-verification" class="resale-verify-link">Verify an existing AURA booking <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></a>
+          </div>
+          <span class="resale-panel-index" aria-hidden="true">AURA++ / TRANSFER RECORD</span>
+        </aside>
+      </div>
+      <span class="resale-story-index" aria-hidden="true">04</span>
+    </section>
+
+    <section class="closing-story" aria-labelledby="closing-story-title">
+      <span class="section-overline" data-anim="fade-up">MAKE ROOM FOR A GOOD NIGHT</span>
+      <h2 id="closing-story-title" data-anim="fade-up">The best part<br>happens <em>out there.</em></h2>
+      <p data-anim="fade-up">Find your people. Find your event. WeÃ¢â‚¬â„¢ll meet you at the door.</p>
+      <a href="#events" class="btn-primary-3d closing-cta" data-anim="fade-up">Find your next night <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+      <span class="closing-signature" aria-hidden="true">AURA++ / DHK</span>
+    </section>
   </main>
 
-  <!-- ============================================================
-       MODALS (unchanged, all preserved)
-       ============================================================ -->
+  <!-- DASHBOARD VIEW -->
+  <div id="dashboard-view" class="dash-view site-hidden">
+    <header class="dash-topbar">
+      <button class="dash-back-btn" onclick="closeDashboard()">
+        <i class="fa-solid fa-arrow-left"></i>
+        <span>Back to Site</span>
+      </button>
+      <div class="dash-search">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="search" id="dash-search-input" aria-label="Search the current dashboard section" placeholder="Search events, tickets, sellers...">
+        <span id="dash-search-status" class="dash-visually-hidden" role="status" aria-live="polite"></span>
+      </div>
+      <div class="dash-user">
+        <a href="/profile" class="dash-user-link" aria-label="My Profile"><span id="dash-username">User</span>
+        <div class="dash-avatar" id="dash-avatar">U</div></a>
+      </div>
+    </header>
 
-  <!-- LOGIN MODAL -->
+    <div class="dash-body">
+      <aside class="dash-sidebar">
+        <div class="dash-brand">
+          <div class="gate-mark" style="width:36px;height:36px;font-size:20px;">A</div>
+          <span>AURA++</span>
+        </div>
+
+        <nav class="dash-nav" aria-label="Dashboard navigation">
+          <div class="dash-nav-label">Workspace</div>
+          <button class="dash-nav-item active" data-section="home" title="Overview" aria-label="Overview" onclick="switchDashSection('home')">
+            <i class="fa-solid fa-house"></i> <span>Home</span>
+          </button>
+          <button class="dash-nav-item" data-section="discover" title="Discover events" aria-label="Discover events" onclick="switchDashSection('discover')">
+            <i class="fa-solid fa-compass"></i> <span>Discover</span>
+          </button>
+          <button class="dash-nav-item" data-section="tickets" title="My tickets" aria-label="My tickets" onclick="switchDashSection('tickets')">
+            <i class="fa-solid fa-ticket"></i> <span>My Tickets</span>
+          </button>
+          <button class="dash-nav-item" data-section="verification" title="Verification history" aria-label="Verification history" onclick="switchDashSection('verification')">
+            <i class="fa-solid fa-shield-halved"></i> <span>Verification</span>
+          </button>
+
+          <div class="dash-nav-label">Manage</div>
+          <button class="dash-nav-item" data-section="subscriptions" title="Subscriptions" aria-label="Subscriptions" onclick="switchDashSection('subscriptions')">
+            <i class="fa-solid fa-crown"></i> <span>Subscriptions</span>
+          </button>
+          <button class="dash-nav-item" data-section="resale" title="Resale management" aria-label="Resale management" onclick="switchDashSection('resale')">
+            <i class="fa-solid fa-arrow-right-arrow-left"></i> <span>Resale</span>
+          </button>
+
+          <!-- Seller group Ã¢â‚¬â€ Organizer + Admin only -->
+          <div class="dash-nav-label" data-role-only="Organizer,Admin">Seller</div>
+          <button class="dash-nav-item seller-only" data-section="seller" title="My events" aria-label="My events" onclick="switchDashSection('seller')" data-role-only="Organizer,Admin">
+            <i class="fa-solid fa-store"></i> <span>My Events</span>
+          </button>
+
+          <!-- Admin group Ã¢â‚¬â€ Admin only -->
+          <div class="dash-nav-label" data-role-only="Admin">Platform</div>
+          <button class="dash-nav-item admin-only" data-section="admin" title="Admin panel" aria-label="Admin panel" onclick="switchDashSection('admin')" data-role-only="Admin">
+            <i class="fa-solid fa-shield-halved"></i> <span>Admin Panel</span>
+          </button>
+
+          <div class="dash-nav-label">Account</div>
+          <button class="dash-nav-item" data-section="history" title="Activity history" aria-label="Activity history" onclick="switchDashSection('history')">
+            <i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i><span>History</span>
+          </button>
+          <button class="dash-nav-item" data-section="notifications" title="Notifications" aria-label="Notifications" onclick="switchDashSection('notifications')">
+            <i class="fa-regular fa-bell"></i> <span>Notifications</span>
+          </button>
+          <button class="dash-nav-item" data-section="profile" title="Profile" aria-label="Profile" onclick="switchDashSection('profile')">
+            <i class="fa-solid fa-user"></i> <span>Profile</span>
+          </button>
+          <button class="dash-nav-item" data-section="settings" title="Settings" aria-label="Settings" onclick="switchDashSection('settings')">
+            <i class="fa-solid fa-gear"></i> <span>Settings</span>
+          </button>
+        </nav>
+
+        <button class="dash-logout-btn" aria-label="Log out" title="Log out" onclick="logoutUser()">
+          <i class="fa-solid fa-right-from-bracket"></i> <span>Logout</span>
+        </button>
+      </aside>
+
+      <main class="dash-content">
+        <section id="dash-section-home" class="dash-section active">
+          <h1 class="dash-page-title">Welcome back, <span id="dash-home-username">User</span></h1>
+          <p class="dash-page-sub">Here's what's happening on your account</p>
+          <div class="dash-stats">
+            <div class="dash-stat">
+              <div class="dash-stat-label">Tickets Bought</div>
+              <div class="dash-stat-value" id="stat-tickets">Ã¢â‚¬â€</div>
+            </div>
+            <div class="dash-stat">
+              <div class="dash-stat-label">Booking Value</div>
+              <div class="dash-stat-value" id="stat-spent">Ã¢â‚¬â€</div>
+            </div>
+            <div class="dash-stat">
+              <div class="dash-stat-label">Bookings</div>
+              <div class="dash-stat-value" id="stat-attended">Ã¢â‚¬â€</div>
+            </div>
+            <div class="dash-stat">
+              <div class="dash-stat-label">Subscription</div>
+              <div class="dash-stat-value" id="stat-sub">Free</div>
+            </div>
+          </div>
+          <h2 class="dash-block-title">Upcoming Tickets</h2>
+          <div id="dash-upcoming-tickets" class="dash-list"><p class="dash-empty">Loading your upcoming tickets…</p></div>
+          <h2 class="dash-block-title">Saved Events</h2>
+          <div id="dash-saved-events" class="dash-list"><p class="dash-empty">Loading saved events…</p></div>
+          <section class="dash-chart-card" aria-labelledby="dash-booking-chart-title">
+            <div class="dash-chart-heading"><div><span class="dash-eyebrow">YOUR ACTIVITY</span><h2 id="dash-booking-chart-title" class="dash-block-title">Bookings over time</h2></div><span class="dash-chart-legend"><i></i> Bookings</span></div>
+            <div id="dash-booking-chart" class="dash-booking-chart" aria-live="polite"><p class="dash-chart-empty">Loading booking activityÃ¢â‚¬Â¦</p></div>
+          </section>
+          <h2 class="dash-block-title">Recent Activity</h2>
+          <div id="dash-recent-activity" class="dash-list">
+            <p class="dash-empty">Loading activity...</p>
+          </div>
+        </section>
+
+        <section id="dash-section-discover" class="dash-section">
+          <h1 class="dash-page-title">Discover Events</h1>
+          <p class="dash-page-sub">Featured and upcoming events near you</p>
+          <h2 class="dash-block-title">Trending Now</h2>
+          <div id="dash-discover-grid" class="dash-cards-grid"></div>
+        </section>
+
+        <section id="dash-section-tickets" class="dash-section">
+          <h1 class="dash-page-title">My Tickets</h1>
+          <p class="dash-page-sub">All your booked tickets in one place</p>
+          <div id="dash-tickets-list" class="dash-list">
+            <p class="dash-empty">Loading tickets...</p>
+          </div>
+        </section>
+
+        <section id="dash-section-verification" class="dash-section">
+          <h1 class="dash-page-title">Verification history</h1>
+          <p class="dash-page-sub">Your ticket checks stored with your account</p>
+          <button class="dash-action-btn" type="button" onclick="openTicketVerification()">Verify a Ticket</button>
+          <div id="dash-verification-history" class="dash-list"><p class="dash-empty">No ticket checks in this session.</p></div>
+        </section>
+
+        <section id="dash-section-resale" class="dash-section">
+          <h1 class="dash-page-title">Resale management</h1>
+          <p class="dash-page-sub">Resale listings and ownership transfers</p>
+          <div id="dash-resale-list" class="dash-list"><p class="dash-empty">Loading your resale activityâ€¦</p></div>
+        </section>
+
+        <section id="dash-section-notifications" class="dash-section">
+          <h1 class="dash-page-title">Notifications</h1>
+          <p class="dash-page-sub">Account updates and alerts</p>
+          <div id="dash-notifications-content" class="dash-list"><p class="dash-empty">Loading notificationsâ€¦</p></div>
+        </section>
+
+        <section id="dash-section-subscriptions" class="dash-section">
+          <h1 class="dash-page-title">Subscription</h1>
+          <p class="dash-page-sub">Your current organizer access status</p>
+          <div id="dash-sub-card" class="dash-plan-card">
+            <p class="dash-empty">Loading subscription...</p>
+          </div>
+        </section>
+
+        <section id="dash-section-seller" class="dash-section">
+          <div class="dash-section-heading"><div><h1 class="dash-page-title">Event management</h1>
+          <p class="dash-page-sub">Manage your published events and sales</p>
+          </div><button class="dash-action-btn" type="button" onclick="openCreateEventModal()"><i class="fa-solid fa-plus" aria-hidden="true"></i> Publish event</button></div>
+          <div id="dash-seller-events" class="dash-list">
+            <p class="dash-empty">Loading events...</p>
+          </div>
+        </section>
+
+                <section id="dash-section-admin" class="dash-section">
+          <h1 class="dash-page-title"><i class="fa-solid fa-shield-halved" style="color:var(--red);margin-right:10px;"></i>Admin Control Panel</h1>
+          <p class="dash-page-sub">Platform-wide management — users, bookings, events, selling options &amp; submissions</p>
+
+          <!-- Admin KPI Grid -->
+          <div class="admin-kpi-grid">
+            <div class="admin-kpi-card admin-kpi-users">
+              <div class="admin-kpi-icon"><i class="fa-solid fa-users"></i></div>
+              <div class="admin-kpi-body">
+                <div class="admin-kpi-value" id="admin-stat-users">—</div>
+                <div class="admin-kpi-label">Total Users</div>
+              </div>
+            </div>
+            <div class="admin-kpi-card admin-kpi-events">
+              <div class="admin-kpi-icon"><i class="fa-solid fa-calendar-star"></i></div>
+              <div class="admin-kpi-body">
+                <div class="admin-kpi-value" id="admin-stat-events">—</div>
+                <div class="admin-kpi-label">Live Events</div>
+              </div>
+            </div>
+            <div class="admin-kpi-card admin-kpi-bookings">
+              <div class="admin-kpi-icon"><i class="fa-solid fa-ticket"></i></div>
+              <div class="admin-kpi-body">
+                <div class="admin-kpi-value" id="admin-stat-bookings">—</div>
+                <div class="admin-kpi-label">Total Bookings</div>
+              </div>
+            </div>
+            <div class="admin-kpi-card admin-kpi-revenue">
+              <div class="admin-kpi-icon"><i class="fa-solid fa-coins"></i></div>
+              <div class="admin-kpi-body">
+                <div class="admin-kpi-value" id="admin-stat-revenue">—</div>
+                <div class="admin-kpi-label">Total Revenue</div>
+              </div>
+            </div>
+            <div class="admin-kpi-card admin-kpi-subs">
+              <div class="admin-kpi-icon"><i class="fa-solid fa-crown"></i></div>
+              <div class="admin-kpi-body">
+                <div class="admin-kpi-value" id="admin-stat-subs">—</div>
+                <div class="admin-kpi-label">Pro Subscribers</div>
+              </div>
+            </div>
+            <div class="admin-kpi-card admin-kpi-pending">
+              <div class="admin-kpi-icon"><i class="fa-solid fa-clock"></i></div>
+              <div class="admin-kpi-body">
+                <div class="admin-kpi-value" id="admin-stat-pending">—</div>
+                <div class="admin-kpi-label">Pending Submissions</div>
+              </div>
+            </div>
+            <div class="admin-kpi-card admin-kpi-resale">
+              <div class="admin-kpi-icon"><i class="fa-solid fa-arrow-right-arrow-left"></i></div>
+              <div class="admin-kpi-body">
+                <div class="admin-kpi-value" id="admin-stat-resale">—</div>
+                <div class="admin-kpi-label">Active Resale</div>
+              </div>
+            </div>
+            <div class="admin-kpi-card admin-kpi-tickets">
+              <div class="admin-kpi-icon"><i class="fa-solid fa-qrcode"></i></div>
+              <div class="admin-kpi-body">
+                <div class="admin-kpi-value" id="admin-stat-tickets">—</div>
+                <div class="admin-kpi-label">Total Tickets</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Admin Tab Navigation -->
+          <div class="admin-tab-nav" role="tablist" aria-label="Admin panel sections">
+            <button class="admin-tab active" data-admin-tab="users" role="tab" aria-selected="true" onclick="switchAdminTab('users')"><i class="fa-solid fa-users"></i> Users</button>
+            <button class="admin-tab" data-admin-tab="bookings" role="tab" aria-selected="false" onclick="switchAdminTab('bookings')"><i class="fa-solid fa-ticket"></i> All Bookings</button>
+            <button class="admin-tab" data-admin-tab="selling" role="tab" aria-selected="false" onclick="switchAdminTab('selling')"><i class="fa-solid fa-store"></i> Selling Options</button>
+            <button class="admin-tab" data-admin-tab="events" role="tab" aria-selected="false" onclick="switchAdminTab('events')"><i class="fa-solid fa-calendar"></i> Events</button>
+            <button class="admin-tab" data-admin-tab="submissions" role="tab" aria-selected="false" onclick="switchAdminTab('submissions')"><i class="fa-solid fa-file-circle-check"></i> Submissions <span id="admin-pending-badge" class="admin-badge" style="display:none">0</span></button>
+          </div>
+
+          <!-- Tab Panel: Users -->
+          <div id="admin-tab-users" class="admin-tab-panel active" role="tabpanel">
+            <div class="admin-panel-header">
+              <span class="admin-panel-title"><i class="fa-solid fa-users"></i> User Accounts</span>
+              <input type="search" id="admin-user-search" placeholder="Search by name or email…" class="admin-search-input" oninput="filterAdminList('admin-users-list', this.value)">
+            </div>
+            <div id="admin-users-list" class="dash-list admin-table-container">
+              <p class="dash-empty"><i class="fa-solid fa-spinner fa-spin"></i> Loading users...</p>
+            </div>
+          </div>
+
+          <!-- Tab Panel: All Bookings -->
+          <div id="admin-tab-bookings" class="admin-tab-panel" role="tabpanel">
+            <div class="admin-panel-header">
+              <span class="admin-panel-title"><i class="fa-solid fa-ticket"></i> All Platform Bookings</span>
+              <input type="search" id="admin-booking-search" placeholder="Search by name, event, code…" class="admin-search-input" oninput="filterAdminList('admin-bookings-list', this.value)">
+            </div>
+            <div id="admin-bookings-list" class="dash-list admin-table-container">
+              <p class="dash-empty"><i class="fa-solid fa-spinner fa-spin"></i> Loading bookings...</p>
+            </div>
+          </div>
+
+          <!-- Tab Panel: Selling Options (Resale Listings) -->
+          <div id="admin-tab-selling" class="admin-tab-panel" role="tabpanel">
+            <div class="admin-panel-header">
+              <span class="admin-panel-title"><i class="fa-solid fa-store"></i> Resale &amp; Selling Options</span>
+              <input type="search" id="admin-selling-search" placeholder="Search listings…" class="admin-search-input" oninput="filterAdminList('admin-selling-list', this.value)">
+            </div>
+            <div class="admin-info-banner">
+              <i class="fa-solid fa-circle-info"></i>
+              As admin you can delete any active selling listing. The ticket will automatically be restored as <strong>Valid</strong> to its owner.
+            </div>
+            <div id="admin-selling-list" class="dash-list admin-table-container">
+              <p class="dash-empty"><i class="fa-solid fa-spinner fa-spin"></i> Loading selling options...</p>
+            </div>
+          </div>
+
+          <!-- Tab Panel: Events -->
+          <div id="admin-tab-events" class="admin-tab-panel" role="tabpanel">
+            <div class="admin-panel-header">
+              <span class="admin-panel-title"><i class="fa-solid fa-calendar"></i> All Events</span>
+              <input type="search" id="admin-event-search" placeholder="Search by title, venue, category…" class="admin-search-input" oninput="filterAdminList('admin-events-list', this.value)">
+            </div>
+            <div id="admin-events-list" class="dash-list admin-table-container">
+              <p class="dash-empty"><i class="fa-solid fa-spinner fa-spin"></i> Loading events...</p>
+            </div>
+          </div>
+
+          <!-- Tab Panel: Submissions -->
+          <div id="admin-tab-submissions" class="admin-tab-panel" role="tabpanel">
+            <div class="admin-panel-header">
+              <span class="admin-panel-title"><i class="fa-solid fa-file-circle-check"></i> Event Submissions</span>
+              <input type="search" id="admin-sub-search" placeholder="Search submissions…" class="admin-search-input" oninput="filterAdminList('admin-submissions-list', this.value)">
+            </div>
+            <div class="admin-info-banner">
+              <i class="fa-solid fa-circle-info"></i>
+              Review organizer-submitted events. Approving a submission publishes it as a live event on the platform.
+            </div>
+            <div id="admin-submissions-list" class="dash-list admin-table-container">
+              <p class="dash-empty"><i class="fa-solid fa-spinner fa-spin"></i> Loading submissions...</p>
+            </div>
+          </div>
+        </section>
+
+        <section id="dash-section-profile" class="dash-section">
+          <h1 class="dash-page-title">Profile</h1>
+          <p class="dash-page-sub">Your account details</p>
+          <div id="dash-profile-card" class="dash-profile-card"></div>
+        </section>
+
+        <section id="dash-section-history" class="dash-section">
+          <h1 class="dash-page-title">Activity history</h1><p class="dash-page-sub">Your purchases, ticket checks, resale, transfers, subscriptions, and submissions</p>
+          <div id="dash-activity-history" class="dash-list"><p class="dash-empty">Loading account activityâ€¦</p></div>
+        </section>
+        <section id="dash-section-settings" class="dash-section">
+          <h1 class="dash-page-title">Settings</h1>
+          <p class="dash-page-sub">Customize your AURA++ experience</p>
+          <div class="dash-setting-row">
+            <span>Language</span>
+            <select id="dash-lang-select" onchange="changeLanguage(this.value)" class="lang-dropdown">
+              <option value="en">Ã°Å¸Å’Â English</option>
+              <option value="bn">Ã°Å¸â€¡Â§Ã°Å¸â€¡Â© Ã Â¦Â¬Ã Â¦Â¾Ã Â¦â€šÃ Â¦Â²Ã Â¦Â¾</option>
+              <option value="es">Ã°Å¸â€¡ÂªÃ°Å¸â€¡Â¸ EspaÃƒÂ±ol</option>
+              <option value="fr">Ã°Å¸â€¡Â«Ã°Å¸â€¡Â· FranÃƒÂ§ais</option>
+              <option value="de">Ã°Å¸â€¡Â©Ã°Å¸â€¡Âª Deutsch</option>
+            </select>
+          </div>
+          <div class="dash-session-note"><i class="fa-solid fa-circle-info" aria-hidden="true"></i><span>Notification preferences are not connected to a backend yet.</span></div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <!-- LOGIN MODAL (kept for backward compat) -->
   <div id="login-modal" class="modal-overlay">
     <div class="modal-box">
-      <button class="close-modal" onclick="closeModals()">&times;</button>
-
+      <button class="close-modal" aria-label="Close dialog" onclick="closeModals()">&times;</button>
       <div id="login-form-view">
         <h2 class="modal-title">Welcome Back</h2>
         <p class="modal-subtitle">Login to access your <span class="text-red">AURA++</span> account</p>
-
         <form id="login-form" onsubmit="handleLogin(event)">
           <div class="form-group">
             <label class="form-label" for="login-email">Email Address</label>
             <input type="email" id="login-email" class="form-input" placeholder="Enter your email" required>
           </div>
-
           <div class="form-group">
             <label class="form-label" for="login-password">Password</label>
             <input type="password" id="login-password" class="form-input" placeholder="Enter your password" required>
           </div>
-
-          <div style="display:flex; justify-content:space-between; margin-bottom:20px; font-size:13px;">
-            <label style="cursor:pointer; color:var(--text-muted);"><input type="checkbox"> Remember me</label>
-            <a href="javascript:void(0)" onclick="openForgotPasswordModal()" style="color:var(--text-main); text-decoration:none; font-weight:600;" id="t-link-forgot-pass">Forgot Password?</a>
-          </div>
-
           <button type="submit" class="btn-primary-3d" style="width:100%;">Login</button>
         </form>
-
-        <div style="margin:20px 0; text-align:center; font-size:12px; color:var(--text-muted);">OR</div>
-
-        <button onclick="handleGoogleLogin()" style="width:100%; background:#fff; color:#111; padding:12px; border-radius:12px; font-weight:600; border:1px solid #e2e8f0; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;">
-          <i class="fa-brands fa-google" style="color:#4285f4;"></i> Login with Google
-        </button>
-
-        <div style="text-align:center; margin-top:20px; font-size:13px; color:var(--text-muted);">
-          Don't have an account? <a href="javascript:void(0)" onclick="openRegisterModal()" style="color:var(--text-main); font-weight:700; text-decoration:none;">Register</a>
-        </div>
       </div>
-
-      <div id="login-success-view" style="display: none; text-align: center; padding: 20px 10px;">
-        <div class="cute-cartoon-mascot">
-          <svg width="220" height="220" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" class="cartoon-svg-large">
-            <circle cx="100" cy="95" r="65" fill="url(#outerGlowLogin)" opacity="0.6"/>
-            <circle cx="100" cy="90" r="55" fill="url(#helmetGradLogin)" stroke="#171717" stroke-width="5"/>
-            <rect x="52" y="55" width="96" height="68" rx="34" fill="#0d0d16" stroke="#b8b0d4" stroke-width="2.5"/>
-            <g class="blinking-eyes">
-              <ellipse cx="80" cy="85" rx="10" ry="13" fill="#b8b0d4"/>
-              <ellipse cx="80" cy="85" rx="8" ry="10" fill="#9a91c0"/>
-              <circle cx="83" cy="80" r="4" fill="white"/>
-              <ellipse cx="120" cy="85" rx="10" ry="13" fill="#b8b0d4"/>
-              <ellipse cx="120" cy="85" rx="8" ry="10" fill="#9a91c0"/>
-              <circle cx="123" cy="80" r="4" fill="white"/>
-            </g>
-            <path d="M92 105 Q100 114 108 105" stroke="#171717" stroke-width="3" stroke-linecap="round"/>
-            <defs>
-              <radialGradient id="outerGlowLogin" cx="0" cy="0" r="1">
-                <stop stop-color="#b8b0d4" stop-opacity="0.8"/>
-                <stop offset="1" stop-color="#b8b0d4" stop-opacity="0"/>
-              </radialGradient>
-              <linearGradient id="helmetGradLogin" x1="45" y1="35" x2="155" y2="145">
-                <stop stop-color="#1e1e2d"/>
-                <stop offset="1" stop-color="#0a0a10"/>
-              </linearGradient>
-            </defs>
-          </svg>
-          <div class="sparkling-stars">✨ 🌟 ✨</div>
-        </div>
-
-        <div class="cartoon-speech-bubble">
-          <h3 style="font-size: 22px; color: var(--text-main); margin-bottom: 8px;">Thank You, <span id="login-user-name" class="text-red-3d">Member</span>!</h3>
-          <p style="color: var(--text-soft); font-size: 14px; line-height: 1.5; font-weight:500;">Login successful! Entering AURA++ portal now...</p>
-        </div>
-      </div>
-
     </div>
   </div>
 
-  <!-- FORGOT PASSWORD -->
-  <div id="forgot-password-modal" class="modal-overlay">
-    <div class="modal-box">
-      <button class="close-modal" onclick="closeModals()">&times;</button>
-
-      <div id="otp-step1-view">
-        <h2 class="modal-title" id="t-otp-title">Forgot Password</h2>
-        <p class="modal-subtitle" id="t-otp-sub">Enter your registered Email or Phone number to receive a 6-digit OTP code.</p>
-
-        <form onsubmit="handleSendOtp(event)">
-          <div class="form-group">
-            <label class="form-label" id="t-label-target" for="otp-target">Recovery Email or Phone Number</label>
-            <input type="text" id="otp-target" class="form-input" placeholder="e.g. user@aura.com or 01700000000" required>
-          </div>
-
-          <button type="submit" class="btn-primary-3d" style="width:100%;" id="t-btn-send-otp">📱 Send 6-Digit OTP Code</button>
-        </form>
-      </div>
-
-      <div id="otp-step2-view" style="display: none;">
-        <h2 class="modal-title" id="t-reset-title">Enter OTP & New Password</h2>
-        <p class="modal-subtitle" id="t-reset-sub">We sent a 6-digit OTP code to <strong id="otp-sent-target" style="color:#c98a2c;"></strong></p>
-
-        <form onsubmit="handleResetPassword(event)">
-          <div class="form-group">
-            <label class="form-label" id="t-label-otp" for="otp-code-input">6-Digit OTP Code</label>
-            <input type="text" id="otp-code-input" class="form-input" placeholder="e.g. 123456" maxlength="6" style="text-align:center; font-size:18px; letter-spacing:3px;" required>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label" id="t-label-newpass" for="otp-new-password">New Password</label>
-            <input type="password" id="otp-new-password" class="form-input" placeholder="Enter your new password" required>
-          </div>
-
-          <button type="submit" class="btn-primary-3d" style="width:100%;" id="t-btn-reset-pass">🔒 Reset Password & Login</button>
-        </form>
-
-        <div style="text-align:center; margin-top:16px;">
-          <a href="javascript:void(0)" onclick="handleSendOtp(null)" style="color:var(--text-muted); font-size:12px; text-decoration:underline;" id="t-resend-otp">Didn't receive code? Resend OTP</a>
-        </div>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- REGISTER MODAL -->
+  <!-- REGISTER MODAL (kept for backward compat) -->
   <div id="register-modal" class="modal-overlay">
     <div class="modal-box">
-      <button class="close-modal" onclick="closeModals()">&times;</button>
-
+      <button class="close-modal" aria-label="Close dialog" onclick="closeModals()">&times;</button>
       <div id="register-form-view">
-        <div style="text-align:center; margin-bottom:10px;">
-          <i class="fa-solid fa-user-astronaut" style="font-size:32px; color:var(--text-main);"></i>
-        </div>
         <h2 class="modal-title">Join AURA++</h2>
-        <p class="modal-subtitle">Create your account to unlock full event booking & seller features</p>
-
+        <p class="modal-subtitle">Create your account</p>
         <form id="register-form" onsubmit="handleRegister(event)">
           <div class="form-group">
-            <label class="form-label" for="reg-fullname"><i class="fa-solid fa-user" style="margin-right:6px;"></i> Full Name</label>
-            <input type="text" id="reg-fullname" class="form-input" placeholder="Enter your full name" required>
+            <label class="form-label" for="reg-fullname">Full Name</label>
+            <input type="text" id="reg-fullname" class="form-input" placeholder="Full name" required>
           </div>
-
           <div class="form-group">
-            <label class="form-label" for="reg-email"><i class="fa-solid fa-envelope" style="margin-right:6px;"></i> Email Address</label>
-            <input type="email" id="reg-email" class="form-input" placeholder="Enter your email" required>
+            <label class="form-label" for="reg-email">Email</label>
+            <input type="email" id="reg-email" class="form-input" placeholder="Email" required>
           </div>
-
           <div class="form-group">
-            <label class="form-label" for="reg-phone"><i class="fa-solid fa-phone" style="margin-right:6px;"></i> Phone Number</label>
-            <input type="tel" id="reg-phone" class="form-input" placeholder="Enter your phone number" required>
+            <label class="form-label" for="reg-phone">Phone</label>
+            <input type="tel" id="reg-phone" class="form-input" placeholder="Phone" required>
           </div>
-
           <div class="form-group">
-            <label class="form-label" for="reg-password"><i class="fa-solid fa-lock" style="margin-right:6px;"></i> Password</label>
-            <div style="position:relative;">
-              <input type="password" id="reg-password" class="form-input" placeholder="Create a password" required style="padding-right:44px;">
-              <button type="button" onclick="this.previousElementSibling.type=this.previousElementSibling.type==='password'?'text':'password'; this.querySelector('i').className=this.previousElementSibling.type==='password'?'fa-solid fa-eye':'fa-solid fa-eye-slash';" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text-main);font-size:16px;"><i class="fa-solid fa-eye"></i></button>
-            </div>
+            <label class="form-label" for="reg-password">Password</label>
+            <input type="password" id="reg-password" class="form-input" placeholder="Password" required>
           </div>
-
           <div class="form-group">
-            <label class="form-label" for="reg-confirm-password"><i class="fa-solid fa-shield-halved" style="margin-right:6px;"></i> Confirm Password</label>
-            <div style="position:relative;">
-              <input type="password" id="reg-confirm-password" class="form-input" placeholder="Confirm your password" required style="padding-right:44px;">
-              <button type="button" onclick="this.previousElementSibling.type=this.previousElementSibling.type==='password'?'text':'password'; this.querySelector('i').className=this.previousElementSibling.type==='password'?'fa-solid fa-eye':'fa-solid fa-eye-slash';" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text-main);font-size:16px;"><i class="fa-solid fa-eye"></i></button>
-            </div>
+            <label class="form-label" for="reg-confirm-password">Confirm Password</label>
+            <input type="password" id="reg-confirm-password" class="form-input" placeholder="Confirm password" required>
           </div>
-
-          <button type="submit" class="btn-primary-3d" style="width:100%; font-size:16px; padding:14px;">✨ Create Account</button>
+          <button type="submit" class="btn-primary-3d" style="width:100%;">Create Account</button>
         </form>
-
-        <div style="text-align:center; margin-top:20px; font-size:13px; color:var(--text-muted);">
-          Already have an account? <a href="javascript:void(0)" onclick="openLoginModal()" style="color:var(--text-main); font-weight:700; text-decoration:none;">Login</a>
-        </div>
       </div>
+    </div>
+  </div>
 
-      <div id="register-success-view" style="display: none; text-align: center; padding: 20px 10px;">
-        <div class="cute-cartoon-mascot">
-          <svg width="220" height="220" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" class="cartoon-svg-large">
-            <circle cx="100" cy="95" r="65" fill="url(#outerGlowReg)" opacity="0.6"/>
-            <circle cx="100" cy="90" r="55" fill="url(#helmetGradReg)" stroke="#171717" stroke-width="5"/>
-            <rect x="52" y="55" width="96" height="68" rx="34" fill="#0d0d16" stroke="#b8b0d4" stroke-width="2.5"/>
-            <g class="blinking-eyes">
-              <ellipse cx="80" cy="85" rx="10" ry="13" fill="#b8b0d4"/>
-              <ellipse cx="80" cy="85" rx="8" ry="10" fill="#9a91c0"/>
-              <circle cx="83" cy="80" r="4" fill="white"/>
-              <ellipse cx="120" cy="85" rx="10" ry="13" fill="#b8b0d4"/>
-              <ellipse cx="120" cy="85" rx="8" ry="10" fill="#9a91c0"/>
-              <circle cx="123" cy="80" r="4" fill="white"/>
-            </g>
-            <path d="M 86 102 Q 100 118 114 102" stroke="#171717" stroke-width="4.5" stroke-linecap="round" fill="none"/>
-            <defs>
-              <radialGradient id="outerGlowReg" cx="0.5" cy="0.5" r="0.5">
-                <stop offset="0%" stop-color="#b8b0d4" stop-opacity="0.9"/>
-                <stop offset="100%" stop-color="#b8b0d4" stop-opacity="0"/>
-              </radialGradient>
-              <linearGradient id="helmetGradReg" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0%" stop-color="#242438"/>
-                <stop offset="100%" stop-color="#10101a"/>
-              </linearGradient>
-            </defs>
-          </svg>
-          <div class="sparkling-stars">✨ 🌟 ✨</div>
-        </div>
-
-        <div class="cartoon-speech-bubble">
-          <h3 style="font-size: 22px; color: var(--text-main); margin-bottom: 8px;">Thank You, <span id="registered-user-name" class="text-red-3d">Explorer</span>!</h3>
-          <p style="color: var(--text-soft); font-size: 14px; line-height: 1.5; font-weight:500;">Your AURA++ account is registered!</p>
-        </div>
-      </div>
-
+  <!-- EVENT DETAILS -->
+  <div id="event-details-modal" class="modal-overlay">
+    <div class="modal-box event-detail-dialog" role="dialog" aria-modal="true" aria-labelledby="event-detail-title">
+      <button class="close-modal" type="button" aria-label="Close event details" onclick="closeEventDetails()">&times;</button>
+      <div id="event-detail-content"><div class="event-detail-loading" role="status"><span class="event-detail-spinner" aria-hidden="true"></span><p>Loading event details...</p></div></div>
     </div>
   </div>
 
   <!-- BOOKING MODAL -->
   <div id="booking-modal" class="modal-overlay">
-    <div class="modal-box">
-      <button class="close-modal" onclick="closeModals()">&times;</button>
-      <h2 class="modal-title">Ticket Checkout</h2>
-      <p class="modal-subtitle" id="booking-event-title">Event Title</p>
+    <div class="modal-box booking-dialog" role="dialog" aria-modal="true" aria-labelledby="booking-modal-title">
+      <button class="close-modal" type="button" aria-label="Close reservation" onclick="returnToEventDetails()">&times;</button>
+      <span class="event-detail-eyebrow">AURA / RESERVATION</span>
+      <h2 id="booking-modal-title" class="modal-title">Reserve tickets</h2>
+      <p class="modal-subtitle" id="booking-event-title">Event title</p>
+      <div class="booking-event-facts"><p><strong>Date & time</strong><span id="booking-event-date"></span></p><p><strong>Venue</strong><span id="booking-event-venue"></span></p></div>
+      <div class="booking-ticket-option"><div><span class="booking-ticket-option-name">General admission</span><span class="booking-ticket-option-meta">Standard event entry</span></div><strong id="booking-event-price">BDT 0</strong></div>
+      <div class="booking-quantity-row"><label for="ticket-quantity">Tickets</label><div class="booking-quantity-control"><button type="button" aria-label="Remove one ticket" onclick="changeBookingQuantity(-1)">−</button><input type="number" id="ticket-quantity" class="form-input" value="1" min="1" max="10" inputmode="numeric" aria-label="Ticket quantity"><button type="button" aria-label="Add one ticket" onclick="changeBookingQuantity(1)">+</button></div><span id="booking-availability" class="booking-availability"></span></div>
+      <div class="booking-summary"><div><span>Ticket</span><strong>General admission</strong></div><div><span>Quantity</span><strong id="booking-summary-quantity">1</strong></div><div><span>Price</span><strong id="booking-summary-price">BDT 0 × 1</strong></div><div class="booking-summary-total"><span>Booking total</span><strong id="booking-total-price">BDT 0</strong></div></div>
+      <p id="booking-status" class="booking-status" role="status" aria-live="polite"></p>
+      <button id="booking-submit" type="button" onclick="confirmBooking()" class="btn-primary-3d booking-submit">Confirm reservation</button>
+    </div>
+  </div>
 
-      <div style="background: #fff; border: 1px solid var(--border-card); padding: 16px; border-radius: 14px; margin-bottom: 20px;">
-        <p style="font-size: 14px; margin-bottom: 6px;"><strong>Venue:</strong> <span id="booking-event-venue" style="color: var(--text-muted);">Venue</span></p>
-        <p style="font-size: 14px; margin-bottom: 6px;"><strong>Date:</strong> <span id="booking-event-date" style="color: var(--text-muted);">Date</span></p>
-        <p style="font-size: 14px;"><strong>Price:</strong> <span id="booking-event-price" style="color: var(--text-main); font-weight: 800;">BDT 0</span></p>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label" for="ticket-quantity">Number of Tickets</label>
-        <input type="number" id="ticket-quantity" class="form-input" value="1" min="1" max="10" onchange="updateBookingTotal()">
-      </div>
-
-      <label class="form-label">Select Payment Method</label>
-      <div class="payment-tabs">
-        <div id="pay-tab-bkash" onclick="selectPaymentMethod('bKash')" class="pay-tab active-bkash">
-          <i class="fa-solid fa-mobile-screen pay-tab-icon" style="color:var(--color-bkash);"></i>
-          <span>bKash</span>
-        </div>
-        <div id="pay-tab-nagad" onclick="selectPaymentMethod('Nagad')" class="pay-tab">
-          <i class="fa-solid fa-wallet pay-tab-icon" style="color:var(--color-nagad);"></i>
-          <span>Nagad</span>
-        </div>
-        <div id="pay-tab-card" onclick="selectPaymentMethod('Card')" class="pay-tab">
-          <i class="fa-solid fa-credit-card pay-tab-icon" style="color:var(--color-card);"></i>
-          <span>Credit/Card</span>
-        </div>
-      </div>
-
-      <div id="pay-fields-mobile" class="form-group">
-        <label class="form-label" id="mobile-pay-label">bKash Account Number</label>
-        <input type="tel" id="pay-account-number" class="form-input" placeholder="e.g. 01700000000">
-      </div>
-
-      <div id="pay-fields-card" style="display: none;">
-        <div class="form-group">
-          <label class="form-label">Card Number</label>
-          <input type="text" id="pay-card-number" class="form-input" placeholder="1234 5678 9101 1121" maxlength="19">
-        </div>
-        <div style="display: flex; gap: 12px;">
-          <div class="form-group" style="flex: 1;">
-            <label class="form-label">Expiry (MM/YY)</label>
-            <input type="text" id="pay-card-expiry" class="form-input" placeholder="12/28">
-          </div>
-          <div class="form-group" style="flex: 1;">
-            <label class="form-label">CVV</label>
-            <input type="password" id="pay-card-cvv" class="form-input" placeholder="123" maxlength="4">
-          </div>
-        </div>
-      </div>
-
-      <p style="font-size: 18px; font-weight: 800; text-align: right; margin-bottom: 24px;">
-        Total: <span id="booking-total-price" style="color: var(--text-main);">BDT 0</span>
-      </p>
-
-      <button onclick="confirmBooking()" class="btn-primary-3d" style="width:100%;">Pay & Book Ticket</button>
+  <!-- BOOKING CONFIRMATION -->
+  <div id="booking-confirmation-modal" class="modal-overlay">
+    <div class="modal-box booking-confirmation-dialog" role="dialog" aria-modal="true" aria-labelledby="booking-confirmation-title">
+      <button class="close-modal" type="button" aria-label="Close booking confirmation" onclick="closeEventConfirmation()">&times;</button>
+      <span class="booking-confirmation-mark" aria-hidden="true"><i class="fa-solid fa-check"></i></span>
+      <span class="event-detail-eyebrow">AURA / BOOKING RECORD</span>
+      <h2 id="booking-confirmation-title" class="modal-title">Booking confirmed</h2>
+      <p class="modal-subtitle">Your tickets are ready.</p>
+      <div id="booking-confirmation-details" class="booking-confirmation-details"></div>
+      <div id="booking-confirmation-tickets" class="booking-confirmation-tickets"></div>
+      <div class="booking-confirmation-actions"><button type="button" class="btn-primary-3d" onclick="viewBookedTickets()">View My Tickets</button><button type="button" class="event-confirmation-secondary" onclick="closeEventConfirmation()">Back to event</button></div>
     </div>
   </div>
 
   <!-- SUBSCRIBE MODAL -->
   <div id="subscribe-modal" class="modal-overlay">
     <div class="modal-box" style="text-align: center; max-width: 520px;">
-      <button class="close-modal" onclick="closeModals()">&times;</button>
-
-      <div class="cute-cartoon-mascot">
-        <svg width="220" height="220" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" class="cartoon-svg-large">
-          <circle cx="100" cy="95" r="65" fill="url(#outerGlowSub)" opacity="0.6"/>
-          <circle cx="100" cy="90" r="55" fill="url(#helmetGradSub)" stroke="#b8b0d4" stroke-width="5"/>
-          <rect x="52" y="55" width="96" height="68" rx="34" fill="#0d0d16" stroke="#b8b0d4" stroke-width="2.5"/>
-          <g class="blinking-eyes">
-            <ellipse cx="80" cy="85" rx="10" ry="13" fill="#b8b0d4"/>
-            <ellipse cx="120" cy="85" rx="10" ry="13" fill="#b8b0d4"/>
-          </g>
-          <path d="M 86 102 Q 100 118 114 102" stroke="#b8b0d4" stroke-width="4.5" stroke-linecap="round" fill="none"/>
-          <defs>
-            <radialGradient id="outerGlowSub" cx="0.5" cy="0.5" r="0.5">
-              <stop offset="0%" stop-color="#b8b0d4" stop-opacity="0.9"/>
-              <stop offset="100%" stop-color="#b8b0d4" stop-opacity="0"/>
-            </radialGradient>
-            <linearGradient id="helmetGradSub" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stop-color="#242438"/>
-              <stop offset="100%" stop-color="#10101a"/>
-            </linearGradient>
-          </defs>
-        </svg>
-        <div class="sparkling-stars">👑 ✨ 🌟 ✨ 👑</div>
-      </div>
-
-      <div class="cartoon-speech-bubble">
-        <h3 style="font-size: 22px; color: var(--text-main); margin-bottom: 8px;">Thank You, <span id="subscribed-user-name" style="color:#b8b0d4;">Pro Organizer</span>!</h3>
-        <p style="color: var(--text-soft); font-size: 14px; line-height: 1.5; font-weight:500;">You are now an official Subscribed Pro Seller! Publish events and sell tickets on AURA++.</p>
-      </div>
-
-      <button onclick="closeModals()" class="btn-primary-3d" style="width:100%; margin-top:20px; padding:12px; font-size:15px;">
-        ✓ Great! Close Window
-      </button>
+      <button class="close-modal" aria-label="Close dialog" onclick="closeModals()">&times;</button>
+      <h2 class="modal-title">Organizer plans</h2>
+      <p class="modal-subtitle">An active AURA subscription is required to publish events and list eligible tickets for resale.</p>
+      <div class="subscription-plan-card"><h3>AURA Organizer</h3><p>Event submission and eligible ticket resale access.</p><p id="subscription-plan-status" role="status">Choose this plan to continue.</p><button type="button" onclick="selectOrganizerPlan()" class="btn-primary-3d" style="width:100%; padding:12px;">Choose plan</button></div>
+      <button onclick="closeModals()" class="btn-primary-3d" style="width:100%; margin-top:12px; padding:12px; font-size:15px;">Close</button>
     </div>
   </div>
 
   <!-- SELL WARNING MODAL -->
   <div id="sell-warning-modal" class="modal-overlay">
     <div class="modal-box" style="max-width: 520px;">
-      <button class="close-modal" onclick="closeModals()">&times;</button>
-
-      <div class="cute-cartoon-mascot">
-        <svg width="220" height="220" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" class="cartoon-svg-sad">
-          <circle cx="100" cy="95" r="65" fill="url(#outerGlowWarn)" opacity="0.6"/>
-          <circle cx="100" cy="90" r="55" fill="url(#helmetGradWarn)" stroke="#c98a2c" stroke-width="5"/>
-          <rect x="52" y="55" width="96" height="68" rx="34" fill="#0d0d16" stroke="#c73a3a" stroke-width="2.5"/>
-          <g class="blinking-eyes">
-            <ellipse cx="80" cy="88" rx="10" ry="12" fill="#c73a3a"/>
-            <circle cx="78" cy="84" r="4" fill="white"/>
-            <ellipse cx="120" cy="88" rx="10" ry="12" fill="#c73a3a"/>
-            <circle cx="118" cy="84" r="4" fill="white"/>
-          </g>
-          <path d="M 86 112 Q 100 100 114 112" stroke="#c73a3a" stroke-width="4.5" stroke-linecap="round" fill="none"/>
-          <defs>
-            <radialGradient id="outerGlowWarn" cx="0.5" cy="0.5" r="0.5">
-              <stop offset="0%" stop-color="#c73a3a" stop-opacity="0.8"/>
-              <stop offset="100%" stop-color="#c73a3a" stop-opacity="0"/>
-            </radialGradient>
-            <linearGradient id="helmetGradWarn" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stop-color="#2c1a1d"/>
-              <stop offset="100%" stop-color="#120a0c"/>
-            </linearGradient>
-          </defs>
-        </svg>
-        <div style="font-size:26px; margin-top:-5px;">⚠️ 🔒 ⚠️</div>
-      </div>
-
-      <div class="cartoon-speech-bubble cartoon-speech-bubble-warning" style="text-align:center;">
-        <h3 style="font-size: 20px; color: #c98a2c; margin-bottom: 10px; font-weight:800;">SUBSCRIPTION REQUIRED</h3>
-        <p style="color: var(--text-main); font-size: 15px; line-height: 1.5; font-weight: 600; background: rgba(201, 138, 44, 0.08); padding: 14px; border-radius: 12px; border: 1px solid rgba(201, 138, 44, 0.25);">
-          Sorry! You have to subscribe to our website, otherwise you can't sell tickets here.
-        </p>
-        <div style="margin-top: 20px; display: flex; flex-direction: column; gap: 10px;">
-          <button onclick="closeModals(); processSubscription();" class="btn-primary-3d" style="width:100%; font-size:15px; padding:14px;">
-            ✨ Subscribe Now (FREE)
-          </button>
-          <button onclick="closeModals()" style="background:none; border:none; color:var(--text-muted); font-size:13px; font-weight:600; cursor:pointer;">
-            Close
-          </button>
-        </div>
-      </div>
+      <button class="close-modal" aria-label="Close dialog" onclick="closeModals()">&times;</button>
+      <h2 class="modal-title">Subscription Required</h2>
+      <p class="modal-subtitle">Event organizers need an active AURA subscription to submit events and list eligible tickets for resale.</p>
+      <button onclick="closeModals(); openSubscribeModal();" class="btn-primary-3d" style="width:100%; margin-top:20px; padding:14px;">Subscribe to become an organizer</button>
+      <button onclick="closeModals()" style="background:none; border:none; color:var(--text-muted); font-size:13px; font-weight:600; cursor:pointer; margin-top:12px; width:100%;">Close</button>
     </div>
   </div>
 
   <!-- CREATE EVENT MODAL -->
   <div id="create-event-modal" class="modal-overlay">
     <div class="modal-box">
-      <button class="close-modal" onclick="closeModals()">&times;</button>
-      <h2 class="modal-title">Publish Event & <span class="text-red-3d">Sell Tickets</span></h2>
+      <button class="close-modal" aria-label="Close dialog" onclick="closeModals()">&times;</button>
+      <h2 class="modal-title">Publish Event</h2>
       <p class="modal-subtitle">Subscribed Organizer Ticket Portal</p>
-
-      <div class="seller-payout-banner">
-        <i class="fa-solid fa-coins"></i>
-        <p><strong>100% Free Ticket Listing!</strong> As a Subscribed Pro Seller, you don't need to pay anything to sell tickets. You will receive money directly to your bKash, Nagad, or Bank Account.</p>
-      </div>
-
       <form id="create-event-form" onsubmit="handleCreateEvent(event)">
         <div class="form-group">
           <label class="form-label">Event Title</label>
           <input type="text" id="evt-title" class="form-input" placeholder="e.g. Rock Fest 2026" required>
         </div>
-
         <div class="form-group">
-          <label class="form-label">Venue Name</label>
-          <input type="text" id="evt-venue" class="form-input" placeholder="e.g. International Convention City" required>
+          <label class="form-label">Venue</label>
+          <input type="text" id="evt-venue" class="form-input" placeholder="e.g. ICCB Dhaka" required>
         </div>
-
         <div class="form-group">
           <label class="form-label">City & Country</label>
           <input type="text" id="evt-location" class="form-input" placeholder="e.g. Dhaka, Bangladesh" required>
         </div>
-
         <div style="display:flex; gap:12px;">
           <div class="form-group" style="flex:1;">
             <label class="form-label">Ticket Price (BDT)</label>
@@ -615,136 +813,38 @@
             <input type="number" id="evt-tickets" class="form-input" placeholder="200" required>
           </div>
         </div>
-
         <div class="form-group">
           <label class="form-label">Event Date & Time</label>
           <input type="datetime-local" id="evt-date" class="form-input" required>
         </div>
-
         <div class="form-group">
           <label class="form-label">Banner Image URL</label>
-          <input type="url" id="evt-image" class="form-input" placeholder="https://images.unsplash.com/photo-...">
+          <input type="url" id="evt-image" class="form-input" placeholder="https://...">
         </div>
-
-        <div class="form-group" style="border-top:1px solid var(--border-card); padding-top:16px; margin-top:16px;">
-          <label class="form-label"><i class="fa-solid fa-hand-holding-dollar" style="margin-right:6px;"></i> Receive Money Through (Your Payout Account)</label>
-          <div class="payment-tabs" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 12px;">
-            <div id="seller-payout-bkash" onclick="selectSellerPayoutMethod('bKash')" class="pay-tab active-bkash">
-              <i class="fa-solid fa-mobile-screen pay-tab-icon" style="color:var(--color-bkash);"></i>
-              <span>bKash</span>
-            </div>
-            <div id="seller-payout-nagad" onclick="selectSellerPayoutMethod('Nagad')" class="pay-tab">
-              <i class="fa-solid fa-wallet pay-tab-icon" style="color:var(--color-nagad);"></i>
-              <span>Nagad</span>
-            </div>
-            <div id="seller-payout-bank" onclick="selectSellerPayoutMethod('Bank Account')" class="pay-tab">
-              <i class="fa-solid fa-building-columns pay-tab-icon" style="color:var(--color-card);"></i>
-              <span>Bank Account</span>
-            </div>
-          </div>
-        </div>
-
-        <div id="seller-payout-mobile-group" class="form-group">
-          <label class="form-label" id="seller-payout-account-label">Your bKash Number (to receive money)</label>
-          <input type="tel" id="seller-payout-account" class="form-input" placeholder="e.g. 01700000000" required>
-        </div>
-
-        <div id="seller-payout-bank-group" style="display:none;">
-          <div class="form-group">
-            <label class="form-label">Bank Name</label>
-            <input type="text" id="seller-bank-name" class="form-input" placeholder="e.g. Dutch-Bangla Bank / BRAC Bank">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Account Holder Name</label>
-            <input type="text" id="seller-account-holder" class="form-input" placeholder="e.g. Rahim Ahmed">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Bank Account Number / IBAN</label>
-            <input type="text" id="seller-bank-account" class="form-input" placeholder="e.g. 151.110.123456">
-          </div>
-        </div>
-
-        <button type="submit" class="btn-primary-3d" style="width:100%; margin-top:10px;">✨ Publish & Sell Tickets (Free)</button>
+        <button type="submit" class="btn-primary-3d" style="width:100%; margin-top:10px;">Ã¢Å“Â¨ Publish Event</button>
       </form>
     </div>
   </div>
 
-  <!-- DASHBOARD MODAL -->
-  <div id="dashboard-modal" class="modal-overlay">
-    <div class="modal-box" style="max-width: 580px;">
-      <button class="close-modal" onclick="closeModals()">&times;</button>
-      <h2 class="modal-title">User <span class="text-red-3d">Dashboard</span></h2>
-      <p class="modal-subtitle">Manage your booked tickets and organizer subscriptions</p>
-
-      <div class="dashboard-tabs">
-        <div id="dash-tab-tickets" class="dash-tab active" onclick="switchDashTab('tickets')">
-          <i class="fa-solid fa-ticket" style="margin-right:6px;"></i> My Booked Tickets
-        </div>
-        <div id="dash-tab-sub" class="dash-tab" onclick="switchDashTab('sub')">
-          <i class="fa-solid fa-crown" style="color:#b8b0d4; margin-right:6px;"></i> My Subscription
-        </div>
-      </div>
-
-      <div id="dash-content-tickets">
-        <div id="dashboard-tickets-list">
-          <p style="color:var(--text-muted); text-align:center; padding:20px;">Loading your tickets...</p>
-        </div>
-      </div>
-
-      <div id="dash-content-sub" style="display:none;">
-        <div id="dashboard-sub-details" class="sub-plan-card" style="margin-bottom:0;">
-          <h3 style="color:var(--text-main); font-size:18px; margin-bottom:10px;">Pro Organizer Pass</h3>
-          <p id="dash-sub-status-text" style="color:var(--text-muted); font-size:14px;">Checking status...</p>
-          <div style="margin-top:16px;">
-            <button onclick="openSubscribeModal()" class="btn-primary-3d" style="padding:10px 24px; font-size:14px;">Subscribe Now</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <!-- TOAST -->
-  <div id="toast" class="toast">
+  <div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true" aria-hidden="true">
     <i class="fa-solid fa-sparkles" style="font-size: 18px;"></i>
     <span id="toast-message">Notification message</span>
   </div>
 
-  <!-- CORNER UI (shown only when logged in) -->
-  <div class="corner-ui corner-ui-left site-hidden">
-    <button class="corner-btn" title="Sound toggle">
-      <i class="fa-solid fa-volume-xmark"></i>
-    </button>
-    <button class="corner-pill">Our 2026 Wrapped</button>
-  </div>
-
-  <div class="corner-ui corner-ui-center site-hidden">
-    <button class="corner-btn" title="Language">
-      <i class="fa-solid fa-globe"></i>
-    </button>
-  </div>
-
-  <div class="corner-ui corner-ui-right site-hidden">
-    <span>©2026</span>
-  </div>
-
-  <!-- FOOTER -->
   <footer class="site-hidden">
     <p>&copy; 2026 AURA++. All rights reserved. Built with C# &amp; ASP.NET Core.</p>
   </footer>
 
-  <!-- ============================================================
-       SCRIPTS
-       ============================================================ -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-
-  <!-- Flow controller (NEW) -->
-  <script src="js/flow.js?v=1.0"></script>
-
-  <!-- Animations (existing) -->
-  <script src="js/animations.js"></script>
-
-  <!-- App logic (existing, unchanged) -->
-  <script src="js/app.js?v=12.0"></script>
+  <script src="js/flow.js?v=4.0"></script>
+  <script src="js/dashboard.js?v=2.0"></script>
+  <script src="js/animations.js?v=3.1"></script>
+  <script src="js/app.js?v=14.1"></script>
+  <script src="js/auth.js?v=1.1"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js" crossorigin></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="js/react-app.js?v=1.0"></script>
 </body>
 </html>

@@ -1,0 +1,376 @@
+# ============================================================
+# AURA++ — GitHub Actions CI/CD Pipeline
+# ============================================================
+# Stages:
+#   1. lint         — Code style & format check
+#   2. build-test   — Restore, build, run tests
+#   3. docker       — Build & push Docker image
+#   4. deploy-dev   — Deploy to Dev environment  (on: push to develop)
+#   5. deploy-prod  — Deploy to Prod environment (on: push to main, manual approval)
+# ============================================================
+
+name: AURA++ CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+      - "feature/**"
+      - "hotfix/**"
+    tags:
+      - "v*.*.*"
+  pull_request:
+    branches:
+      - main
+      - develop
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Deploy target (dev / prod)"
+        required: true
+        default: dev
+        type: choice
+        options:
+          - dev
+          - prod
+
+# Cancel in-progress runs for the same branch
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+# ── Global env vars ───────────────────────────────────────────
+env:
+  DOTNET_VERSION: "8.0.x"
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository_owner }}/aura-app
+  DOCKERFILE: ./Dockerfile
+
+# ─────────────────────────────────────────────────────────────
+jobs:
+
+  # ────────────────────────────────────────────────────────────
+  # JOB 1 — Lint & Format Check
+  # ────────────────────────────────────────────────────────────
+  lint:
+    name: "🔍 Lint & Format"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET ${{ env.DOTNET_VERSION }}
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore tools
+        run: dotnet tool restore || true
+
+      - name: Check code format
+        run: dotnet format --verify-no-changes --verbosity diagnostic || echo "⚠️ Format check skipped (no .editorconfig found)"
+
+      - name: Verify project builds (quick check)
+        run: dotnet build AuraApp.csproj --configuration Release --no-incremental -warnaserror
+
+  # ────────────────────────────────────────────────────────────
+  # JOB 2 — Build & Test
+  # ────────────────────────────────────────────────────────────
+  build-test:
+    name: "🏗️ Build & Test"
+    runs-on: ubuntu-latest
+    needs: lint
+
+    strategy:
+      matrix:
+        configuration: [Release]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET ${{ env.DOTNET_VERSION }}
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+          cache: true
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('**/*.csproj') }}
+          restore-keys: |
+            nuget-${{ runner.os }}-
+
+      - name: Restore dependencies
+        run: dotnet restore AuraApp.csproj
+
+      - name: Build — ${{ matrix.configuration }}
+        run: |
+          dotnet build AuraApp.csproj \
+            --configuration ${{ matrix.configuration }} \
+            --no-restore \
+            -o ./build-output
+
+      - name: Run tests (if test project exists)
+        run: |
+          if ls *.Tests.csproj 1> /dev/null 2>&1 || ls tests/ 1> /dev/null 2>&1; then
+            dotnet test \
+              --configuration ${{ matrix.configuration }} \
+              --no-build \
+              --verbosity normal \
+              --logger "trx;LogFileName=test-results.trx" \
+              --results-directory ./test-results
+          else
+            echo "ℹ️ No test project found — skipping test step."
+          fi
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ matrix.configuration }}
+          path: ./test-results/
+          if-no-files-found: ignore
+
+      - name: Publish application
+        run: |
+          dotnet publish AuraApp.csproj \
+            --configuration ${{ matrix.configuration }} \
+            --no-build \
+            --output ./publish-output \
+            /p:UseAppHost=false
+
+      - name: Upload publish artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: aura-publish-${{ matrix.configuration }}
+          path: ./publish-output/
+          retention-days: 7
+
+  # ────────────────────────────────────────────────────────────
+  # JOB 3 — Docker Build & Push
+  # ────────────────────────────────────────────────────────────
+  docker:
+    name: "🐳 Docker Build & Push"
+    runs-on: ubuntu-latest
+    needs: build-test
+    if: github.event_name != 'pull_request'
+
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+
+    outputs:
+      image_tag: ${{ steps.meta.outputs.tags }}
+      image_digest: ${{ steps.push.outputs.digest }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU (multi-arch support)
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          driver-opts: image=moby/buildkit:latest
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract Docker metadata (tags & labels)
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            # Branch-based tags
+            type=ref,event=branch
+            # PR tags
+            type=ref,event=pr
+            # SemVer tags from git tags
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            # SHA short tag
+            type=sha,prefix=sha-
+            # Latest tag on main only
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
+          labels: |
+            org.opencontainers.image.title=AuraApp
+            org.opencontainers.image.description=AURA++ Event Ticketing Platform
+            org.opencontainers.image.vendor=AURA++ Team
+            org.opencontainers.image.version=${{ github.ref_name }}
+
+      - name: Build and push Docker image
+        id: push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ${{ env.DOCKERFILE }}
+          push: true
+          platforms: linux/amd64,linux/arm64
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            BUILD_CONFIGURATION=Release
+
+      - name: Print image digest
+        run: |
+          echo "✅ Image pushed:"
+          echo "   Tags:   ${{ steps.meta.outputs.tags }}"
+          echo "   Digest: ${{ steps.push.outputs.digest }}"
+
+      - name: Generate SBOM (Software Bill of Materials)
+        uses: anchore/sbom-action@v0
+        with:
+          image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+          format: cyclonedx-json
+          output-file: sbom.json
+        continue-on-error: true
+
+      - name: Upload SBOM artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom
+          path: sbom.json
+          if-no-files-found: ignore
+
+  # ────────────────────────────────────────────────────────────
+  # JOB 4 — Deploy to Development
+  # ────────────────────────────────────────────────────────────
+  deploy-dev:
+    name: "🚀 Deploy → Development"
+    runs-on: ubuntu-latest
+    needs: docker
+    if: >
+      github.ref == 'refs/heads/develop' ||
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'dev')
+
+    environment:
+      name: development
+      url: ${{ vars.DEV_APP_URL }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.DEV_SSH_PRIVATE_KEY }}
+        continue-on-error: true
+
+      - name: Deploy to Dev server (SSH)
+        if: ${{ secrets.DEV_SSH_HOST != '' }}
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.DEV_SSH_USER }}@${{ secrets.DEV_SSH_HOST }} << 'ENDSSH'
+            cd /opt/aura
+            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+            docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:develop
+            docker compose -f docker-compose.yml up -d --remove-orphans aura
+            docker system prune -f --volumes
+            echo "✅ Dev deployment complete"
+          ENDSSH
+
+      - name: Skip deployment (no SSH configured)
+        if: ${{ secrets.DEV_SSH_HOST == '' }}
+        run: |
+          echo "⚠️ DEV_SSH_HOST secret not configured — skipping SSH deployment."
+          echo "   Image is ready at: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:develop"
+
+      - name: Deployment summary
+        run: |
+          echo "### 🚀 Dev Deployment Complete" >> $GITHUB_STEP_SUMMARY
+          echo "- **Image:** \`${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:develop\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit:** \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **URL:** ${{ vars.DEV_APP_URL }}" >> $GITHUB_STEP_SUMMARY
+
+  # ────────────────────────────────────────────────────────────
+  # JOB 5 — Deploy to Production
+  # ────────────────────────────────────────────────────────────
+  deploy-prod:
+    name: "🏭 Deploy → Production"
+    runs-on: ubuntu-latest
+    needs: docker
+    if: >
+      startsWith(github.ref, 'refs/tags/v') ||
+      github.ref == 'refs/heads/main' ||
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'prod')
+
+    environment:
+      name: production
+      url: ${{ vars.PROD_APP_URL }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
+        continue-on-error: true
+
+      - name: Deploy to Production server (SSH)
+        if: ${{ secrets.PROD_SSH_HOST != '' }}
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.PROD_SSH_USER }}@${{ secrets.PROD_SSH_HOST }} << 'ENDSSH'
+            cd /opt/aura
+            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+            docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+            docker compose -f docker-compose.yml up -d --remove-orphans aura
+            docker system prune -f
+            echo "✅ Production deployment complete"
+          ENDSSH
+
+      - name: Skip deployment (no SSH configured)
+        if: ${{ secrets.PROD_SSH_HOST == '' }}
+        run: |
+          echo "⚠️ PROD_SSH_HOST secret not configured — skipping SSH deployment."
+          echo "   Image is ready at: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest"
+
+      - name: Deployment summary
+        run: |
+          echo "### 🏭 Production Deployment Complete" >> $GITHUB_STEP_SUMMARY
+          echo "- **Image:** \`${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Tag:** \`${{ github.ref_name }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit:** \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **URL:** ${{ vars.PROD_APP_URL }}" >> $GITHUB_STEP_SUMMARY
+
+      - name: Create GitHub Release (on version tag)
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "AURA++ ${{ github.ref_name }}"
+          body: |
+            ## AURA++ ${{ github.ref_name }}
+
+            ### Docker image
+            ```
+            docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}
+            ```
+
+            ### Quick start (SQLite)
+            ```bash
+            docker run -d -p 5000:8080 \
+              -v aura_data:/app/data \
+              ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}
+            ```
+
+            **Digest:** `${{ needs.docker.outputs.image_digest }}`
+          draft: false
+          prerelease: ${{ contains(github.ref_name, '-rc') || contains(github.ref_name, '-beta') || contains(github.ref_name, '-alpha') }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

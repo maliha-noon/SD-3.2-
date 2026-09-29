@@ -1,0 +1,144 @@
+/* Shared, purposeful interaction states for the AURA palette. */
+:root {
+  --z-modal: 10000005;
+  --z-toast: 10000020;
+}
+
+html { scrollbar-gutter: stable; }
+:where(button, a, input, select, textarea, [role="tab"], [tabindex]) { touch-action: manipulation; }
+button, input, select, textarea { accent-color: var(--lavender); }
+
+:is(.btn-primary-3d, .btn-primary, .btn-google, .btn-glass-3d, .btn-nav-seller, .btn-subscribe-nav, .btn-register-nav, .gate-enter-btn, .dash-action-btn, .dash-ticket-verify, .event-filter, .pay-tab, .dash-nav-item, .pw-toggle, .close-modal, .nav-link, .back-link) {
+  transition-duration: var(--duration-ui);
+  transition-timing-function: var(--aura-ease);
+}
+:is(.form-input, input, select, textarea) { transition-duration: var(--duration-fast); }
+:is(.modal-box, .toast) { transition-duration: var(--duration-reveal); }
+
+:where(button, [role="tab"], .event-filter, .pay-tab, .dash-nav-item) {
+  -webkit-tap-highlight-color: transparent;
+}
+
+:where(button, a, .event-filter, .pay-tab, .dash-nav-item):active {
+  filter: brightness(.94);
+}
+
+:where(button, input, select, textarea):disabled,
+:where(button, input, select, textarea)[aria-disabled="true"] {
+  cursor: not-allowed;
+  opacity: .58;
+  filter: none;
+}
+
+:where(button, input, select, textarea)[aria-busy="true"],
+.aura-is-loading { cursor: progress; }
+
+.aura-is-loading::after {
+  content: '';
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  margin-left: .65em;
+  vertical-align: -.14em;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: auraControlSpin .7s linear infinite;
+}
+
+@keyframes auraControlSpin { to { transform: rotate(1turn); } }
+
+:where(input, select, textarea)[aria-invalid="true"],
+:where(input, select, textarea).is-invalid {
+  border-color: var(--error) !important;
+  box-shadow: 0 0 0 3px rgba(199,58,58,.12) !important;
+}
+
+:where(input, select, textarea).is-valid {
+  border-color: var(--success) !important;
+}
+
+:where(input[type="checkbox"], input[type="radio"]) {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--charcoal);
+  cursor: pointer;
+}
+
+.modal-overlay {
+  z-index: var(--z-modal) !important;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.modal-box {
+  max-height: min(88vh, 88dvh);
+  overscroll-behavior: contain;
+}
+
+.modal-overlay[aria-hidden="true"] { pointer-events: none; }
+.modal-box:focus { outline: none; }
+.modal-box:focus-visible { outline: 3px solid var(--lavender); outline-offset: 4px; }
+.dash-section [hidden] { display: none !important; }
+.dash-visually-hidden { position: absolute !important; width: 1px !important; height: 1px !important; padding: 0 !important; margin: -1px !important; overflow: hidden !important; clip: rect(0,0,0,0) !important; white-space: nowrap !important; border: 0 !important; }
+
+.toast {
+  z-index: var(--z-toast);
+  right: max(20px, env(safe-area-inset-right));
+  bottom: max(20px, env(safe-area-inset-bottom));
+  max-width: min(460px, calc(100vw - 32px));
+  overflow-wrap: anywhere;
+  border: 1px solid rgba(242,233,225,.18);
+}
+.toast[data-state="success"] { border-left: 3px solid var(--success); }
+.toast[data-state="error"] { border-left: 3px solid var(--error); }
+.toast[data-state="info"] { border-left: 3px solid var(--lavender); }
+
+.event-filter[aria-pressed="true"],
+.pay-tab[aria-pressed="true"],
+.dash-nav-item[aria-current="page"] { box-shadow: inset 0 0 0 1px currentColor; }
+
+.verify-submit[aria-busy="true"] { pointer-events: none; }
+.inline-booking-form[aria-busy="true"] { opacity: .72; }
+
+@media (max-width: 700px) {
+  .modal-overlay { align-items: flex-start !important; padding: max(12px, env(safe-area-inset-top)) 12px max(12px, env(safe-area-inset-bottom)) !important; }
+  .modal-box { margin: auto; max-height: calc(100dvh - 24px); }
+  .toast { left: max(12px, env(safe-area-inset-left)); right: max(12px, env(safe-area-inset-right)); bottom: max(12px, env(safe-area-inset-bottom)); width: auto; padding: 14px 17px; }
+}
+
+@media (max-width: 900px) {
+  .dash-topbar { flex-wrap: wrap; }
+  .dash-search { display: flex; order: 3; flex: 1 0 100%; max-width: none; margin: 0; }
+  .dash-user { margin-left: auto; }
+}
+
+@media (hover: none) {
+  .nav-link:hover { opacity: 1; }
+  .dash-ticket-object:hover { transform: none; box-shadow: none; }
+  .dash-ticket-object:hover .dash-ticket-image { transform: none; opacity: .14; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto !important; }
+  *, *::before, *::after { scroll-behavior: auto !important; }
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+  :is(.btn-primary-3d, .btn-primary, .btn-google, .btn-glass-3d, .btn-nav-seller, .btn-subscribe-nav, .btn-register-nav, .gate-enter-btn, .dash-action-btn, .dash-ticket-verify, .event-filter, .pay-tab, .dash-nav-item, .pw-toggle, .close-modal, .nav-link, .back-link, .form-input, input, select, textarea, .modal-box, .toast) { transition-duration: .01ms !important; }
+  .aura-is-loading::after { animation: none; border-right-color: currentColor; }
+}
+
+/* Database-backed discovery controls and event information use existing AURA tokens. */
+.event-discovery-tools { display:flex; flex-wrap:wrap; align-items:center; gap:12px; }
+.event-discovery-tools input, .event-discovery-tools select { min-height:42px; max-width:220px; padding:10px 14px; color:var(--text-main); background:var(--cream); border:1px solid var(--border-card); border-radius:999px; font:inherit; }
+.event-detail-expand { margin:12px 0; color:var(--text-muted); font-size:13px; }
+.event-detail-expand summary { cursor:pointer; color:var(--text-main); font-weight:600; }
+.event-detail-expand p { margin-top:8px; line-height:1.55; }
+.event-favourite { border:0; background:transparent; color:var(--text-main); cursor:pointer; padding:8px 0; font:inherit; }
+.event-favourite.is-saved { color:var(--text-main); }
+@media (max-width:600px) { .event-discovery-tools input, .event-discovery-tools select { max-width:none; width:100%; } }
+.resale-market-listings { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:16px; margin:0 0 28px; }
+.resale-listing-card { display:flex; gap:14px; padding:14px; color:var(--text-main); background:var(--cream); border:1px solid var(--border-card); border-radius:18px; }
+.resale-listing-card img { width:88px; height:88px; object-fit:cover; border-radius:12px; }
+.resale-listing-card p { margin:6px 0; color:var(--text-muted); font-size:13px; }
+.resale-listing-card button { border:0; border-radius:999px; padding:9px 14px; color:var(--cream); background:var(--charcoal); cursor:pointer; }
+.checkout-payment-note { margin:8px 0 14px; color:var(--text-muted); font-size:12px; line-height:1.5; }

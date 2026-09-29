@@ -1,0 +1,111 @@
+# ============================================================
+# AURA++ — Docker Compose
+# Profiles:
+#   default  → SQLite (no MySQL dependency, perfect for dev)
+#   mysql    → MySQL 8 + AuraApp (production-like)
+# ============================================================
+
+version: "3.9"
+
+# ── Shared base service definition ───────────────────────────
+x-aura-base: &aura-base
+  build:
+    context: .
+    dockerfile: Dockerfile
+    args:
+      BUILD_CONFIGURATION: Release
+  image: aura-app:latest
+  restart: unless-stopped
+  environment:
+    ASPNETCORE_ENVIRONMENT: Production
+    ASPNETCORE_URLS: http://+:8080
+  healthcheck:
+    test: ["CMD", "curl", "-f", "http://localhost:8080/api/admin/summary"]
+    interval: 30s
+    timeout: 10s
+    retries: 3
+    start_period: 25s
+
+# ─────────────────────────────────────────────────────────────
+services:
+
+  # ── Option A: AuraApp with SQLite (default, no DB service) ──
+  aura:
+    <<: *aura-base
+    container_name: aura_app
+    ports:
+      - "5000:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__SqliteConnection: "Data Source=/app/data/aura.db"
+    volumes:
+      - aura_sqlite_data:/app/data
+    profiles:
+      - default
+      - sqlite
+
+  # ── Option B: AuraApp with MySQL ────────────────────────────
+  aura_mysql:
+    <<: *aura-base
+    container_name: aura_app_mysql
+    ports:
+      - "5000:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__DefaultConnection: "Server=mysql_db;Port=3306;Database=aura_db;User=root;Password=${MYSQL_ROOT_PASSWORD:-rootpassword};"
+      ConnectionStrings__SqliteConnection: "Data Source=/app/data/aura.db"
+    depends_on:
+      mysql_db:
+        condition: service_healthy
+    volumes:
+      - aura_sqlite_data:/app/data
+    profiles:
+      - mysql
+
+  # ── MySQL 8 service ─────────────────────────────────────────
+  mysql_db:
+    image: mysql:8.0
+    container_name: aura_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-rootpassword}
+      MYSQL_DATABASE: aura_db
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./docker/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    command: >
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_unicode_ci
+      --max_connections=200
+      --innodb_buffer_pool_size=256M
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p${MYSQL_ROOT_PASSWORD:-rootpassword}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    profiles:
+      - mysql
+
+  # ── Adminer (DB GUI — mysql profile only) ───────────────────
+  adminer:
+    image: adminer:latest
+    container_name: aura_adminer
+    restart: unless-stopped
+    ports:
+      - "8888:8080"
+    depends_on:
+      - mysql_db
+    profiles:
+      - mysql
+
+# ── Named volumes ─────────────────────────────────────────────
+volumes:
+  aura_sqlite_data:
+    driver: local
+  mysql_data:
+    driver: local

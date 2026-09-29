@@ -11,10 +11,32 @@ namespace AuraApp.Data
         public DbSet<Event> Events { get; set; } = null!;
         public DbSet<Booking> Bookings { get; set; } = null!;
         public DbSet<Subscription> Subscriptions { get; set; } = null!;
+        public DbSet<Ticket> Tickets { get; set; } = null!;
+        public DbSet<VerificationAttempt> VerificationAttempts { get; set; } = null!;
+        public DbSet<SavedEvent> SavedEvents { get; set; } = null!;
+        public DbSet<ResaleListing> ResaleListings { get; set; } = null!;
+        public DbSet<EventSubmission> EventSubmissions { get; set; } = null!;
+        public DbSet<TicketTransfer> TicketTransfers { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<Ticket>().HasIndex(t => t.TicketCode).IsUnique();
+            modelBuilder.Entity<User>().HasIndex(u => u.Email).IsUnique();
+            modelBuilder.Entity<Ticket>().HasOne(t => t.Booking).WithMany(b => b.Tickets).HasForeignKey(t => t.BookingId).OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<Ticket>().HasOne(t => t.Event).WithMany().HasForeignKey(t => t.EventId).OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<Ticket>().HasOne(t => t.Owner).WithMany().HasForeignKey(t => t.OwnerUserId).OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<ResaleListing>().HasOne(l => l.Ticket).WithMany().HasForeignKey(l => l.TicketId).OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<SavedEvent>().HasIndex(x => new { x.UserId, x.EventId }).IsUnique();
+            modelBuilder.Entity<SavedEvent>().HasOne<User>().WithMany().HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<SavedEvent>().HasOne<Event>().WithMany().HasForeignKey(x => x.EventId).OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<VerificationAttempt>().HasOne<User>().WithMany().HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.SetNull);
+            modelBuilder.Entity<ResaleListing>().HasOne<User>().WithMany().HasForeignKey(x => x.SellerUserId).OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<EventSubmission>().HasOne<User>().WithMany().HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<TicketTransfer>().HasOne<Ticket>().WithMany().HasForeignKey(x => x.TicketId).OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<TicketTransfer>().HasOne<User>().WithMany().HasForeignKey(x => x.FromUserId).OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<TicketTransfer>().HasOne<User>().WithMany().HasForeignKey(x => x.ToUserId).OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Event>().HasData(
                 new Event

@@ -1,109 +1,151 @@
-# AURA++ | Ultimate Event Experience & Seller Platform
+# AURA++ — Event Ticketing Platform
 
-![AURA++ Banner](https://img.shields.io/badge/AURA%2B%2B-Event%20Marketplace-e50914?style=for-the-badge&logo=rocket)
-![.NET 8.0](https://img.shields.io/badge/.NET-8.0-512bd4?style=for-the-badge&logo=dotnet)
-![MySQL](https://img.shields.io/badge/Database-MySQL-4479a1?style=for-the-badge&logo=mysql)
-![PHPMyAdmin](https://img.shields.io/badge/Admin-phpMyAdmin-f39c12?style=for-the-badge&logo=phpmyadmin)
+A full-stack event ticketing web application built with **ASP.NET Core 8** (backend) and **Vanilla JS + React 18** (frontend).
 
 ---
 
-## 🌟 Overview
+## Tech Stack
 
-**AURA++** is an interactive event ticketing and seller platform built with **C# ASP.NET Core 8.0 Web API** and **MySQL**. Featuring a glassmorphic UI with dynamic particle effects, real-time ticket availability tracking, instant 1-click Pro Seller subscriptions, and an interactive event marketplace.
+| Layer | Technology |
+|---|---|
+| **Backend** | ASP.NET Core 8 Web API (C#) |
+| **Database** | SQLite (default) / MySQL 8 (auto-detected) |
+| **ORM** | Entity Framework Core 8 |
+| **Frontend** | HTML5 + Vanilla JS + React 18 (CDN) |
+| **Auth** | Cookie-based authentication (ASP.NET Core Identity) |
+| **Styling** | Vanilla CSS (no Tailwind, no PHP) |
 
----
-
-## 👥 Project Team & Contributors
-
-| Name | Student ID | Role & Responsibilities |
-|---|---|---|
-| **Maliha Parvin** | `20230104077` | Team Leader & Backend Developer |
-| **Nusrat Jahan Shanti** | `20230104089` | Frontend & Backend Developer |
-| **MD Hisham Mahmud** | `20230104096` | Frontend & Backend Developer |
-
----
-
-## ✨ Key Features
-
-### 🎟️ 1. Interactive Event Marketplace
-- **Dynamic Event Feed**: Browse top concerts, tech summits, esports tournaments, and festivals.
-- **Category Filtering**: Filter events seamlessly by Concert, Tech, Festival, Gaming, and Art.
-- **Real-Time Ticket Stock**: Live available ticket counting with automatic stock deduction upon booking.
-- **Dynamic Price Display**: Full support for local currency formatting (**BDT ৳**).
-
-### 🤖 2. Interactive Mascot System
-- Expressive SVG mascot with animated blinking eyes, floating animations, and dynamic state reactions.
-- **Celebratory Thank You View**: Instant popup thanking new subscribers (`"Thank You! 🎉 You are now an official Subscribed Pro Seller!"`).
-- **Warning Mascot View**: Non-subscribed sellers attempting to publish events receive a protective warning modal blocking access until subscribed (`"Sorry! You must subscribe to our website to sell tickets"`).
-
-### 👑 3. Instant 1-Click Free Pro Seller Subscription
-- **100% Free Pro Seller Pass (0 BDT)**: Zero cost subscription flow.
-- **Navigation Badge Update**: Automatically turns the top navigation button into a green **`✓ SUBSCRIBED`** badge.
-- **Access Control**: Grants instant authorization to create and publish events.
-
-### 🎪 4. Event Organizer & Seller Payout Setup
-- Subscribed organizers can publish new events with ticket pricing, stock, category, and date.
-- Integrated payout receiving options (**bKash**, **Nagad**, **Bank Account**).
-
-### 💳 5. Fast Ticket Booking Engine
-- Inline ticket checkout forms with real-time total price calculation.
-- Supports **bKash**, **Nagad**, and **Credit/Debit Card** checkout options.
-- Generates unique ticket codes (e.g. `AURA-BK982A`) and transaction IDs (`TXN-...`).
-
-### 🔐 6. Account Management & Security
-- User registration and login with white eye-icon password visibility toggles (`fa-eye`).
-- **OTP Password Recovery**: Forgot password recovery system with 6-digit OTP code dispatch and verification.
-- **User Dashboard**: Dedicated dashboard tab to view purchased tickets and seller pass status.
+> ⚠️ **No PHP is used anywhere in this project.** The backend is 100% C# ASP.NET Core.
 
 ---
 
-## 🛠️ Technology Stack
+## Quick Start
 
-| Component | Technology | Description |
-|---|---|---|
-| **Backend Framework** | C# .NET 8.0 | ASP.NET Core Web API Architecture |
-| **Database Engine** | MySQL 8.0 / MariaDB | Database Schema `aura_db` |
-| **ORM Access** | Entity Framework Core 8.0 | Pomelo MySQL EF Core Provider |
-| **Database Tool** | phpMyAdmin | Web-based database management (`http://localhost:8080/phpmyadmin/`) |
-| **Frontend UI** | HTML5 / CSS3 / ES6+ JS | Glassmorphism, Cyberpunk Neon Styles & Async Client |
-| **Visual Assets** | FontAwesome 6 Pro & SVG | Custom Mascot System & Canvas Engine |
-
----
-
-## 🗄️ Database Schema (`aura_db`)
-
-The application automatically creates and seeds the MySQL `aura_db` database with 4 core tables:
-
-1. **`Users`**: Stores user credentials, phone numbers, and subscription status (`IsSubscribed`, `SubscriptionExpiresAt`).
-2. **`Events`**: Stores event titles, venues, ticket stock, category, price, and seller payout accounts.
-3. **`Bookings`**: Stores ticket purchases, quantities, payment method, transaction IDs, ticket codes, and buyer info (`UserName`, `UserEmail`).
-4. **`Subscriptions`**: Stores Pro Seller subscriptions, transaction IDs, subscriber details (`UserName`, `UserEmail`, `UserPhone`), and expiry dates.
-
----
-
-## 🚦 Getting Started & Local Setup
-
-### Prerequisites
-- [.NET 8.0 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) installed.
-- [XAMPP](https://www.apachefriends.org/) (MySQL running on port 3306, Apache / phpMyAdmin running on port 8080).
-
-### 1. Clone the Repository
-```bash
-git clone https://github.com/maliha-noon/SD-3.2-.git
-cd SD-3.2-
-git checkout noon
-```
-
-### 2. Run the Application
-Open PowerShell in the project directory and execute:
 ```powershell
-# Stop any existing process instance
-taskkill /F /IM AuraApp.exe 2>$null
+# 1. Navigate to project root
+cd d:\SD-3.2-source
 
-# Launch ASP.NET Core Application
+# 2. Run the application (builds automatically)
 dotnet run
+
+# 3. Open in browser
+# http://localhost:5000
 ```
 
-### 3. Open in Browser
-- **Web Application**: `http://localhost:5000`
-- **phpMyAdmin Database**: `http://localhost:8080/phpmyadmin/index.php?route=/database/structure&db=aura_db`
+---
+
+## Database
+
+The app uses **SQLite by default** (`aura.db` in the project root). If a MySQL server is running on `localhost:3306`, it auto-connects to `aura_db` instead.
+
+### Database Tables
+
+| Table | Description |
+|---|---|
+| `Users` | Registered accounts (Admin, Organizer, Customer roles) |
+| `Events` | Published event listings |
+| `Bookings` | Ticket booking records |
+| `Tickets` | Individual ticket instances per booking |
+| `Subscriptions` | Pro Seller / Organizer subscriptions |
+| `SavedEvents` | User-saved/favorited events |
+| `ResaleListings` | Active resale listings for tickets |
+| `TicketTransfers` | Ownership transfer history |
+| `VerificationAttempts` | Ticket verification check log |
+| `EventSubmissions` | Organizer event submission requests |
+
+### Seed Accounts
+
+| Name | Email | Password | Role |
+|---|---|---|---|
+| Nusrat Jahan Shanti | shanti@aura.com | 123456 | Admin |
+| Maliha Parvin | maliha@aura.com | 123456 | Organizer |
+| John Doe | john@aura.com | 123456 | Customer |
+
+---
+
+## API Endpoints
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `POST` | `/api/auth/login` | Login |
+| `POST` | `/api/auth/register` | Register |
+| `GET` | `/api/auth/me` | Current session user |
+| `GET` | `/api/events` | List all events |
+| `POST` | `/api/events` | Create event (Organizer+) |
+| `GET` | `/api/bookings` | My bookings |
+| `POST` | `/api/bookings` | Create booking |
+| `GET` | `/api/bookings/tickets` | My tickets |
+| `POST` | `/api/bookings/verify` | Verify ticket |
+| `GET` | `/api/account/profile` | My profile |
+| `PUT` | `/api/account/profile` | Update profile |
+| `GET` | `/api/account/dashboard` | Dashboard overview |
+| `GET` | `/api/account/history` | Activity history |
+| `GET` | `/api/account/notifications` | Notifications |
+| `GET` | `/api/subscriptions/status` | Subscription status |
+| `GET` | `/api/resale/listings` | Public resale listings |
+| `POST` | `/api/resale/list` | List ticket for resale |
+| `GET` | `/api/admin/summary` | Admin stats (Admin only) |
+| `GET` | `/api/admin/users` | All users (Admin only) |
+
+---
+
+## Project Structure
+
+```
+SD-3.2-source/
+├── Controllers/          # ASP.NET Core API controllers
+│   ├── AuthController.cs
+│   ├── AccountController.cs
+│   ├── BookingsController.cs
+│   ├── EventsController.cs
+│   ├── ResaleController.cs
+│   ├── SubscriptionsController.cs
+│   └── AdminController.cs
+├── Data/
+│   └── AuraDbContext.cs  # Entity Framework DbContext
+├── Models/
+│   └── Models.cs         # C# entity models
+├── wwwroot/              # Static frontend files
+│   ├── index.html        # Main SPA shell
+│   ├── login.html        # Login page
+│   ├── register.html     # Register page
+│   ├── css/              # Stylesheets
+│   └── js/
+│       ├── app.js        # Main application logic
+│       ├── auth.js       # Auth helpers
+│       ├── dashboard.js  # Dashboard controller
+│       ├── animations.js # UI animations
+│       ├── flow.js       # Scroll/flow animations
+│       └── react-app.js  # React 18 components
+├── Program.cs            # App startup & DB seeding
+├── appsettings.json      # Config (connection strings)
+└── AuraApp.csproj        # .NET 8 project file
+```
+
+---
+
+## Dashboard Features
+
+The dashboard is a full SPA panel (no page reload) with:
+
+- **Home** — Stats: tickets bought, total spend, bookings; booking chart; upcoming tickets
+- **Discover** — Browse events inside dashboard
+- **My Tickets** — Digital ticket cards with verification buttons
+- **Verification** — Ticket check history
+- **Resale** — Active resale listings management
+- **Subscriptions** — Pro Seller status
+- **My Events** — Organizer event management (Organizer/Admin only)
+- **Admin Panel** — Platform stats + user list (Admin only)
+- **Profile** — Edit name, email, phone
+- **History** — Full activity log
+- **Notifications** — Upcoming event reminders
+- **Settings** — Language preference
+
+---
+
+## Stop the Application
+
+```powershell
+# Press Ctrl+C in the terminal, or:
+taskkill /F /IM AuraApp.exe
+```
