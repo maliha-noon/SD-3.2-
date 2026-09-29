@@ -324,19 +324,46 @@ public class AdminController : ControllerBase
         return Ok(new { message = "Confirmation sign and purchase record deleted by Admin Maliha.", deletedId = id });
     }
 
-    // ── Delete Booking ─────────────────────────────────────────────────────────
-    [HttpDelete("bookings/{id:int}")]
-    [HttpPost("bookings/{id:int}/delete")]
-    public async Task<IActionResult> DeleteBooking(int id)
+    // ── Pending Tickets (Fetch & Delete by Admin Maliha) ─────────────────────
+    [HttpGet("pending-tickets")]
+    public async Task<IActionResult> PendingTickets()
+    {
+        var pendingBookings = await db.Bookings
+            .Where(b => b.Status == "Pending")
+            .OrderByDescending(b => b.BookingDate)
+            .Select(b => new
+            {
+                b.Id,
+                TicketCode      = b.BookingCode,
+                ConfirmationSign = "CONF-" + b.BookingCode,
+                BuyerName       = string.IsNullOrWhiteSpace(b.UserName) ? (b.User != null ? b.User.FullName : "Guest Customer") : b.UserName,
+                BuyerEmail      = string.IsNullOrWhiteSpace(b.UserEmail) ? (b.User != null ? b.User.Email : "buyer@aura.com") : b.UserEmail,
+                EventTitle      = b.EventTitle ?? (b.Event != null ? b.Event.Title : "Event Ticket"),
+                Venue           = b.Event != null ? b.Event.Venue : "Venue",
+                Quantity        = b.Quantity,
+                Price           = b.Event != null ? b.Event.Price * b.Quantity : 300 * b.Quantity,
+                PaymentMethod   = b.PaymentMethod,
+                BookingDate     = b.BookingDate,
+                Status          = "Pending"
+            })
+            .ToListAsync();
+
+        return Ok(pendingBookings);
+    }
+
+    [HttpDelete("pending-tickets/{id:int}")]
+    [HttpPost("pending-tickets/{id:int}/delete")]
+    public async Task<IActionResult> DeletePendingTicket(int id)
     {
         var booking = await db.Bookings.FindAsync(id);
-        if (booking == null) return NotFound(new { message = "Booking not found." });
+        if (booking == null) return NotFound(new { message = "Pending ticket record not found." });
 
         db.Bookings.Remove(booking);
         await db.SaveChangesAsync();
 
-        return Ok(new { message = "Booking deleted successfully by Admin Maliha." });
+        return Ok(new { message = "Pending ticket deleted successfully by Admin Maliha.", deletedId = id });
     }
 }
+
 
 

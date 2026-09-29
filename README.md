@@ -45,11 +45,11 @@ graph TD
 
 ## 👥 Contributors
 
-| Developer | Role | Responsibilities |
-|---|---|---|
-| **Nusrat Jahan Shanti** | **Frontend and Backend Developer** | Core UI Flow, Event Management, Authentication & C# Backend Services |
-| **Maliha Parvin** | **Frontend and Backend Developer** | Admin Panel Architecture, Buyers Information, System Permissions & API Security |
-| **Md Hisham Mahmud** | **Frontend and Backend Developer** | Ticket Verification, Database Schema, Resale Marketplace & Docker CI/CD |
+| Developer | Role |
+|---|---|
+| **Nusrat Jahan Shanti** | **Frontend and Backend Developer** |
+| **Maliha Parvin** | **Frontend and Backend Developer** |
+| **Md Hisham Mahmud** | **Frontend and Backend Developer** |
 
 ---
 
