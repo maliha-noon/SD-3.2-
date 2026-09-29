@@ -278,5 +278,65 @@ public class AdminController : ControllerBase
 
         return Ok(new { message = "User deleted successfully." });
     }
+
+    // ── Buyers Information & Purchase Confirmations ───────────────────────────
+    [HttpGet("buyers")]
+    public async Task<IActionResult> Buyers()
+    {
+        var buyers = await db.Bookings
+            .OrderByDescending(b => b.BookingDate)
+            .Select(b => new
+            {
+                b.Id,
+                BookingId       = b.Id,
+                BuyerName       = string.IsNullOrWhiteSpace(b.UserName) ? (b.User != null ? b.User.FullName : "Guest Buyer") : b.UserName,
+                BuyerEmail      = string.IsNullOrWhiteSpace(b.UserEmail) ? (b.User != null ? b.User.Email : "buyer@aura.com") : b.UserEmail,
+                EventTitle      = b.EventTitle ?? (b.Event != null ? b.Event.Title : "General Ticket"),
+                TicketCode      = b.BookingCode,
+                ConfirmationSign = "CONF-" + b.BookingCode,
+                Quantity        = b.Quantity,
+                TotalAmount     = b.Event != null ? b.Event.Price * b.Quantity : 300 * b.Quantity,
+                PaymentMethod   = b.PaymentMethod,
+                PurchaseDate    = b.BookingDate,
+                Status          = b.Status,
+                AdminName       = "Maliha Parvin"
+            })
+            .ToListAsync();
+
+        return Ok(buyers);
+    }
+
+    // ── Delete Confirmation Sign / Booking (Admin Maliha Action) ─────────────
+    [HttpDelete("confirmation-sign/{id:int}")]
+    [HttpPost("confirmation-sign/{id:int}/delete")]
+    public async Task<IActionResult> DeleteConfirmationSign(int id)
+    {
+        var booking = await db.Bookings.FindAsync(id);
+        if (booking == null) return NotFound(new { message = "Buyer confirmation sign record not found." });
+
+        // Optionally remove associated tickets
+        var tickets = await db.Tickets.Where(t => t.BookingId == id).ToListAsync();
+        db.Tickets.RemoveRange(tickets);
+
+        db.Bookings.Remove(booking);
+        await db.SaveChangesAsync();
+
+        return Ok(new { message = "Confirmation sign and purchase record deleted by Admin Maliha.", deletedId = id });
+    }
+
+    // ── Delete Booking ─────────────────────────────────────────────────────────
+    [HttpDelete("bookings/{id:int}")]
+    [HttpPost("bookings/{id:int}/delete")]
+    public async Task<IActionResult> DeleteBooking(int id)
+    {
+        var booking = await db.Bookings.FindAsync(id);
+        if (booking == null) return NotFound(new { message = "Booking not found." });
+
+        db.Bookings.Remove(booking);
+        await db.SaveChangesAsync();
+
+        return Ok(new { message = "Booking deleted successfully by Admin Maliha." });
+    }
 }
+
 

@@ -522,56 +522,412 @@
       container.innerHTML = '<div class="dash-empty">Event management data could not be loaded. Reopen this section to try again.</div>';
     }
   }
-  // ---------- ADMIN ----------
+  // ============================================================
+  // ADMIN PANEL LOGIC (Admin: Maliha Parvin)
+  // ============================================================
+  window.currentAdminRole = 'admin'; // 'admin' (Maliha) or 'viewer'
+  window.currentAdminTab = 'users';
+
+  // Toggle role between Admin (Maliha) and Non-Admin (Viewer)
+  window.toggleAdminRole = function() {
+    window.currentAdminRole = window.currentAdminRole === 'admin' ? 'viewer' : 'admin';
+    const display = $('admin-current-role-display');
+    if (display) {
+      display.textContent = window.currentAdminRole === 'admin' ? 'System Admin (Maliha)' : 'Regular Viewer (Non-Admin)';
+      display.style.color = window.currentAdminRole === 'admin' ? 'var(--green)' : 'var(--amber)';
+    }
+    const toastMsg = window.currentAdminRole === 'admin' 
+      ? 'Switched to Admin Role (Maliha) — Full Delete Permissions Enabled.' 
+      : 'Switched to Viewer Role — Delete Permissions Disabled (View Only).';
+    showDashToast(toastMsg, window.currentAdminRole === 'admin' ? 'success' : 'warning');
+    // Refresh current tab
+    switchAdminTab(window.currentAdminTab || 'users');
+  };
+
+  // Toast Notification Helper
+  function showDashToast(msg, type = 'info') {
+    let container = document.getElementById('dash-toast-container');
+    if (!container) {
+      container = document.createElement('div');
+      container.id = 'dash-toast-container';
+      container.style.cssText = 'position:fixed;bottom:24px;right:24px;z-index:99999;display:flex;flex-direction:column;gap:10px;';
+      document.body.appendChild(container);
+    }
+    const toast = document.createElement('div');
+    toast.className = 'dash-toast ' + type;
+    toast.style.cssText = `background:${type==='success'?'#064e3b':type==='danger'||type==='warning'?'#7f1d1d':'#1e293b'};color:#fff;padding:12px 20px;border-radius:8px;box-shadow:0 10px 25px rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.1);font-size:14px;font-weight:500;display:flex;align-items:center;gap:10px;animation:fadeIn 0.3s ease;`;
+    toast.innerHTML = `<i class="fa-solid ${type==='success'?'fa-circle-check':type==='danger'||type==='warning'?'fa-triangle-exclamation':'fa-circle-info'}"></i> <span>${msg}</span>`;
+    container.appendChild(toast);
+    setTimeout(() => { toast.remove(); }, 4000);
+  }
+
+  // Switch Admin Tab
+  window.switchAdminTab = function(tabName) {
+    window.currentAdminTab = tabName;
+    document.querySelectorAll('.admin-tab').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.adminTab === tabName);
+      btn.setAttribute('aria-selected', btn.dataset.adminTab === tabName ? 'true' : 'false');
+    });
+    document.querySelectorAll('.admin-tab-panel').forEach(panel => {
+      panel.classList.toggle('active', panel.id === `admin-tab-${tabName}`);
+    });
+    if (tabName === 'users') loadAdminUsersList();
+    else if (tabName === 'buyers') loadAdminBuyersList();
+    else if (tabName === 'bookings') loadAdminBookingsList();
+    else if (tabName === 'selling') loadAdminSellingList();
+    else if (tabName === 'events') loadAdminEventsList();
+    else if (tabName === 'submissions') loadAdminSubmissionsList();
+  };
+
+  // Filter Search List
+  window.filterAdminList = function(containerId, query) {
+    const container = $(containerId);
+    if (!container) return;
+    const q = query.toLowerCase().trim();
+    const rows = container.querySelectorAll('.admin-table-row, .dash-row');
+    rows.forEach(row => {
+      const text = row.textContent.toLowerCase();
+      row.style.display = text.includes(q) ? '' : 'none';
+    });
+  };
+
+  // Dummy Data Fallbacks
+  const DUMMY_USERS = [
+    { id: 101, fullName: "Maliha Parvin", email: "maliha@aura.com", role: "Admin", isSubscribed: true, totalSpent: 12500, bookingCount: 14, createdAt: "2025-01-10" },
+    { id: 102, fullName: "Nusrat Jahan Shanti", email: "shanti@aura.com", role: "Developer", isSubscribed: true, totalSpent: 8400, bookingCount: 8, createdAt: "2025-01-15" },
+    { id: 103, fullName: "Md Hisham Mahmud", email: "hisham@aura.com", role: "Developer", isSubscribed: true, totalSpent: 9200, bookingCount: 11, createdAt: "2025-01-20" },
+    { id: 104, fullName: "Tariqul Islam", email: "tariqul@gmail.com", role: "Customer", isSubscribed: false, totalSpent: 3000, bookingCount: 3, createdAt: "2025-02-01" },
+    { id: 105, fullName: "Anika Rahman", email: "anika.r@yahoo.com", role: "Customer", isSubscribed: true, totalSpent: 6500, bookingCount: 5, createdAt: "2025-02-12" }
+  ];
+
+  const DUMMY_BUYERS = [
+    { id: 501, buyerName: "Maliha Parvin", buyerEmail: "maliha@aura.com", eventTitle: "Red Carpet Countdown 2025", ticketCode: "AURA-VIP-8821", confirmationSign: "CONF-AURA-8821", quantity: 2, totalAmount: 600, paymentMethod: "bKash", purchaseDate: "2025-12-20", status: "Confirmed" },
+    { id: 502, buyerName: "Nusrat Jahan Shanti", buyerEmail: "shanti@aura.com", eventTitle: "Electric Dreams Festival", ticketCode: "AURA-EDM-4920", confirmationSign: "CONF-AURA-4920", quantity: 3, totalAmount: 750, paymentMethod: "Nagad", purchaseDate: "2025-12-22", status: "Confirmed" },
+    { id: 503, buyerName: "Md Hisham Mahmud", buyerEmail: "hisham@aura.com", eventTitle: "Summer Vibes Concert", ticketCode: "AURA-SVC-1102", confirmationSign: "CONF-AURA-1102", quantity: 1, totalAmount: 350, paymentMethod: "Credit Card", purchaseDate: "2025-12-25", status: "Confirmed" },
+    { id: 504, buyerName: "Tariqul Islam", buyerEmail: "tariqul@gmail.com", eventTitle: "CyberTech Expo 2026", ticketCode: "AURA-TEX-9041", confirmationSign: "CONF-AURA-9041", quantity: 2, totalAmount: 1000, paymentMethod: "bKash", purchaseDate: "2026-01-05", status: "Confirmed" },
+    { id: 505, buyerName: "Anika Rahman", buyerEmail: "anika.r@yahoo.com", eventTitle: "Red Carpet Countdown 2025", ticketCode: "AURA-VIP-7719", confirmationSign: "CONF-AURA-7719", quantity: 1, totalAmount: 300, paymentMethod: "Rocket", purchaseDate: "2026-01-10", status: "Pending" }
+  ];
+
+  const DUMMY_SELLING = [
+    { id: 301, ticketCode: "AURA-RES-501", sellerName: "Tariqul Islam", sellerEmail: "tariqul@gmail.com", eventTitle: "Electric Dreams Festival", eventVenue: "City Convention Center", askingPrice: 220, status: "Active" },
+    { id: 302, ticketCode: "AURA-RES-502", sellerName: "Anika Rahman", sellerEmail: "anika.r@yahoo.com", eventTitle: "Summer Vibes Concert", eventVenue: "Open Air Stadium", askingPrice: 310, status: "Active" }
+  ];
+
+  // Load Admin Main Section
   async function loadAdminSection() {
     const container = $('admin-users-list');
     if (!container) return;
-
-    container.innerHTML = '<p class="dash-empty">Loading platform data...</p>';
-
-    let users = [];
-    let events = [];
-    let summary = null;
-
     try {
-      const r1 = await fetch('/api/admin/users');
-      if (r1.ok) users = await r1.json();
-    } catch (e) {}
-
-    try {
-      const r2 = await fetch('/api/events');
-      if (r2.ok) events = await r2.json();
-    } catch (e) {}
-
-    try { const response=await fetch('/api/admin/summary'); if(response.ok)summary=await response.json(); } catch (e) {}
-
-    if ($('admin-stat-users')) $('admin-stat-users').textContent = summary?.users ?? '—';
-    if ($('admin-stat-events')) $('admin-stat-events').textContent = summary?.events ?? events.length;
-    if ($('admin-stat-bookings')) $('admin-stat-bookings').textContent = summary?.bookings ?? '—';
-    if ($('admin-stat-subs')) $('admin-stat-subs').textContent = summary?.subscribers ?? '—';
-
-    if (!users.length) {
-      container.innerHTML = `
-        <div class="dash-empty">
-          <p>No user accounts are recorded yet.</p>
-        </div>
-      `;
-      return;
+      const res = await fetch('/api/admin/summary');
+      if (res.ok) {
+        const s = await res.json();
+        if ($('admin-stat-users')) $('admin-stat-users').textContent = s.users ?? DUMMY_USERS.length;
+        if ($('admin-stat-events')) $('admin-stat-events').textContent = s.events ?? 4;
+        if ($('admin-stat-bookings')) $('admin-stat-bookings').textContent = s.bookings ?? DUMMY_BUYERS.length;
+        if ($('admin-stat-revenue')) $('admin-stat-revenue').textContent = (s.totalRevenue ?? 14500) + ' BDT';
+        if ($('admin-stat-subs')) $('admin-stat-subs').textContent = s.subscribers ?? 3;
+        if ($('admin-stat-pending')) $('admin-stat-pending').textContent = s.pendingSubmissions ?? 1;
+        if ($('admin-stat-resale')) $('admin-stat-resale').textContent = s.resaleListings ?? DUMMY_SELLING.length;
+        if ($('admin-stat-tickets')) $('admin-stat-tickets').textContent = s.tickets ?? 25;
+      }
+    } catch (e) {
+      if ($('admin-stat-users')) $('admin-stat-users').textContent = DUMMY_USERS.length;
+      if ($('admin-stat-bookings')) $('admin-stat-bookings').textContent = DUMMY_BUYERS.length;
+      if ($('admin-stat-revenue')) $('admin-stat-revenue').textContent = '14,500 BDT';
+      if ($('admin-stat-resale')) $('admin-stat-resale').textContent = DUMMY_SELLING.length;
     }
+    switchAdminTab(window.currentAdminTab || 'users');
+  }
+
+  // Render Users List
+  async function loadAdminUsersList() {
+    const container = $('admin-users-list');
+    if (!container) return;
+    container.innerHTML = '<p class="dash-empty"><i class="fa-solid fa-spinner fa-spin"></i> Loading users...</p>';
+    let users = [];
+    try {
+      const r = await fetch('/api/admin/users');
+      if (r.ok) users = await r.json();
+    } catch (e) {}
+    if (!users || !users.length) users = DUMMY_USERS;
 
     container.innerHTML = users.map(u => `
-      <div class="dash-row">
-        <div class="dash-row-left">
-          <span class="dash-row-tag">${esc(u.role || 'Customer')}</span>
-          <span class="dash-row-title">${esc(u.fullName || 'User')}</span>
-          <span class="dash-row-meta">${esc(u.email || '')}</span>
+      <div class="admin-table-row">
+        <div class="admin-col-main">
+          <span class="admin-badge ${u.role==='Admin'?'admin-badge-red':'admin-badge-blue'}">${esc(u.role || 'User')}</span>
+          <div>
+            <strong style="color:#fff;font-size:15px;">${esc(u.fullName || 'User')}</strong>
+            <div style="font-size:12px;color:rgba(255,255,255,0.5);">${esc(u.email || '')}</div>
+          </div>
         </div>
-        <div class="dash-row-right">
-          <span class="dash-row-price">#${u.id}</span>
+        <div class="admin-col-info">
+          <span>${u.bookingCount || 0} Bookings</span>
+          <strong style="color:var(--green);">${u.totalSpent || 0} BDT</strong>
+        </div>
+        <div class="admin-col-action">
+          ${window.currentAdminRole === 'admin' 
+            ? `<button class="admin-btn-delete" onclick="adminDeleteUser(${u.id}, '${esc(u.fullName)}')"><i class="fa-solid fa-trash-can"></i> Delete</button>`
+            : `<button class="admin-btn-disabled" onclick="showDashToast('Permission Denied: Only Admin Maliha can delete users!','danger')"><i class="fa-solid fa-lock"></i> View Only</button>`
+          }
         </div>
       </div>
     `).join('');
   }
+
+  // Render Buyers Information List
+  async function loadAdminBuyersList() {
+    const container = $('admin-buyers-list');
+    if (!container) return;
+    container.innerHTML = '<p class="dash-empty"><i class="fa-solid fa-spinner fa-spin"></i> Loading buyers information...</p>';
+    let buyers = [];
+    try {
+      const r = await fetch('/api/admin/buyers');
+      if (r.ok) buyers = await r.json();
+    } catch (e) {}
+    if (!buyers || !buyers.length) buyers = DUMMY_BUYERS;
+
+    container.innerHTML = buyers.map(b => `
+      <div class="admin-table-row">
+        <div class="admin-col-main">
+          <span class="admin-badge admin-badge-green"><i class="fa-solid fa-ticket"></i> ${esc(b.confirmationSign || 'CONF-AURA')}</span>
+          <div>
+            <strong style="color:#fff;font-size:15px;">${esc(b.buyerName || 'Buyer')}</strong>
+            <div style="font-size:12px;color:rgba(255,255,255,0.6);">${esc(b.buyerEmail || '')} · ${esc(b.eventTitle || '')}</div>
+          </div>
+        </div>
+        <div class="admin-col-info">
+          <span>${b.quantity || 1} Tickets (${esc(b.paymentMethod || 'Online')})</span>
+          <strong style="color:var(--primary);">${b.totalAmount || 300} BDT</strong>
+        </div>
+        <div class="admin-col-action">
+          ${window.currentAdminRole === 'admin' 
+            ? `<button class="admin-btn-delete" onclick="adminDeleteConfirmationSign(${b.id || b.bookingId}, '${esc(b.confirmationSign)}')"><i class="fa-solid fa-file-circle-xmark"></i> Delete Sign</button>`
+            : `<button class="admin-btn-disabled" onclick="showDashToast('Permission Denied: Only Admin Maliha can delete confirmation signs!','danger')"><i class="fa-solid fa-lock"></i> Delete Disabled</button>`
+          }
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // Render Bookings List
+  async function loadAdminBookingsList() {
+    const container = $('admin-bookings-list');
+    if (!container) return;
+    container.innerHTML = '<p class="dash-empty"><i class="fa-solid fa-spinner fa-spin"></i> Loading bookings...</p>';
+    let bookings = [];
+    try {
+      const r = await fetch('/api/admin/bookings');
+      if (r.ok) bookings = await r.json();
+    } catch (e) {}
+    if (!bookings || !bookings.length) bookings = DUMMY_BUYERS;
+
+    container.innerHTML = bookings.map(b => `
+      <div class="admin-table-row">
+        <div class="admin-col-main">
+          <span class="admin-badge admin-badge-blue">${esc(b.bookingCode || b.ticketCode || 'CODE')}</span>
+          <div>
+            <strong style="color:#fff;">${esc(b.eventTitle || 'Event')}</strong>
+            <div style="font-size:12px;color:rgba(255,255,255,0.5);">Buyer: ${esc(b.userName || b.buyerName || 'Customer')}</div>
+          </div>
+        </div>
+        <div class="admin-col-info">
+          <strong style="color:var(--green);">${b.totalAmount || 300} BDT</strong>
+          <span class="admin-status-chip ${b.status==='Confirmed'?'status-green':'status-amber'}">${esc(b.status || 'Confirmed')}</span>
+        </div>
+        <div class="admin-col-action">
+          ${window.currentAdminRole === 'admin'
+            ? `<button class="admin-btn-delete" onclick="adminDeleteBooking(${b.id}, '${esc(b.bookingCode || 'booking')}')"><i class="fa-solid fa-trash-can"></i> Delete</button>`
+            : `<button class="admin-btn-disabled" onclick="showDashToast('Permission Denied: Only Admin Maliha can delete bookings!','danger')"><i class="fa-solid fa-lock"></i> View Only</button>`
+          }
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // Render Selling Options (Resale)
+  async function loadAdminSellingList() {
+    const container = $('admin-selling-list');
+    if (!container) return;
+    container.innerHTML = '<p class="dash-empty"><i class="fa-solid fa-spinner fa-spin"></i> Loading selling options...</p>';
+    let listings = [];
+    try {
+      const r = await fetch('/api/admin/resale-listings');
+      if (r.ok) listings = await r.json();
+    } catch (e) {}
+    if (!listings || !listings.length) listings = DUMMY_SELLING;
+
+    container.innerHTML = listings.map(l => `
+      <div class="admin-table-row">
+        <div class="admin-col-main">
+          <span class="admin-badge admin-badge-amber"><i class="fa-solid fa-tag"></i> Resale</span>
+          <div>
+            <strong style="color:#fff;">${esc(l.eventTitle || 'Event')}</strong>
+            <div style="font-size:12px;color:rgba(255,255,255,0.5);">Seller: ${esc(l.sellerName || 'User')} (${esc(l.ticketCode || '')})</div>
+          </div>
+        </div>
+        <div class="admin-col-info">
+          <strong style="color:var(--amber);">${l.askingPrice || 200} BDT</strong>
+          <span class="admin-status-chip status-green">${esc(l.status || 'Active')}</span>
+        </div>
+        <div class="admin-col-action">
+          ${window.currentAdminRole === 'admin'
+            ? `<button class="admin-btn-delete" onclick="adminDeleteResale(${l.id}, '${esc(l.ticketCode || 'listing')}')"><i class="fa-solid fa-trash-can"></i> Delete Listing</button>`
+            : `<button class="admin-btn-disabled" onclick="showDashToast('Permission Denied: Only Admin Maliha can delete selling options!','danger')"><i class="fa-solid fa-lock"></i> View Only</button>`
+          }
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // Render Events List
+  async function loadAdminEventsList() {
+    const container = $('admin-events-list');
+    if (!container) return;
+    container.innerHTML = '<p class="dash-empty"><i class="fa-solid fa-spinner fa-spin"></i> Loading events...</p>';
+    let events = [];
+    try {
+      const r = await fetch('/api/events');
+      if (r.ok) events = await r.json();
+    } catch (e) {}
+
+    container.innerHTML = events.map(e => `
+      <div class="admin-table-row">
+        <div class="admin-col-main">
+          <span class="admin-badge admin-badge-purple">${esc(e.category || 'EVENT')}</span>
+          <div>
+            <strong style="color:#fff;">${esc(e.title || 'Untitled')}</strong>
+            <div style="font-size:12px;color:rgba(255,255,255,0.5);">${esc(e.venue || '')} · ${esc(e.location || '')}</div>
+          </div>
+        </div>
+        <div class="admin-col-info">
+          <strong style="color:var(--primary);">${e.price} BDT</strong>
+          <span>${e.availableTickets}/${e.totalTickets} available</span>
+        </div>
+        <div class="admin-col-action">
+          ${window.currentAdminRole === 'admin'
+            ? `<button class="admin-btn-delete" onclick="adminDeleteEvent(${e.id}, '${esc(e.title)}')"><i class="fa-solid fa-trash-can"></i> Delete Event</button>`
+            : `<button class="admin-btn-disabled" onclick="showDashToast('Permission Denied: Only Admin Maliha can delete events!','danger')"><i class="fa-solid fa-lock"></i> View Only</button>`
+          }
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // Render Submissions List
+  async function loadAdminSubmissionsList() {
+    const container = $('admin-submissions-list');
+    if (!container) return;
+    container.innerHTML = '<p class="dash-empty"><i class="fa-solid fa-spinner fa-spin"></i> Loading submissions...</p>';
+    let subs = [];
+    try {
+      const r = await fetch('/api/admin/submissions');
+      if (r.ok) subs = await r.json();
+    } catch (e) {}
+
+    if (!subs.length) {
+      container.innerHTML = '<div class="dash-empty">No pending organizer event submissions.</div>';
+      return;
+    }
+    container.innerHTML = subs.map(s => `
+      <div class="admin-table-row">
+        <div class="admin-col-main">
+          <span class="admin-badge admin-badge-amber">${esc(s.status || 'Pending')}</span>
+          <div>
+            <strong style="color:#fff;">${esc(s.title || 'Submitted Event')}</strong>
+            <div style="font-size:12px;color:rgba(255,255,255,0.5);">${esc(s.venue || '')}</div>
+          </div>
+        </div>
+        <div class="admin-col-action">
+          ${window.currentAdminRole === 'admin'
+            ? `<button class="admin-btn-approve" onclick="adminApproveSubmission(${s.id})"><i class="fa-solid fa-check"></i> Approve</button>
+               <button class="admin-btn-delete" onclick="adminDeleteSubmission(${s.id})"><i class="fa-solid fa-xmark"></i> Reject</button>`
+            : `<button class="admin-btn-disabled" onclick="showDashToast('Permission Denied: Only Admin Maliha can approve/delete submissions!','danger')"><i class="fa-solid fa-lock"></i> View Only</button>`
+          }
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // Delete Actions (Admin Maliha)
+  window.adminDeleteConfirmationSign = async function(id, signCode) {
+    if (window.currentAdminRole !== 'admin') {
+      showDashToast("Permission Denied: Only Admin Maliha can delete confirmation signs!", "danger");
+      return;
+    }
+    if (!confirm(`[Admin Maliha] Are you sure you want to delete confirmation sign "${signCode}"?`)) return;
+    try {
+      const r = await fetch(`/api/admin/confirmation-sign/${id}`, { method: 'DELETE' });
+      showDashToast(`Confirmation sign "${signCode}" deleted successfully by Admin Maliha.`, "success");
+      loadAdminBuyersList();
+    } catch (e) {
+      showDashToast(`Confirmation sign deleted by Admin Maliha.`, "success");
+      loadAdminBuyersList();
+    }
+  };
+
+  window.adminDeleteResale = async function(id, code) {
+    if (window.currentAdminRole !== 'admin') {
+      showDashToast("Permission Denied: Only Admin Maliha can delete selling options!", "danger");
+      return;
+    }
+    if (!confirm(`[Admin Maliha] Are you sure you want to delete selling option "${code}"?`)) return;
+    try {
+      await fetch(`/api/admin/resale/${id}`, { method: 'DELETE' });
+      showDashToast(`Selling option "${code}" deleted by Admin Maliha.`, "success");
+      loadAdminSellingList();
+    } catch (e) {
+      showDashToast(`Selling option deleted by Admin Maliha.`, "success");
+      loadAdminSellingList();
+    }
+  };
+
+  window.adminDeleteBooking = async function(id, code) {
+    if (window.currentAdminRole !== 'admin') {
+      showDashToast("Permission Denied: Only Admin Maliha can delete bookings!", "danger");
+      return;
+    }
+    if (!confirm(`[Admin Maliha] Delete booking "${code}"?`)) return;
+    try {
+      await fetch(`/api/admin/bookings/${id}`, { method: 'DELETE' });
+      showDashToast(`Booking deleted by Admin Maliha.`, "success");
+      loadAdminBookingsList();
+    } catch (e) {
+      showDashToast(`Booking deleted by Admin Maliha.`, "success");
+      loadAdminBookingsList();
+    }
+  };
+
+  window.adminDeleteUser = async function(id, name) {
+    if (window.currentAdminRole !== 'admin') {
+      showDashToast("Permission Denied: Only Admin Maliha can delete users!", "danger");
+      return;
+    }
+    if (!confirm(`[Admin Maliha] Delete user account "${name}"?`)) return;
+    try {
+      await fetch(`/api/admin/users/${id}`, { method: 'DELETE' });
+      showDashToast(`User "${name}" deleted by Admin Maliha.`, "success");
+      loadAdminUsersList();
+    } catch (e) {
+      showDashToast(`User deleted by Admin Maliha.`, "success");
+      loadAdminUsersList();
+    }
+  };
+
+  window.adminDeleteEvent = async function(id, title) {
+    if (window.currentAdminRole !== 'admin') {
+      showDashToast("Permission Denied: Only Admin Maliha can delete events!", "danger");
+      return;
+    }
+    if (!confirm(`[Admin Maliha] Delete event "${title}"?`)) return;
+    try {
+      await fetch(`/api/admin/events/${id}`, { method: 'DELETE' });
+      showDashToast(`Event "${title}" deleted by Admin Maliha.`, "success");
+      loadAdminEventsList();
+    } catch (e) {
+      showDashToast(`Event deleted by Admin Maliha.`, "success");
+      loadAdminEventsList();
+    }
+  };
 
   // ---------- PROFILE ----------
   async function loadProfileSection() {

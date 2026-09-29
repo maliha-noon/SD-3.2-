@@ -503,7 +503,11 @@
         </section>
 
                 <section id="dash-section-admin" class="dash-section">
-          <h1 class="dash-page-title"><i class="fa-solid fa-shield-halved" style="color:var(--red);margin-right:10px;"></i>Admin Control Panel</h1>
+          <h1 class="dash-page-title"><i class="fa-solid fa-shield-halved" style="color:var(--red);margin-right:10px;"></i>Maliha's Admin Control Panel <span class="admin-badge-name" style="font-size:14px;background:rgba(239,68,68,0.2);color:#ef4444;padding:4px 10px;border-radius:20px;border:1px solid rgba(239,68,68,0.4);margin-left:10px;"><i class="fa-solid fa-user-shield"></i> System Admin: Maliha Parvin</span></h1>
+          <div class="admin-role-banner" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);padding:10px 16px;border-radius:10px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+            <div><i class="fa-solid fa-user-gear" style="color:var(--primary);margin-right:8px;"></i> Active View Role: <strong id="admin-current-role-display" style="color:var(--green);">System Admin (Maliha)</strong> <span style="font-size:12px;color:rgba(255,255,255,0.6);margin-left:8px;">(Anyone can view records, but only Admin Maliha can delete)</span></div>
+            <button class="btn-role-toggle" onclick="toggleAdminRole()" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:#fff;padding:6px 14px;border-radius:6px;font-size:13px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;"><i class="fa-solid fa-right-left"></i> Switch Role (Test Non-Admin View)</button>
+          </div>
           <p class="dash-page-sub">Platform-wide management — users, bookings, events, selling options &amp; submissions</p>
 
           <!-- Admin KPI Grid -->
@@ -569,6 +573,7 @@
           <!-- Admin Tab Navigation -->
           <div class="admin-tab-nav" role="tablist" aria-label="Admin panel sections">
             <button class="admin-tab active" data-admin-tab="users" role="tab" aria-selected="true" onclick="switchAdminTab('users')"><i class="fa-solid fa-users"></i> Users</button>
+            <button class="admin-tab" data-admin-tab="buyers" role="tab" aria-selected="false" onclick="switchAdminTab('buyers')"><i class="fa-solid fa-id-card"></i> Buyers Information</button>
             <button class="admin-tab" data-admin-tab="bookings" role="tab" aria-selected="false" onclick="switchAdminTab('bookings')"><i class="fa-solid fa-ticket"></i> All Bookings</button>
             <button class="admin-tab" data-admin-tab="selling" role="tab" aria-selected="false" onclick="switchAdminTab('selling')"><i class="fa-solid fa-store"></i> Selling Options</button>
             <button class="admin-tab" data-admin-tab="events" role="tab" aria-selected="false" onclick="switchAdminTab('events')"><i class="fa-solid fa-calendar"></i> Events</button>
@@ -583,6 +588,21 @@
             </div>
             <div id="admin-users-list" class="dash-list admin-table-container">
               <p class="dash-empty"><i class="fa-solid fa-spinner fa-spin"></i> Loading users...</p>
+            </div>
+          </div>
+
+          <!-- Tab Panel: Buyers Information -->
+          <div id="admin-tab-buyers" class="admin-tab-panel" role="tabpanel">
+            <div class="admin-panel-header">
+              <span class="admin-panel-title"><i class="fa-solid fa-id-card"></i> Ticket Buyers &amp; Purchase Confirmation Signs</span>
+              <input type="search" id="admin-buyer-search" placeholder="Search by buyer, email, ticket, code…" class="admin-search-input" oninput="filterAdminList('admin-buyers-list', this.value)">
+            </div>
+            <div class="admin-info-banner">
+              <i class="fa-solid fa-shield-halved"></i>
+              All purchase records and confirmation signs are visible to all users entering dashboard. <strong>Only Admin Maliha</strong> can delete selling options and purchase confirmation signs.
+            </div>
+            <div id="admin-buyers-list" class="dash-list admin-table-container">
+              <p class="dash-empty"><i class="fa-solid fa-spinner fa-spin"></i> Loading buyers information...</p>
             </div>
           </div>
 
