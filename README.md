@@ -105,6 +105,7 @@ dotnet build
 dotnet run --urls "http://localhost:5000"
 ```
 
-### 3. Open in Browser
-- **Web Application**: `http://localhost:5000`
-- **Default Admin Login**: `noonmaliha8@gmail.com` / `22222`
+
+---
+*Updated & Maintained by MD Hisham Mahmud (20230104096) for AURA+ Event Platform.*
+
